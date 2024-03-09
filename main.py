@@ -1,9 +1,16 @@
 from flask import Flask,render_template,Blueprint
 from routes.home.index import home
+from dotenv import load_dotenv
+# from config import DevConfig
+from flask_wtf.csrf import CSRFProtect
+
+load_dotenv()
+
 
 
 app = Flask(__name__)
-
+# app.config.from_object(DevConfig)
+csrf = CSRFProtect(app)
 app.register_blueprint(home)
 
 
