@@ -1,0 +1,7 @@
+{% extends 'layouts/layout.html' %} {% from 'macros/_button.html'
+import Button %} {% block title %} Login - Don Galleto {% endblock %}
+{% block content %}
+<h1>Home</h1>
+<p>Esta es la página de login</p>
+
+{{ Button('redi','primary', 'Home', False, '', '/') }} {% endblock %}

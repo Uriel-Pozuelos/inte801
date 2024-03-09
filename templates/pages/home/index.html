@@ -1,0 +1,22 @@
+{% extends 'layouts/layout.html' %} {% from 'macros/_button.html'
+import Button %} {% block title %} Home - Don Galleto {% endblock %}
+{% block content %}
+<h1>Home</h1>
+<p>Esta es la página de inicio</p>
+
+{{ Button('login','accent', 'Login', False, '', '/login') }}
+
+<p class="mt-5 text-2xl text-blue-500">
+	click para ver una alerta {{ Button('alert','primary', 'Alert',
+	True, '',)}}
+</p>
+
+<script>
+	document
+		.getElementById('alert')
+		.addEventListener('click', function () {
+			alert('Hola desde Don Galleto');
+		});
+</script>
+
+{% endblock %}
