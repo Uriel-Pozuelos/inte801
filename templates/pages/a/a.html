@@ -1,0 +1,11 @@
+<script>
+	let nombres = JSON.parse('{{nombres | tojson | safe}}');
+	console.log(nombres.map(n => n.toUpperCase()));
+</script>
+
+{% block content %}
+<p class="mt-5 text-2xl text-blue-500">
+	{% for nombre in nombres %} {{ nombre }} {% endfor %}
+</p>
+
+{% endblock %}

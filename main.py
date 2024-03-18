@@ -3,12 +3,15 @@ from routes.home.index import home
 from dotenv import load_dotenv
 # from config import DevConfig
 from flask_wtf.csrf import CSRFProtect
-
+from flask import request
+import json
+from forms import PruebaForm
 load_dotenv()
 
 
 
 app = Flask(__name__)
+app.secret_key = 'super'
 # app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
 app.register_blueprint(home)
@@ -16,8 +19,53 @@ app.register_blueprint(home)
 
 @app.route('/')
 def index():
-    return render_template('pages/index.html')
+    nombres = ['Juan', 'Pedro', 'Luis']
+    apellidos = ['Perez', 'Gomez', 'Gonzalez']
+    form = PruebaForm()
+    return render_template('pages/home/index.html', nombres=nombres, titulo='Home klkk', apellidos=apellidos, form=form)
 
+
+@app.route('/b', methods=['GET', 'POST'])
+def b():
+
+    if request.method == 'POST':
+        print(request.form)
+        datos = json.loads(request.form['datos'])
+        
+        c =json.loads(datos['nombres'])
+        print(c)
+        print(type(c))
+
+
+    nombres = ['Juan', 'Pedro', 'Luis']
+    apellidos = ['Perez', 'Gomez', 'Gonzalez']
+
+    return render_template('pages/home/index.html', nombres=nombres, titulo='Home klkk', apellidos=apellidos)
+
+
+def convertir_a_diccionario(datos):
+    """
+    Convierte una lista de tuplas en un diccionario donde
+    las claves son los primeros elementos de las tuplas y
+    los valores son las listas cargadas desde las cadenas JSON.
+    
+    Args:
+        datos: Lista de tuplas (clave, cadena JSON)
+    
+    Returns:
+        dict: Diccionario con las claves y listas correspondientes
+    """
+    diccionario = {}
+    
+    for key, value in datos:
+        diccionario[key] = json.loads(value)
+    
+    return diccionario
+
+@app.route('/a')
+def a():
+    nombres = ['Juan','Pedro','Luis']
+    return  render_template('pages/a/a.html', titulo='A klkk',nombres=nombres)
 
 
 
