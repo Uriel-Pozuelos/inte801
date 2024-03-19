@@ -1,6 +1,6 @@
 from lib import d
 
-d = d.D(debug=False)
+d = d.D()
 json_data = {
     "name": "John",
     "age": 30,

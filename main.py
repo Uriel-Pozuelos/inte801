@@ -1,7 +1,7 @@
-from flask import Flask,render_template,Blueprint
+from flask import Flask,render_template
 from routes.home.index import home
 from dotenv import load_dotenv
-# from config import DevConfig
+from config import DevConfig
 from flask_wtf.csrf import CSRFProtect
 from flask import request
 import json
@@ -11,8 +11,7 @@ load_dotenv()
 
 
 app = Flask(__name__)
-app.secret_key = 'super'
-# app.config.from_object(DevConfig)
+app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
 app.register_blueprint(home)
 
@@ -70,4 +69,8 @@ def a():
 
 
 if __name__ == '__main__':
+    csrf.init_app(app)
+    db.db.init_app(app)
+    with app.app_context():
+        db.db.create_all()
     app.run(debug=True)

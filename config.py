@@ -1,15 +1,14 @@
-import os
 from dotenv import load_dotenv
+import os
 
-envs = load_dotenv()
+load_dotenv()
 
-# class Config:
-#     SECRET_KEY:str = envs.get('SECRET_KEY')
-#     DEBUG:bool = envs.get('DEBUG')
-#     SECRET_COOKIE:str = envs.get('SECRET_COOKIE')
+class Config:
+    SECRET_KEY: str = os.getenv('SECRET_KEY')
+    DEBUG: bool = os.getenv('DEBUG').lower() == 'true'  # Convierte a booleano
+    SECRET_COOKIE: str = os.getenv('SECRET_COOKIE')
 
 
-
-# class DevConfig(Config):
-#     SQLALCHEMY_DATABASE_URI:str = envs.get('SQLALCHEMY_DATABASE_URI')
-#     SQLALCHEMY_TRACK_MODIFICATIONS:bool = envs.get('SQLALCHEMY_TRACK_MODIFICATIONS')
+class DevConfig(Config):
+    SQLALCHEMY_DATABASE_URI: str = os.getenv('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS').lower() == 'true'  # Convierte a booleano
