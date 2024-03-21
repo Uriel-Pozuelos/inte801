@@ -44,29 +44,36 @@ def login_page():
 
 @login.route('/enviar_email', methods=['GET', 'POST'])
 def enviar_email():
-    token = request.cookies.get('token')
-    if token:
-        return redirect('/home')
-    email = request.cookies.get('correo')
-    if request.method == 'POST':
-        codigo = request.form['codigo']
-        verificacion = VerificationCode.query.filter_by(email=email, code=codigo).first()
-        if verificacion:
-            response = redirect('/home')
-            role = Usuario.query.filter_by(email=email).first().rol
-            #eliminar el codigo de verificacion
-            db.session.delete(verificacion)
-            response.set_cookie('token', createToken(email, role))
-            return response
-        
-        else:
-            flash('Codigo incorrecto', 'danger')
-    verification_code = os.urandom(5).hex()
-    verification = VerificationCode(code=verification_code, email=email)
-    db.session.add(verification)
-    db.session.commit()
+    try:
+        token = request.cookies.get('token')
+        if token:
+            return redirect('/home')
+        email = request.cookies.get('correo')
+        if request.method == 'POST':
+            codigo = request.form['codigo']
+            verificacion = VerificationCode.query.filter_by(email=email, code=codigo).first()
+            if verificacion:
+                response = redirect('/home')
+                role = Usuario.query.filter_by(email=email).first().rol
+                #eliminar el codigo de verificacion
+                db.session.delete(verificacion)
+                db.session.commit()
+                #eliminar la cookie de correo
+                response.set_cookie('correo', '', expires=0)
+                response.set_cookie('token', createToken(email, role))
+                return response
+            
+            else:
+                flash('Codigo incorrecto', 'danger')
+        verification_code = os.urandom(5).hex()
+        verification = VerificationCode(code=verification_code, email=email)
+        db.session.add(verification)
+        db.session.commit()
 
-    envioEmail(email, 'Prueba', 'Bienvenido, su codigo de verificacion es: '+verification_code)
+        envioEmail(email, 'Prueba', 'Bienvenido, su codigo de verificacion es: '+verification_code)
+    except Exception as e:
+        print(e)
+        flash('Error al enviar el email', 'danger')
     return render_template('pages/login/enviar_email.html')
 
 
