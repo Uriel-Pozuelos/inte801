@@ -15,3 +15,6 @@ d.json(json_data)
 
 # Ejemplo de log con color personalizado
 d.log("Este es un mensaje con color personalizado", color='\033[95m')
+
+
+

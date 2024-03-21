@@ -6,6 +6,8 @@ from flask_wtf.csrf import CSRFProtect
 from flask import request
 import json
 from forms import PruebaForm
+from db.db import db
+from lib.jwt import token_required
 load_dotenv()
 
 
@@ -25,6 +27,7 @@ def index():
 
 
 @app.route('/b', methods=['GET', 'POST'])
+@token_required
 def b():
 
     if request.method == 'POST':
@@ -70,7 +73,7 @@ def a():
 
 if __name__ == '__main__':
     csrf.init_app(app)
-    db.db.init_app(app)
+    db.init_app(app)
     with app.app_context():
-        db.db.create_all()
+        db.create_all()
     app.run(debug=True)
