@@ -1,13 +1,14 @@
 from flask import Flask,render_template
-from routes.home.index import home
+from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
 from flask_wtf.csrf import CSRFProtect
 from flask import request
 import json
 from forms import PruebaForm
-from db.db import db
-from lib.jwt import token_required
+from models.usuario import Usuario
+from db.db import db,create_db
+from lib.jwt import token_required,allowed_roles
 load_dotenv()
 
 
@@ -15,21 +16,15 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
-app.register_blueprint(home)
+app.register_blueprint(login)
 
 
-@app.route('/')
-def index():
-    nombres = ['Juan', 'Pedro', 'Luis']
-    apellidos = ['Perez', 'Gomez', 'Gonzalez']
-    form = PruebaForm()
-    return render_template('pages/home/index.html', nombres=nombres, titulo='Home klkk', apellidos=apellidos, form=form)
 
 
 @app.route('/b', methods=['GET', 'POST'])
 @token_required
+@allowed_roles(['admin'])
 def b():
-
     if request.method == 'POST':
         print(request.form)
         datos = json.loads(request.form['datos'])
@@ -45,35 +40,23 @@ def b():
     return render_template('pages/home/index.html', nombres=nombres, titulo='Home klkk', apellidos=apellidos)
 
 
-def convertir_a_diccionario(datos):
-    """
-    Convierte una lista de tuplas en un diccionario donde
-    las claves son los primeros elementos de las tuplas y
-    los valores son las listas cargadas desde las cadenas JSON.
-    
-    Args:
-        datos: Lista de tuplas (clave, cadena JSON)
-    
-    Returns:
-        dict: Diccionario con las claves y listas correspondientes
-    """
-    diccionario = {}
-    
-    for key, value in datos:
-        diccionario[key] = json.loads(value)
-    
-    return diccionario
-
 @app.route('/a')
 def a():
-    nombres = ['Juan','Pedro','Luis']
-    return  render_template('pages/a/a.html', titulo='A klkk',nombres=nombres)
+    #obtener todos los usuarios
+    usuarios = Usuario.query.all()
+    #convertir a diccionario
+    usuarios = [usuario.serialize() for usuario in usuarios]
+    print(usuarios)
+    return 'ok'
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
     csrf.init_app(app)
-    db.init_app(app)
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
+    create_db(app)
+    app.run(debug=True, port=5000)
