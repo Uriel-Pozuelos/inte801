@@ -10,7 +10,7 @@ Lo ocupamos para poder compilar los estilos de la página usando [Tailwind CSS](
 Una vez que tengas instalado Node.js, puedes correr el siguiente comando para instalar las dependencias del proyecto:
 
 ```bash
-npm install -D tailwindcss daisyu@latest
+npm install -D tailwindcss daisyui@latest
 o
 bun add tailwindcss daisyui
 ```
