@@ -10,7 +10,7 @@ module.exports = {
 			{
 				cookies: {
 					primary: '#6F3AC5',
-					primary_hover: 'B392E8',
+					primaryh: '#B392E8',
 					secondary: '#B1D4FF',
 					accent: '#4586FF',
 					neutral: '#FFE4E4',

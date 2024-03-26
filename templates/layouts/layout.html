@@ -11,7 +11,7 @@
 			rel="stylesheet"
 			href="{{url_for('static',filename='dist/css/output.css')}}"
 		/>
-		<title>{% block title %} Don Galleto {% endblock %}</title>
+		<title>{% block title %} Cookies and Dreams {% endblock %}</title>
 
 		<style>
 			input[type='text'],
@@ -26,9 +26,7 @@
 			}
 		</style>
 	</head>
-	<body class="bg-background min-h-screen text-black">
-		<main class="container mx-auto">
+		<section>
 			{% block content %} {% endblock %}
-		</main>
-	</body>
+		</section>
 </html>
