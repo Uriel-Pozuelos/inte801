@@ -37,7 +37,13 @@ import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 					name="csrf_token"
 					value="{{ csrf_token() }}"
 				/>
-				<div class="card-actions justify-center">
+				<div class="card-actions justify-end">
+					<a
+						href="{{ url_for('login.reset_password') }}"
+						class="btn btn-accent"
+						>Olvide mi contraseña</a
+					>
+
 					<input
 						type="submit"
 						class="btn btn-secondary"
@@ -48,5 +54,13 @@ import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 			</div>
 		</div>
 	</form>
+	<script>
+		const flashMessage = document.querySelector('.flash-messages');
+		if (flashMessage) {
+			setTimeout(() => {
+				flashMessage.remove();
+			}, 5000);
+		}
+	</script>
 </section>
 {% endblock %}
