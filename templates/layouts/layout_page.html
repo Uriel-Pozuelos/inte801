@@ -12,88 +12,209 @@
 			href="{{url_for('static',filename='dist/css/output.css')}}"
 		/>
 		<title>{% block title %} Cookies and Dreams {% endblock %}</title>
-
 	</head>
 	<body class="bg-background min-h-screen overflow-hidden">
+		<nav class="bg-primary w-screen">
+			<div class="flex h-16 items-center justify-between">
+				<div
+					class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start"
+				>
+					<div
+						class="flex items-center text-white font-bold text-2xl -ml-3"
+					>
+						<a href="/">Cookies and Dreams</a>
+					</div>
+				</div>
+
+				<div class="m-8 sm:ml-6 sm:block">
+					<div class="flex space-x-4">
+						<a
+							href="#"
+							class="bg-accent text-white rounded-md px-3 py-2 text-sm font-medium"
+							aria-current="page"
+							>Usuarios</a
+						>
+						<a
+							href="#"
+							class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
+							>Proveedores</a
+						>
+						<a
+							href="#"
+							class="text-white hover:bg-accent/60 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+							>Ventas</a
+						>
+						<a
+							href="#"
+							class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
+							>Inventario</a
+						>
+						<a
+							href="#"
+							class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
+							>Recetas</a
+						>
+
+						<div class="relative inline-block text-left">
+							<div>
+								<button
+									type="button"
+									class="flex text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
+									id="options-menu"
+									aria-expanded="true"
+									aria-haspopup="true"
+								>
+									Producción
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-chevron-down"
+									>
+										<path d="m6 9 6 6 6-6" />
+									</svg>
+								</button>
+							</div>
+							<!-- opciones del select -->
+							<div
+								class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+								role="menu"
+								aria-orientation="vertical"
+								aria-labelledby="options-menu"
+							>
+								<div class="py-1" role="none">
+									<a
+										href="#"
+										class="text-gray-700 block px-4 py-2 text-sm"
+										role="menuitem"
+										tabindex="-1"
+										id="options-menu-0"
+										>P1</a
+									>
+									<a
+										href="#"
+										class="text-gray-700 block px-4 py-2 text-sm"
+										role="menuitem"
+										tabindex="-1"
+										id="options-menu-1"
+										>P2</a
+									>
+									<a
+										href="#"
+										class="text-gray-700 block px-4 py-2 text-sm"
+										role="menuitem"
+										tabindex="-1"
+										id="options-menu-2"
+										>P3</a
+									>
+								</div>
+							</div>
+						</div>
+						<!--Select de costos con opciones de c1, c2  -->
+						<div class="relative inline-block text-left">
+							<div>
+								<button
+									type="button"
+									class="flex text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
+									id="options-menu"
+									aria-expanded="true"
+									aria-haspopup="true"
+								>
+									Costos
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-chevron-down"
+									>
+										<path d="m6 9 6 6 6-6" />
+									</svg>
+								</button>
+							</div>
+							<!-- opciones del select -->
+							<div
+								class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+								role="menu"
+								aria-orientation="vertical"
+								aria-labelledby="options-menu"
+							>
+								<div class="py-1" role="none">
+									<a
+										href="#"
+										class="text-gray-700 block px-4 py-2 text-sm"
+										role="menuitem"
+										tabindex="-1"
+										id="options-menu-0"
+										>C1</a
+									>
+									<a
+										href="#"
+										class="text-gray-700 block px-4 py-2 text-sm"
+										role="menuitem"
+										tabindex="-1"
+										id="options-menu-1"
+										>C2</a
+									>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div
+					class="inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+				>
+					<!-- Logout -->
+					<div class="relative">
+						<div class="flex">
+							<button
+								type="button"
+								class="flex hover:bg-accent/60 rounded-lg text-sm"
+								aria-expanded="false"
+								aria-haspopup="true"
+							>
+								<a
+									href="#"
+									class="text-white rounded-md ps-3 py-2 text-base font-medium"
+									aria-current="page"
+									>Logout</a
+								>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-user-round-x mt-2 mx-2"
+								>
+									<path d="M2 21a8 8 0 0 1 11.873-7" />
+									<circle cx="10" cy="8" r="5" />
+									<path d="m17 17 5 5" />
+									<path d="m22 17-5 5" />
+								</svg>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
 		<main class="container mx-auto">
-            <nav class="bg-primary lg:w-full md:w-full sm:w-full">
-                <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-                    <div class="relative flex h-16 items-center justify-between">
-
-                        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                            <div class="flex items-center text-white font-bold text-2xl -ml-3">
-                                <a href="/">Cookies and Dreams</a>
-                                <!-- <img class="h-8 w-auto" src="" alt="Cookies and dreams logo"> -->
-                            </div>
-                        </div>
-                        
-                        <div class="m-8 sm:ml-6 sm:block">
-                            <div class="flex space-x-4">
-                                <a href="#" class="bg-accent text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Usuarios</a>
-                                <a href="#" class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium">Proveedores</a>
-                                <a href="#" class="text-white hover:bg-accent/60 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Ventas</a>
-                                <a href="#" class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium">Inventario</a>
-                                <a href="#" class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium">Recetas</a>
-                                
-                                <div class="relative inline-block text-left">
-                                    <div>
-                                        <button type="button" class="flex text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium" id="options-menu" aria-expanded="true" aria-haspopup="true">
-                                            Producción
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down">
-                                                <path d="m6 9 6 6 6-6"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <!-- opciones del select -->
-                                    <div class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                                        <div class="py-1" role="none">
-                                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="options-menu-0">P1</a>
-                                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="options-menu-1">P2</a>
-                                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="options-menu-2">P3</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                    <!--Select de costos con opciones de c1, c2  -->
-                                <div class="relative inline-block text-left">
-                                    <div>
-                                        <button type="button" class="flex text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium" id="options-menu" aria-expanded="true" aria-haspopup="true">
-                                            Costos
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down">
-                                                <path d="m6 9 6 6 6-6"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <!-- opciones del select -->
-                                    <div class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                                        <div class="py-1" role="none">
-                                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="options-menu-0">C1</a>
-                                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="options-menu-1">C2</a>
-                                        </div>
-                                    </div>
-                                </div>     
-                                    
-                            </div>
-                        </div>
-
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                            
-                           <!-- Logout -->
-                            <div class="relative">
-                                <div class="flex">
-                                    <button type="button" class="flex hover:bg-accent/60 rounded-lg text-sm" aria-expanded="false" aria-haspopup="true">                                                                      
-                                        <a href="#" class="text-white rounded-md ps-3 py-2 text-base font-medium" aria-current="page">Logout</a>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-round-x mt-2 mx-2">
-                                            <path d="M2 21a8 8 0 0 1 11.873-7"/><circle cx="10" cy="8" r="5"/><path d="m17 17 5 5"/><path d="m22 17-5 5"/>
-                                        </svg>
-                                    </button>
-                                </div>  
-                            </div>
-                        </div>
-
-                    </div>
-                </div>              
-            </nav>
-
 			{% block content %} {% endblock %}
 		</main>
 	</body>
