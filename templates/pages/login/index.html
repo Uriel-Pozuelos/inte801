@@ -1,7 +1,9 @@
-{% extends 'layouts/layout.html' %} {% from 'macros/_button.html'
-import Button %} {% from 'macros/_macros.html' import camposNuevos %}
-{% block title %} Login - Cookies and Dreams{% endblock %} {% block content
-%}
+{% extends 'layouts/layout_page.html' %}
+
+{% from 'macros/_button.html' import Button %} 
+{% from 'macros/_macros.html' import camposNuevos %}
+{% block title %} Login - Cookies and Dreams{% endblock %} 
+{% block content %}
 
 <style>
 	.flash-messages {
@@ -16,11 +18,21 @@ import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 		color: #fff;
 		text-align: center;
 	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	input[type='search'] {
+		background-color: white;
+	}
+	
+
 </style>
 
-<section
-	class="w-full h-screen flex justify-center items-center flex-col"
->
+<section class="w-full h-screen flex justify-center items-center flex-col">
 	<div class="flash-messages">
 		{% with messages = get_flashed_messages(with_categories=true) %}
 		{% if messages %} {% for category, message in messages %}
@@ -28,7 +40,7 @@ import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 	<form method="POST" novalidate>
-		<div class="card w-96 bg-primary text-primary-content">
+		<div class="card w-96 bg-primary text-primary_hover">
 			<div class="card-body">
 				<h2 class="card-title">Inicia sesión</h2>
 				{{ camposNuevos(form.correo) }} {{ camposNuevos(form.password)}}
@@ -37,7 +49,7 @@ import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 					name="csrf_token"
 					value="{{ csrf_token() }}"
 				/>
-				<div class="card-actions justify-end">
+				<div class="card-actions justify-center">
 					<a
 						href="{{ url_for('login.reset_password') }}"
 						class="btn btn-accent"
