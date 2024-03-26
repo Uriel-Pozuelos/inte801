@@ -27,38 +27,38 @@ import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 		<div class="alert alert-{{ category }}">{{ message }}</div>
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
+
 	<form method="POST" novalidate>
 		<div class="card w-96 bg-primary text-primary-content">
 			<div class="card-body">
-				<h2 class="card-title">Verificar correo</h2>
-				<label>
-					Codigo de verificación
-					<input
-						type="text"
-						name="codigo"
-						class="input input-bordered"
-						placeholder="Código de verificación"
-					/>
-				</label>
+				<h2 class="card-title">Cambiar contraseña</h2>
+				{{camposNuevos(form.correo)}} {{camposNuevos(form.password)}}
+				{{camposNuevos(form.confirm_password)}}
+
 				<input
 					type="hidden"
 					name="csrf_token"
 					value="{{ csrf_token() }}"
 				/>
 
-				<p class="text-xs">
-					Verifica tu correo para poder iniciar sesión
-				</p>
 				<div class="card-actions justify-end">
 					<input
 						type="submit"
 						class="btn btn-secondary"
-						value="Verificar"
-						name="verificar"
+						value="Cambiar contraseña"
+						name="enviar"
 					/>
 				</div>
 			</div>
 		</div>
 	</form>
+	<script>
+		const flashMessage = document.querySelector('.flash-messages');
+		if (flashMessage) {
+			setTimeout(() => {
+				flashMessage.remove();
+			}, 5000);
+		}
+	</script>
 </section>
 {% endblock %}

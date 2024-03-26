@@ -1,6 +1,8 @@
 from db.db import db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Enum
+
 
 
 class Usuario(db.Model):
@@ -12,7 +14,9 @@ class Usuario(db.Model):
   password = db.Column(db.String(50))
   rol = db.Column(db.String(50))
   estado = db.Column(db.String(50))
-  fecha_creacion = db.Column(db.String(50),default=db.func.current_timestamp())
+  fecha_creacion = db.Column(db.DateTime, default=db.func.current_timestamp())
+  is_blocked = db.Column(db.Boolean, default=False)
+  blocked_until = db.Column(db.DateTime, default=None)
   
   db.Index('idx_usuario_email', email, unique=True)
 
@@ -54,4 +58,17 @@ class Usuario(db.Model):
     }
 
 
+class loginLog(db.Model):
+    __tablename__ = 'login_log'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    fecha_login = db.Column(db.String(50), default=db.func.current_timestamp())
+    estado = db.Column(Enum('correcto', 'incorrecto', name='estado_enum'), default='correcto')
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'fecha_login': self.fecha_login,
+            'estado': self.estado
+        }
