@@ -1,6 +1,6 @@
 {% extends 'layouts/layout.html' %} {% from 'macros/_button.html'
 import Button %} {% from 'macros/_macros.html' import camposNuevos %}
-{% block title %} Login - Don Galleto {% endblock %} {% block content
+{% block title %} Login - Cookies and Dreams{% endblock %} {% block content
 %}
 
 <style>
@@ -31,8 +31,7 @@ import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 		<div class="card w-96 bg-primary text-primary-content">
 			<div class="card-body">
 				<h2 class="card-title">Inicia sesión</h2>
-				{{ camposNuevos(form.correo) }} {{ camposNuevos(form.password)
-				}}
+				{{ camposNuevos(form.correo) }} {{ camposNuevos(form.password)}}
 				<input
 					type="hidden"
 					name="csrf_token"
