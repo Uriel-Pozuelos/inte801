@@ -2,6 +2,7 @@ from flask import Flask,render_template
 from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
+# from csrf import CSRFProtect
 from flask_wtf.csrf import CSRFProtect
 from flask import request
 import json

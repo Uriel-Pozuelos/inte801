@@ -9,9 +9,10 @@ module.exports = {
 		themes: [
 			{
 				cookies: {
-					primary: '#4586FF',
-					secondary: '#6F3AC5',
-					accent: '#B392E8',
+					primary: '#6F3AC5',
+					primary_hover: 'B392E8',
+					secondary: '#B1D4FF',
+					accent: '#4586FF',
 					neutral: '#FFE4E4',
 					'base-100': '#1C020C',
 					background: '#FFE4E4'
