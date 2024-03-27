@@ -36,21 +36,28 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 
-	<section>
+	<section
+		class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto"
+	>
 		{% for receta in recetas %}
-		<div class="card w-96 bg-base-100 shadow-xl">
+		<div class="card w-96 bg-accent shadow-xl">
 			<figure>
 				<img
-					src="{{ url_for('static', filename='images/' + receta.id|string + '.jpg') }}"
+					src="{{ url_for('static', filename='img/' + receta.id|string + '.webp') }}"
 					alt="{{ receta.nombre }}"
+					width="100"
 				/>
 			</figure>
 			<div class="card-body">
 				<h2 class="card-title">{{ receta.nombre }}</h2>
 				<p>{{ receta.descripcion }}</p>
 				<div class="card-actions justify-end">
-					<button class="btn btn-primary">Buy Now</button>
+					<a
+					class="btn btn-primary"
+					href={{url_for('recetas.show', id=receta.id)}}>Ver</a>
+
 				</div>
+				
 			</div>
 		</div>
 		{% endfor %}

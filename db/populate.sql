@@ -213,3 +213,21 @@ INSERT INTO ingredientes (galleta_id, material_id, cantidad) VALUES
     (10, 7, 5),     -- Bicarbonato de sodio
     (10, 17, 50);  
 
+#quitar de ingredientes el campo receta
+ALTER TABLE ingredientes DROP COLUMN cantidad;
+
+#agregarlo en galleteas
+ALTER TABLE Galletas ADD COLUMN receta TEXT;
+
+#actualizar receta
+UPDATE Galletas SET receta = 'Galleta de avena con pasas' WHERE id = 1;
+UPDATE Galletas SET receta = 'Galleta de chocolate con chips de chocolate' WHERE id = 2;
+UPDATE Galletas SET receta = 'Galleta de azúcar con azúcar glass' WHERE id = 3;
+UPDATE Galletas SET receta = 'Galleta de avena con pasas y nueces' WHERE id = 4;
+UPDATE Galletas SET receta = 'Galleta de limón con coco rallado' WHERE id = 5;
+UPDATE Galletas SET receta = 'Galleta de jengibre con azúcar glass' WHERE id = 6;
+UPDATE Galletas SET receta = 'Galleta de especias con azúcar glass' WHERE id = 7;
+UPDATE Galletas SET receta = 'Galleta de miel con almendras fileteadas' WHERE id = 8;
+UPDATE Galletas SET receta = 'Galleta de chocolate con coco rallado' WHERE id = 9;
+UPDATE Galletas SET receta = 'Galleta de avena con miel' WHERE id = 10;
+

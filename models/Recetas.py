@@ -40,6 +40,7 @@ class Galletas(db.Model):
     cantidad = db.Column(db.DECIMAL(10,2), nullable=False)
     enable = db.Column(db.Integer, default=1)
     descripcion = db.Column(db.Text)
+    receta = db.Column(db.Text)
 
     def serialize(self):
         return {
@@ -48,7 +49,8 @@ class Galletas(db.Model):
             'precio': self.precio,
             'cantidad': self.cantidad,
             'enable': self.enable,
-            'descripcion': self.descripcion
+            'descripcion': self.descripcion,
+            'receta': self.receta
         }
     
 
@@ -58,6 +60,7 @@ class Ingredientes(db.Model):
     galleta_id = db.Column(db.Integer, db.ForeignKey('Galletas.id'), nullable=False)
     material_id = db.Column(db.Integer, db.ForeignKey('MateriaPrima.id'), nullable=False)
     cantidad = db.Column(db.DECIMAL(10,2), nullable=False)
+    
 
     def serialize(self):
         return {
@@ -66,3 +69,4 @@ class Ingredientes(db.Model):
             'material_id': self.material_id,
             'cantidad': self.cantidad
         }
+

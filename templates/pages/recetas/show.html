@@ -1,0 +1,163 @@
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
+import Button %} {% from 'macros/_macros.html' import camposNuevos %}
+{% block title %} Login - Cookies and Dreams{% endblock %} {% block
+content %}
+
+<style>
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	input[type='search'] {
+		background-color: white;
+	}
+</style>
+
+<section class="w-full h-screen flex flex-col">
+	<div class="flash-messages">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %} {% for category, message in messages %}
+		<div class="alert alert-{{ category }}">{{ message }}</div>
+		{% endfor %} {% endif %} {% endwith %}
+	</div>
+
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto">
+		<!-- imagen -->
+		<div>
+				<figure>
+						{% if id %}
+								<img src="{{ url_for('static', filename='img/' + id|string + '.webp') }}"
+										 alt="galleta"
+									
+								/>
+						{% else %}
+								<p>No se encontró ninguna imagen.</p>
+						{% endif %}
+				</figure>
+		</div>
+
+	
+		<form method="POST" novalidate  class="card w-96 bg-accent shadow-xl p-4 flex flex-col justify-between text-black">
+			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+			<dialog id="addIngrediente">
+				<h1>Agregar ingrediente</h1>
+				<div>
+					<label for="cantidad">Cantidad</label>
+					<input type="text" name="cantidad" id="cantidad" required>
+					<label for="ingrediente"></label>
+					<select name="ingrediente" id="ingrediente" required>
+						{% for material_option in material_options %}
+							<option value="{{ material_option }}">{{ material_option }}</option>
+						{% endfor %}
+	
+					</select>
+	
+					<input type="submit" name="add" value="Agregar">
+					<button
+							type="button"
+							id="closeDialog"
+							>Cerrar</button>
+				</div>
+			</dialog>
+			
+	
+			<div>
+					{% if not isEdit %}
+							<h2>Ingredientes</h2>
+							<ul>
+									{% for ingrediente in ingredientes %}
+											<li>{{ ingrediente.cantidad}} {{ ingrediente.tipo}} {{ ingrediente.material}}</li>
+									{% endfor %}
+							</ul>
+							<p class="text-pretty">{{ receta.receta }}</p>
+							<input type="submit" name="edit" value="Editar" class="btn btn-primary">
+							
+					{% else %}
+							<!-- Mostrar como tabla y text area -->
+							<table>
+									<thead>
+											<tr>
+												<th>Material</th>
+												<th>Cantidad</th>
+												<th>Ingrediente</th>
+												<th>Eliminar</th>
+											</tr>
+									</thead>
+									<tbody>
+											{% for ingrediente in ingredientes %}
+													<tr>
+															<td>{{ ingrediente.tipo }}</td>												
+															<td>
+																	<input type="text" name="cantidad_{{ ingrediente.id }}" value="{{ ingrediente.cantidad }}">
+															</td>
+															<td>
+																<select name="material_{{ ingrediente.id }}">
+																	{% for material_option in material_options %}
+																			<option value="{{ material_option }}" {% if material_option == ingrediente.material %} selected {% endif %}>{{ material_option }}</option>
+																	{% endfor %}
+															</select>
+															</td>
+															<td>
+																	<input type="submit" name="delete_{{ ingrediente.id }}" value="Eliminar" class="btn btn-error">
+															</td>
+													</tr>
+											{% endfor %}
+									</tbody>
+							</table>
+							
+							<textarea name="receta" id="receta" cols="30" rows="10">{{ receta.receta }}</textarea>
+							<input type="hidden" value="{{ receta.id }}" name="id">
+	
+							<input type="submit" name="save" value="Guardar" class="btn btn-primary">
+							<input type="submit" name="regret" value="Cancelar" class="btn btn-error">
+							<button id="openDialog" class="btn btn-primary" type="button">
+								Agregar ingrediente
+							</button>
+						
+					{% endif %}
+			</div>
+	</form>
+
+	<script>
+		const dialog = document.getElementById('addIngrediente');
+		const openDialog = document.getElementById('openDialog');
+		const closeDialog = document.getElementById('closeDialog');
+	
+		openDialog.addEventListener('click', () => {
+			dialog.showModal();
+		});
+	
+		closeDialog.addEventListener('click', () => {
+			dialog.close();
+		});
+	</script>
+	
+</section>
+
+
+		<script>
+			const flashMessage = document.querySelector('.flash-messages');
+			if (flashMessage) {
+				setTimeout(() => {
+					flashMessage.remove();
+				}, 5000);
+			}
+		</script>
+	</section>
+	{% endblock %}
+</section>
