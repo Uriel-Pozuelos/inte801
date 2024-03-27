@@ -156,6 +156,14 @@ def show(id):
             receta = get_galleta_by_id(id)
             ingredientes = get_ingrediente(id)
             return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
+        elif 'change' in request.form:
+            filename = f"static/img/{id}.webp"
+            file = request.files['file']
+            file.save(filename)
+
+        
+
+
 
     return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
 
