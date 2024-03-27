@@ -51,7 +51,9 @@ def a():
     return 'ok'
 
 
-
+@app.route('/p')
+def p():
+    return render_template('pages/produccion/index.html')
 
 
 
