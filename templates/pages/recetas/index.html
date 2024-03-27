@@ -1,4 +1,4 @@
-{% extends 'layouts/layout.html' %} {% from 'macros/_button.html'
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
 import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 {% block title %} Login - Cookies and Dreams{% endblock %} {% block
 content %}
@@ -28,43 +28,41 @@ content %}
 	}
 </style>
 
-<section
-	class="w-full h-screen flex justify-center items-center flex-col"
->
+<section class="w-full h-screen flex flex-col">
 	<div class="flash-messages">
 		{% with messages = get_flashed_messages(with_categories=true) %}
 		{% if messages %} {% for category, message in messages %}
 		<div class="alert alert-{{ category }}">{{ message }}</div>
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
-	<form method="POST" novalidate>
-		<div class="card w-96 bg-primary text-primary_hover">
-			<div class="card-body">
-				<h2 class="card-title">Inicia sesión</h2>
-				{{ camposNuevos(form.correo) }} {{
-				camposNuevos(form.password)}}
-				<input
-					type="hidden"
-					name="csrf_token"
-					value="{{ csrf_token() }}"
-				/>
-				<div class="card-actions justify-center">
-					<a
-						href="{{ url_for('login.reset_password') }}"
-						class="btn btn-accent"
-						>Olvide mi contraseña</a
-					>
 
-					<input
-						type="submit"
-						class="btn btn-secondary"
-						value="Iniciar sesión"
-						name="login"
-					/>
+	<section
+		class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto"
+	>
+		{% for receta in recetas %}
+		<div class="card w-96 bg-accent shadow-xl">
+			<figure>
+				<img
+					src="{{ url_for('static', filename='img/' + receta.id|string + '.webp') }}"
+					alt="{{ receta.nombre }}"
+					width="100"
+				/>
+			</figure>
+			<div class="card-body">
+				<h2 class="card-title">{{ receta.nombre }}</h2>
+				<p>{{ receta.descripcion }}</p>
+				<div class="card-actions justify-end">
+					<a
+					class="btn btn-primary"
+					href={{url_for('recetas.show', id=receta.id)}}>Ver</a>
+
 				</div>
+				
 			</div>
 		</div>
-	</form>
+		{% endfor %}
+	</section>
+
 	<script>
 		const flashMessage = document.querySelector('.flash-messages');
 		if (flashMessage) {

@@ -6,8 +6,8 @@ from config import DevConfig
 from flask_wtf.csrf import CSRFProtect
 from flask import request
 import json
-from forms import PruebaForm
 from models.usuario import Usuario
+from routes.recetas import recetas
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles
 load_dotenv()
@@ -17,6 +17,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
+app.register_blueprint(recetas)
 app.register_blueprint(login)
 
 

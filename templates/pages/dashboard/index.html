@@ -1,0 +1,44 @@
+{% extends 'layouts/layout.html' %}
+{% from 'macros/_button.html' import Button %}
+{% from 'macros/_macros.html' import camposNuevos %}
+
+{% block title %} Dashboard - Cookies and Dreams {% endblock %}
+
+{% block content %}
+
+<style>
+    .flash-messages {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: 100%;
+        max-width: 600px;
+        padding: 10px;
+        color: #fff;
+        text-align: center;
+    }
+</style>
+
+<section class="w-full h-screen flex justify-center items-center flex-col">
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
+    </div>
+    <form method="POST" novalidate>
+        <div class="card w-96 bg-primary text-primary-content">
+            <div class="card-body">
+                <h2 class="card-title">Dashboard</h2>
+                <p>Bienvenido {{ current_user.nombre }}</p>
+                <div class="card-actions justify-center">
+                    <a href="{{ url_for('login.logout') }}" class="btn btn-accent">Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+{% endblock %}
