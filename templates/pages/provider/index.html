@@ -1,0 +1,21 @@
+{% extends 'layouts/layout_page.html' %}
+
+{% from 'macros/_button.html' import Button %}
+
+{% block title %}Supplier{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Supplier</h1>
+                <hr>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                {{ Button('Add Supplier', 'primary', 'fa fa-plus', 'add_supplier') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
