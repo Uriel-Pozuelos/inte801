@@ -1,6 +1,9 @@
 from flask import Blueprint, request, render_template
 from models.Recetas import Galletas,Ingredientes,MateriaPrima,db
 from lib.d import D
+from lib.jwt import allowed_roles, token_required
+
+
 recetas = Blueprint('recetas', __name__, template_folder='templates')
 
 log = D(debug=True)
@@ -111,16 +114,18 @@ def delete_ingredientes(id):
 
     db.session.commit()
 
-    
 
 @recetas.route('/recetas')
+@token_required
 def index():
     recetas = get_Galletas()
     print(recetas)
     return render_template('pages/recetas/index.html', recetas=recetas)
 
 @recetas.route('/recetas/<int:id>', methods=['GET', 'POST'])
+@token_required
 def show(id):
+
     ingredientes = get_ingrediente(id)
     receta = get_galleta_by_id(id)
     receta = {key: receta[key] for key in ['id', 'receta']}

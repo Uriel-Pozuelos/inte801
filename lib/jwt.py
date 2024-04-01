@@ -17,22 +17,22 @@ def token_required(f):
         token = request.cookies.get('token')
 
         if not token:
-            return redirect(url_for('login.not_found')) #redirige a la pagina de login si no hay token
+            return redirect('/login') #redirige a la pagina de login si no hay token
         try:
             data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
             #si el token es valido, se ejecuta la funcion
             return f(*args, **kwargs)
         except jwt.ExpiredSignatureError:
-            return redirect(url_for('login.not_found'), message="Token expirado")
+            return redirect('/login')
         except jwt.InvalidTokenError:
-            return redirect(url_for('login.not_found'), message="Token invalido")
+            return redirect('/login')
     return decorated
 
 
 """
 Decorador para verficar los roles y permitir o negar el acceso a las rutas
 """
-def allowed_roles(roles):
+def allowed_roles(roles=['admin']):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):

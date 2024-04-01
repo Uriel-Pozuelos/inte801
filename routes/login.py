@@ -97,7 +97,8 @@ def login_page():
             if usuario.password == contraseña:
                 # Guardar como cookie el token
                 response = redirect('/home')
-                response.set_cookie('correo', email)
+                token = createToken(email, usuario.rol)
+                response.set_cookie('token', token)
 
                 # Guardar en la tabla login_log
                 save_login_log(usuario.id, 'correcto')
