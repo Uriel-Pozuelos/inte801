@@ -57,5 +57,10 @@ def a():
 if __name__ == "__main__":
     csrf.init_app(app)
     create_db(app)
-    seeder.seed_users()
+
+    with app.app_context():
+        print("Creando usuarios...")
+        seeder.seed_users()
+        print("Se crearon correctamente los usuarios...")
+
     app.run(debug=True, port=5000)
