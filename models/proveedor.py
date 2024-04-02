@@ -2,7 +2,7 @@ from db.db import db
 from sqlalchemy.orm import relationship
 
 class Proveedor(db.Model):
-    __tablename__ = "proveedores"
+    __tablename__ = "proveedor"
     id = db.Column(db.Integer, primary_key=True)
     nombre_empresa = db.Column(db.String(255), nullable=False)
     direccion_empresa = db.Column(db.String(255), nullable=False)

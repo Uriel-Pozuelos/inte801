@@ -2,8 +2,8 @@ from db.db import db
 
 class MateriaPrimaProveedor(db.Model):
     __tablename__ = 'materia_prima_proveedor'
-    materia_prima_id = db.Column(db.Integer, db.ForeignKey('MateriaPrima.id'), primary_key=True)
-    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'), primary_key=True)
+    materiaprima_id = db.Column(db.Integer, db.ForeignKey('MateriaPrima.id'), primary_key=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedor.id'), primary_key=True)
 
 class MateriaPrima(db.Model):
     __tablename__ = 'MateriaPrima'
