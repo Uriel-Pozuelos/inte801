@@ -144,12 +144,14 @@ content %}
 							value="Agregar"
 							class="btn btn-primary"
 						/>
-						<input
-							type="submit"
+						<button
+							type="button"
 							name="remove"
-							value="Eliminar"
+							id="remove"
 							class="btn btn-error"
-						/>
+						>
+							Eliminar
+						</button>
 						<button
 							type="button"
 							id="closeDialog"
@@ -212,6 +214,21 @@ content %}
 		const $id = document.getElementById('id');
 		const $pass = document.getElementById('pass');
 		const $password = document.getElementById('password');
+		const $remove = document.getElementById('remove');
+
+		$remove.addEventListener('click', () => {
+			if (confirm('¿Está seguro de eliminar este usuario?')) {
+				const form = document.querySelector('form');
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'remove';
+
+				form.appendChild(input);
+				form.submit();
+
+				openDialog.close();
+			}
+		});
 
 		openDialog.addEventListener('click', () => {
 			openDialog.showModal();
@@ -228,6 +245,7 @@ content %}
 			$action.name = 'add';
 			$pass.classList.remove('hidden');
 			$pass.classList.remove('hidden');
+			$remove.classList.add('hidden');
 
 			$nombre.value = '';
 			$apellido.value = '';
@@ -244,6 +262,7 @@ content %}
 			$action.value = 'Agregar';
 			$action.name = 'add';
 			$pass.classList.remove('hidden');
+			$remove.classList.add('hidden');
 			$nombre.value = '{{ form.nombre.data | safe }}';
 			$apellido.value = '{{ form.apellido.data | safe }}';
 			$email.value = '{{ form.email.data | safe }}';
@@ -258,6 +277,7 @@ content %}
 			$action.value = 'Editar';
 			$action.name = 'edit';
 			$pass.classList.add('hidden');
+			$remove.classList.remove('hidden');
 
 			$nombre.value = '{{ form.nombre.data | safe }}';
 			$apellido.value = '{{ form.apellido.data | safe }}';
@@ -285,6 +305,8 @@ content %}
 				$id.value = id;
 				$action.value = 'Editar';
 				$action.name = 'edit';
+				$pass.classList.add('hidden');
+				$remove.classList.remove('hidden');
 
 				openDialog.showModal();
 			});
