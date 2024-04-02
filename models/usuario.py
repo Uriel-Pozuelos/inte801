@@ -11,7 +11,7 @@ class Usuario(db.Model):
   nombre = db.Column(db.String(50))
   apellido = db.Column(db.String(50))
   email = db.Column(db.String(50))
-  password = db.Column(db.String(50))
+  password = db.Column(db.Text)
   rol = db.Column(db.String(50))
   estado = db.Column(db.String(50))
   fecha_creacion = db.Column(db.DateTime, default=db.func.current_timestamp())

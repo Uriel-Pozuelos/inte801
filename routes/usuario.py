@@ -1,6 +1,6 @@
 from flask import Blueprint, request, render_template, flash
 from models.usuario import Usuario,db
-from lib.jwt import allowed_roles, token_required,decodeToken
+from lib.jwt import allowed_roles, token_required,decodeToken,hash_password
 from forms.Usuario import UsuarioForm
 from lib.d import D
 from sqlalchemy.exc import IntegrityError
@@ -40,7 +40,7 @@ def update_usuario_by_id(id,form,role):
 
 def add_usuario(form):
     try:
-        usuario = Usuario(nombre=form.nombre.data, apellido=form.apellido.data, email=form.email.data, password=form.password.data, rol=form.rol.data,estado='activo')
+        usuario = Usuario(nombre=form.nombre.data, apellido=form.apellido.data, email=form.email.data, password=hash_password(form.password.data), rol=form.rol.data,estado='activo')
         db.session.add(usuario)
         db.session.commit()
         return True

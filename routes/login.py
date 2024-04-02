@@ -7,8 +7,7 @@ from dotenv import load_dotenv
 from db.db import db
 import datetime
 from lib.d import D
-
-from lib.jwt import allowed_roles,token_required,createToken,decodeToken
+from lib.jwt import allowed_roles,token_required,createToken,decodeToken,hash_password
 login = Blueprint('login', __name__, template_folder='templates')
 load_dotenv()
 
@@ -99,7 +98,7 @@ def login_page():
 
     if request.method == 'POST' and form.validate():
         email = form.correo.data
-        contraseña = form.password.data
+        contraseña = hash_password(form.password.data)
 
         # Consultar si el usuario existe
         usuario = Usuario.query.filter_by(email=email).first()
@@ -160,8 +159,8 @@ def reset_password():
             return redirect('/home')
 
         email = form.correo.data
-        password = form.password.data
-        confirm_password = form.confirm_password.data
+        password = hash_password(form.password.data)
+        confirm_password = hash_password(form.confirm_password.data)
 
         if request.method == 'POST':
             usuario = Usuario.query.filter_by(email=email).first()
