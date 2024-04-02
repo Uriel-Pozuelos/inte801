@@ -1,0 +1,162 @@
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
+import Button %} {% from 'macros/_macros.html' import camposNuevos %}
+{% block title %} Login - Cookies and Dreams{% endblock %} {% block
+content %}
+
+<style>
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	select,
+	input[type='search'] {
+		background-color: white !important;
+	}
+</style>
+
+<section class="w-full h-screen flex flex-col">
+	<div class="flash-messages">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %} {% for category, message in messages %}
+		<div class="alert alert-{{ category }}">{{ message }}</div>
+		{% endfor %} {% endif %} {% endwith %}
+	</div>
+	<form>
+		<section class="text-black">
+			<dialog id="addUsuario" class="dialog">
+				<div class="dialog-content">
+					<h1>Agregar Usuario</h1>
+					<div>
+						{{ camposNuevos(form.nombre) }} {{
+						camposNuevos(form.apellido) }} {{ camposNuevos(form.email)
+						}} {{ camposNuevos(form.rol) }}
+					</div>
+					<div class="modal-action">
+						<input
+							type="submit"
+							name="add"
+							id="action"
+							value="Agregar"
+							class="btn btn-primary"
+						/>
+						<input
+							type="submit"
+							name="remove"
+							value="Eliminar"
+							class="btn btn-error"
+						/>
+						<button
+							type="button"
+							id="closeDialog"
+							class="btn btn-secondary"
+						>
+							Cerrar
+						</button>
+					</div>
+				</div>
+			</dialog>
+			<div>
+				<button id="newUsuario" class="btn btn-primary">
+					Agregar Usuario
+				</button>
+				<table class="table">
+					<th>
+						<tr>
+							<td>
+								<h1>Nombres</h1>
+							</td>
+							<td>
+								<h1>Apellidos</h1>
+							</td>
+							<td>
+								<h1>Correo</h1>
+							</td>
+							<td>
+								<h1>Rol</h1>
+							</td>
+						</tr>
+					</th>
+					<tbody>
+						{% for usuario in usuarios %}
+						<tr id="usuario_{{ usuario.id }}">
+							<td>{{ usuario.nombre }}</td>
+							<td>{{ usuario.apellido }}</td>
+							<td>{{ usuario.email }}</td>
+							<td>{{ usuario.rol }}</td>
+							<td>
+								<a id="edit_{{ usuario.id }}" class="btn btn-primary"
+									>Editar</a
+								>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</form>
+	<script>
+		const openDialog = document.getElementById('addUsuario');
+		const closeDialog = document.getElementById('closeDialog');
+		const $action = document.getElementById('action');
+		const newUsuario = document.getElementById('newUsuario');
+
+		openDialog.addEventListener('click', () => {
+			openDialog.showModal();
+		});
+		closeDialog.addEventListener('click', () => {
+			dialog.close();
+		});
+
+		newUsuario.addEventListener('click', () => {
+			$action.value = 'Agregar';
+			$action.name = 'add';
+			openDialog.showModal();
+		});
+
+		//al hacer click en el boton editar debe abrir el dialogo con los datos del usuario
+		const editButtons = document.querySelectorAll('[id^="edit_"]');
+
+		editButtons.forEach(button => {
+			button.addEventListener('click', e => {
+				const id = e.target.id.split('_')[1];
+				const usuario = document.getElementById(`usuario_${id}`);
+				const nombre = usuario.children[0].innerText;
+				const apellido = usuario.children[1].innerText;
+				const email = usuario.children[2].innerText;
+				const rol = usuario.children[3].innerText;
+
+				const $nombre = document.getElementById('nombre');
+				const $apellido = document.getElementById('apellido');
+				const $email = document.getElementById('email');
+				const $rol = document.getElementById('rol');
+
+				$nombre.value = nombre;
+				$apellido.value = apellido;
+				$email.value = email;
+				$rol.value = rol;
+				$action.value = 'Editar';
+				$action.name = 'edit';
+
+				openDialog.showModal();
+			});
+		});
+	</script>
+</section>
+
+{% endblock %}

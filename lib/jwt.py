@@ -1,10 +1,12 @@
 from functools import wraps
-from flask import request,redirect,url_for
+from flask import request,redirect,url_for, flash
 import jwt
 import os
 import dotenv
 from datetime import datetime, timedelta
 envs = dotenv.dotenv_values()
+
+import hashlib
 
 """
 Decorador para verificar el token en las cookies
@@ -15,7 +17,7 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.cookies.get('token')
-
+        
         if not token:
             return redirect('/login') #redirige a la pagina de login si no hay token
         try:
@@ -23,8 +25,10 @@ def token_required(f):
             #si el token es valido, se ejecuta la funcion
             return f(*args, **kwargs)
         except jwt.ExpiredSignatureError:
+            flash('Token expirado')
             return redirect('/login')
         except jwt.InvalidTokenError:
+            flash('Token invalido')
             return redirect('/login')
     return decorated
 
@@ -95,3 +99,10 @@ def negate_login(f):
             return redirect(last_page)
         return f(*args, **kwargs)
     return decorated
+
+
+"""
+encriptar la contraseña a sha256
+"""
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()

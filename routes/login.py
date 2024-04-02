@@ -70,6 +70,9 @@ def login_page():
     form = LoginForm(request.form)
     token = request.cookies.get('token')
     if token:
+        print('-------------------------------------')
+        print('Ya hay una sesión activa')
+        print('-------------------------------------')
         return redirect('/home')
 
     if request.method == 'POST' and form.validate():
@@ -96,6 +99,7 @@ def login_page():
 
             if usuario.password == contraseña:
                 # Guardar como cookie el token
+                print('-------------------------------------')
                 response = redirect('/home')
                 token = createToken(email, usuario.rol)
                 response.set_cookie('token', token)
