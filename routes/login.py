@@ -6,10 +6,13 @@ from models.histDB import PasswordHistories
 from dotenv import load_dotenv
 from db.db import db
 import datetime
+from lib.d import D
 
 from lib.jwt import allowed_roles,token_required,createToken,decodeToken
 login = Blueprint('login', __name__, template_folder='templates')
 load_dotenv()
+
+log = D(debug=True)
 
 TIME_TO_BLOCK = 5
 
@@ -50,16 +53,28 @@ def check_user_blocked(user):
     else:
         return False
     
-def check_last_logins(user,intentos):
+def check_last_logins(user, intentos):
     last_logins = loginLog.query.filter_by(user_id=user.id).order_by(loginLog.fecha_login.desc()).limit(intentos).all()
+    
     if len(last_logins) == 3:
-        if last_logins[0].estado == 'incorrecto' and last_logins[1].estado == 'incorrecto' and last_logins[2].estado == 'incorrecto':
+        if all(login.estado == 'incorrecto' for login in last_logins):
             block_user_until(user, TIME_TO_BLOCK)
             return True
         else:
             return False
+    elif user.is_blocked == 1:  # Usuario está bloqueado
+        log.info('Usuario bloqueado')
+        current_time = datetime.now()
+        if current_time > user.blocked_until:
+            # Eliminar el estado de bloqueo
+            user.is_blocked = 0
+            user.blocked_until = None
+            db.session.commit()
+            return False  # No está bloqueado, se puede proceder
+        else:
+            return True  # Usuario aún está bloqueado
     else:
-        return False
+        return False  # No cumple con las condiciones para bloqueo
 
 def get_last_login_time(user):
     last_login = loginLog.query.filter_by(user_id=user.id).order_by(loginLog.fecha_login.desc()).first()
@@ -70,9 +85,16 @@ def login_page():
     form = LoginForm(request.form)
     token = request.cookies.get('token')
     if token:
-        print('-------------------------------------')
-        print('Ya hay una sesión activa')
-        print('-------------------------------------')
+        # validar que el token no haya expirado
+        try:
+            decodeToken(token)
+        except Exception as e:
+            print(e)
+            flash('Tu sesión ha expirado. Por favor inicia sesión de nuevo', 'danger')
+            #quito la cookie
+            response = redirect('/login')
+            response.set_cookie('token', '', expires=0)
+            return response
         return redirect('/home')
 
     if request.method == 'POST' and form.validate():
