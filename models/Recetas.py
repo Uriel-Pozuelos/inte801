@@ -1,21 +1,9 @@
 from db.db import db
 
-
-# CREATE TABLE MateriaPrima (
-#     id INT AUTO_INCREMENT PRIMARY KEY,
-#     material VARCHAR(255) NOT NULL,
-#     cantidad DECIMAL(10,2) NOT NULL,
-#     tipo VARCHAR(20) NOT NULL
-# );
-
-# CREATE TABLE RecetasGalletas (
-#     id INT AUTO_INCREMENT PRIMARY KEY,
-#     nombre_receta VARCHAR(255) NOT NULL,
-#     material_id INT NOT NULL,
-#     cantidad DECIMAL(10,2) NOT NULL,
-#     FOREIGN KEY (material_id) REFERENCES MateriaPrima(id)
-#     descripcion text,
-# );
+class MateriaPrimaProveedor(db.Model):
+    __tablename__ = 'materia_prima_proveedor'
+    materiaprima_id = db.Column(db.Integer, db.ForeignKey('MateriaPrima.id'), primary_key=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedor.id'), primary_key=True)
 
 class MateriaPrima(db.Model):
     __tablename__ = 'MateriaPrima'
@@ -23,15 +11,18 @@ class MateriaPrima(db.Model):
     material = db.Column(db.String(255), nullable=False)
     cantidad = db.Column(db.DECIMAL(10,2), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)
+    
+    # Relación muchos a muchos con Proveedor
+    proveedores = db.relationship('Proveedor', secondary='materia_prima_proveedor', backref=db.backref('materia_primas', lazy='dynamic'))
 
     def serialize(self):
         return {
             'id': self.id,
             'material': self.material,
-            'cantidad': self.cantidad,
+            'cantidad': str(self.cantidad),  # Convertir a string para la serialización JSON
             'tipo': self.tipo
         }
-    
+
 class Galletas(db.Model):
     __tablename__ = 'Galletas'
     id = db.Column(db.Integer, primary_key=True)
