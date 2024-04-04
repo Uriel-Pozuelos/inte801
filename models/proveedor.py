@@ -8,7 +8,6 @@ class Proveedor(db.Model):
     direccion_empresa = db.Column(db.String(255), nullable=False)
     telefono_empresa = db.Column(db.String(13), nullable=False)
     nombre_encargado = db.Column(db.String(255), nullable=False)
-    productos = db.Column(db.Text, nullable=False)
     estatus = db.Column(db.Integer, default=1)
     created_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=False)
@@ -23,7 +22,6 @@ class Proveedor(db.Model):
             'direccion_empresa': self.direccion_empresa,
             'telefono_empresa': self.telefono_empresa,
             'nombre_encargado': self.nombre_encargado,
-            'productos': self.productos,
             'estatus': self.estatus,
             'created_at': self.created_at,
             'updated_at': self.updated_at,

@@ -148,8 +148,6 @@ def login_page():
     return render_template('pages/login/index.html', form=form)
 
 
-
-
 @login.route('/resetPassword', methods=['GET', 'POST'])
 def reset_password():
     form = ResetPasswordForm(request.form)

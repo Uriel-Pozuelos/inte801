@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, Response
-from forms.ProveedorForm import ProveedorForm
+from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
 from models.proveedor import Proveedor
 from datetime import datetime
 from db.db import db
@@ -29,7 +29,6 @@ def new_provider():
         direccion_empresa = request.form.get("direccion_empresa")
         telefono_empresa = request.form.get("telefono_empresa")
         nombre_encargado = request.form.get("nombre_encargado")
-        productos = request.form.get("productos")
         estatus = 1
         created_at = fecha
         updated_at = fecha
@@ -40,7 +39,6 @@ def new_provider():
             direccion_empresa=direccion_empresa,
             telefono_empresa=telefono_empresa,
             nombre_encargado=nombre_encargado,
-            productos=productos,
             estatus=estatus,
             created_at=created_at,
             updated_at=updated_at,
@@ -59,7 +57,7 @@ def new_provider():
 @token_required
 def ed_provider():
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    form = ProveedorForm()
+    form = ProveedorEditForm()
 
     if request.method == "POST" and form.validate():
         id = form.id.data
@@ -68,7 +66,6 @@ def ed_provider():
         proveedor.direccion_empresa = form.direccion_empresa.data
         proveedor.telefono_empresa = form.telefono_empresa.data
         proveedor.nombre_atencion = form.nombre_atencion.data
-        proveedor.productos = form.productos.data
         proveedor.estatus = form.estatus.data
         proveedor.updated_at = fecha
 

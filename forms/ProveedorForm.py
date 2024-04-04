@@ -23,11 +23,19 @@ class ProveedorForm():
         Length(min=4, max=25, message="El nombre de la persona de atención debe tener entre 4 y 25 caracteres.")
     ], render_kw={"class": "input input-bordered w-full max-w-xs text-black"})
     
-    productos = TextAreaField('Productos', validators=[
-        DataRequired(message="Los productos son obligatorios."),
-    ], render_kw={"class": "input input-bordered w-full max-w-xs text-black"})
-    
     created_at = DateTimeField('Fecha de creación')
     updated_at = DateTimeField('Fecha de actualización')
     deleted_at = DateTimeField('Fecha de eliminación')
     
+class ProveedorEditForm():
+    id = IntegerField("id")
+
+    nombre_empresa  = StringField('Nombre de la empresa')
+
+    direccion_empresa = StringField('Dirección de la empresa')
+
+    telefono_empresa = StringField('Teléfono de la empresa')
+
+    nombre_encargado = StringField('Nombre del encargado')
+
+    updated_at = DateTimeField('Fecha de actualización')
