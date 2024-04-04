@@ -106,3 +106,18 @@ encriptar la contraseña a sha256
 """
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+
+"""
+obtener el rol del token
+"""
+def get_role():
+    try:
+        token = request.cookies.get('token')
+        data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+        return data['role']
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+    
