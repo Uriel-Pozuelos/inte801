@@ -1,21 +1,100 @@
-{% extends 'layouts/layout_page.html' %}
-
-{% from 'macros/_button.html' import Button %}
-
-{% block title %}Supplier{% endblock %}
-
-{% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1>Supplier</h1>
-                <hr>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                {{ Button('Add Supplier', 'primary', 'fa fa-plus', 'add_supplier') }}
-            </div>
-        </div>
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
+import Button %} {% from 'macros/_proveedor.html' import addProv,txtArea %}
+{% block title %} Login - Cookies and Dreams{% endblock %} {% block
+content %}
+<style>
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	select,
+	input[type='search'] {
+		background-color: white !important;
+	}
+</style>
+<section class="w-full h-screen flex flex-col">
+    <!-- Flash meesage -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
     </div>
+
+    <section
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto">
+        <!-- Button Dialog -->
+        <button class="btn btn-primary" id="btnAddProvider">
+            Agregar Proveedor
+        </button>
+
+        <!-- Form Add -->
+        <form action="{{ url_for(new_provider) }}" method="POST">
+            <section class="text-black">
+                <dialog id="addProvider" class="dialog">
+                    <div class="dialog-content">
+                        <div class="form-group mt-3">
+                            {{ addProv("Nombre de empresa", "", "str_nombre_empresa") }}
+                        </div>
+                        <div class="form-group mt-3">
+                            {{ addProv("Dirección de empresa", "", "str_direccion") }}
+                        </div>
+                        <div class="form-group mt-3">
+                            {{ addProv("Teléfono de empresa", "", "str_telefono") }}
+                        </div>
+                        <div class="form-group mt-3">
+                            {{ addProv("Persona atendió", "", "str_atencion") }}
+                        </div>
+                        <div class="form-group mt-3">
+                            {{ txtArea("Productos", "", "str_productos") }}
+                        </div>
+                        <div class="form-group mt-3">
+                            <button type="submit"
+                                class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary"
+                                id="btnCloseProvider">Cerrar</button>
+                        </div>
+                    </div>   
+                </dialog>
+            </section>
+        </form>
+    </section>
+</section>
+
+<!-- Javascript -->
+<script>
+    const flashMessage = document.querySelector('.flash-messages');
+    if (flashMessage) {
+        setTimeout(() => {
+            flashMessage.remove();
+        }, 5000);
+    }
+
+    const btnAddProvider = document.getElementById('btnAddProvider');
+    const addProvider = document.getElementById('addProvider');
+    const btnCloseProvider = document.getElementById('btnCloseProvider');
+
+    btnAddProvider.addEventListener('click', () => {
+        addProvider.showModal();
+    });
+
+    btnCloseProvider.addEventListener('click', () => {
+        addProvider.close();
+    });
+</script>
 {% endblock %}
