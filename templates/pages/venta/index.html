@@ -1,0 +1,46 @@
+{% extends 'layout/layout_page.html'%}
+{% from 'macros/_macros.html' import camposNuevos %} 
+{% block title %}Venta - Cookies and Dreams {% endblock %}
+    
+    {% block content %}
+
+    <style>
+        .flash-messages {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            color: #fff;
+            text-align: center;
+        }
+        input[type='text'],
+        input[type='number'],
+        input[type='date'],
+        input[type='datetime-local'],
+        input[type='search'] {
+            background-color: white;
+        }
+    </style>
+
+    <section class="w-full h-screen flex flex-col">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %} {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %} {% endif %} {% endwith %}
+        </div>
+
+        <form name="sent" action="/index" method="POST" class="fw-bold">
+            <div class="row bg-primary rounded-top p-2">
+                <div class="form-group col-3">
+                    {{camposNuevos(form.galleta, class="form-control")}}
+                </div>
+            </div>
+        </form>
+    </section>
+
+{% endblock %}
