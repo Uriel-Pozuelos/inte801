@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect
+from flask import Blueprint, render_template, request, flash, redirect, Response
 from forms.ProveedorForm import ProveedorForm
 from models.proveedor import Proveedor
 from datetime import datetime
@@ -24,12 +24,12 @@ def new_provider():
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     form = ProveedorForm()
 
-    if request.method == "POST" and form.validate():
-        nombre_empresa = form.str_nombre_empresa.data
-        direccion_empresa = form.str_direccion.data
-        telefono_empresa = form.str_telefono.data
-        nombre_atencion = form.str_atencion.data
-        productos = form.str_productos.data
+    if request.method == "POST":
+        nombre_empresa = request.form.get("nombre_empresa")
+        direccion_empresa = request.form.get("direccion_empresa")
+        telefono_empresa = request.form.get("telefono_empresa")
+        nombre_encargado = request.form.get("nombre_encargado")
+        productos = request.form.get("productos")
         estatus = 1
         created_at = fecha
         updated_at = fecha
@@ -39,21 +39,20 @@ def new_provider():
             nombre_empresa=nombre_empresa,
             direccion_empresa=direccion_empresa,
             telefono_empresa=telefono_empresa,
-            nombre_atencion=nombre_atencion,
+            nombre_encargado=nombre_encargado,
             productos=productos,
             estatus=estatus,
             created_at=created_at,
             updated_at=updated_at,
             deleted_at=deleted_at,
         )
-        print(proveedor)
 
-        # db.session.add(proveedor)
-        # db.session.commit()
+        db.session.add(proveedor)
+        db.session.commit()
         
-        # flash("Proveedor creado correctamente", "success")
+        flash("Proveedor creado correctamente", "success")
         
-        # return redirect("/proveedores")
+        return redirect("/proveedores")
     return render_template("pages/provider/index.html", form=form)
 
 @proveedores.route("/edit_provider", methods=["GET", "POST"])

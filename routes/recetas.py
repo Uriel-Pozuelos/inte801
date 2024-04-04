@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template,jsonify
+from flask import Blueprint, request, render_template,jsonify, Response
 from models.Recetas import Galletas,Ingredientes,MateriaPrima,db
 from models.proveedor import Proveedor
 from lib.d import D
@@ -9,11 +9,11 @@ recetas = Blueprint('recetas', __name__, template_folder='templates')
 
 log = D(debug=True)
 
-@recetas.route('/proveedores')
-def proveedores():
-    proveedores = Proveedor.query.all()
-    prov = [proveedor.serialize() for proveedor in proveedores]
-    return jsonify(prov)
+# @recetas.route('/proveedores')
+# def proveedores():
+#     proveedores = Proveedor.query.all()
+#     # prov = [proveedor.serialize() for proveedor in proveedores]
+#     return Response("ok")
 
 
 def get_Galletas():

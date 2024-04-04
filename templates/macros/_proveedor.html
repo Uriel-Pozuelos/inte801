@@ -1,13 +1,15 @@
-{% macro addProv (for="", placeholder="", id="") %}
-    <div class="form-group">
-        <label for="{{for}}">{{for}}</label>
-        <input class="form-control" type="text" name="{{id}}" id="{{id}}" placeholder="{{placeholder}}" required>
-    </div>
-{% endmacro %}
-
-{% macro txtArea (for="", placeholder="", id="") %}
+{% macro addProv (for="", placeholder="", id="", name="") %}
 <div class="form-group">
     <label for="{{for}}">{{for}}</label>
-    <textarea class="form-control" name="{{id}}" id="{{id}}" placeholder="{{placeholder}}" required></textarea>
+    <input class="form-control" type="text" name="{{name}}" id="{{id}}"
+        placeholder="{{placeholder}}" required>
+</div>
+{% endmacro %}
+
+{% macro txtArea (for="", placeholder="", id="",name="") %}
+<div class="form-group">
+    <label for="{{for}}">{{for}}</label>
+    <textarea class="form-control" name="{{name}}" id="{{id}}"
+        placeholder="{{placeholder}}" required></textarea>
 </div>
 {% endmacro %}

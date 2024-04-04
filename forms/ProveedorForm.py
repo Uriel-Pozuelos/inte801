@@ -18,7 +18,7 @@ class ProveedorForm():
         Length(min=13, max=13, message="El teléfono de la empresa debe tener 13 caracteres.")
     ], render_kw={"class": "input input-bordered w-full max-w-xs text-black"})
     
-    nombre_atencion = StringField('Nombre de la persona de atención', validators=[
+    nombre_encargado = StringField('Nombre de la persona de atención', validators=[
         DataRequired(message="El nombre de la persona de atención es obligatorio."),
         Length(min=4, max=25, message="El nombre de la persona de atención debe tener entre 4 y 25 caracteres.")
     ], render_kw={"class": "input input-bordered w-full max-w-xs text-black"})

@@ -39,29 +39,42 @@ content %}
     <section
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto">
         <!-- Button Dialog -->
-        <button class="btn btn-primary" id="btnAddProvider">
-            Agregar Proveedor
-        </button>
+        <div class="fixed top-4 right-4 float-right">
+            <button class="btn btn-primary" id="btnAddProvider">
+                Agregar Proveedor
+            </button>
+        </div>
 
         <!-- Form Add -->
-        <form action="{{ url_for(new_provider) }}" method="POST">
+        <form novalidate action="{{ url_for('proveedores.new_provider') }}"
+            method="POST">
             <section class="text-black">
                 <dialog id="addProvider" class="dialog">
                     <div class="dialog-content">
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}" />
                         <div class="form-group mt-3">
-                            {{ addProv("Nombre de empresa", "", "str_nombre_empresa") }}
+                            {{ addProv("Nombre de empresa", "",
+                            "nombre_empresa","nombre_empresa") }}
                         </div>
                         <div class="form-group mt-3">
-                            {{ addProv("Dirección de empresa", "", "str_direccion") }}
+                            {{ addProv("Dirección de empresa", "",
+                            "direccion_empresa","direccion_empresa") }}
                         </div>
                         <div class="form-group mt-3">
-                            {{ addProv("Teléfono de empresa", "", "str_telefono") }}
+                            {{ addProv("Teléfono de empresa", "",
+                            "telefono_empresa", "telefono_empresa") }}
                         </div>
                         <div class="form-group mt-3">
-                            {{ addProv("Persona atendió", "", "str_atencion") }}
+                            {{ addProv("Persona atendió", "",
+                            "nombre_encargado", "nombre_encargado")
+                            }}
                         </div>
                         <div class="form-group mt-3">
-                            {{ txtArea("Productos", "", "str_productos") }}
+                            {{ txtArea("Productos", "", "productos","productos")
+                            }}
                         </div>
                         <div class="form-group mt-3">
                             <button type="submit"
@@ -69,11 +82,48 @@ content %}
                             <button type="button" class="btn btn-secondary"
                                 id="btnCloseProvider">Cerrar</button>
                         </div>
-                    </div>   
+                    </div>
                 </dialog>
             </section>
         </form>
+
     </section>
+    <!-- Table -->
+    <table class="table-auto">
+        <thead>
+            <tr>
+                <th class="px-4 py-2">Nombre de empresa</th>
+                <th class="px-4 py-2">Dirección de empresa</th>
+                <th class="px-4 py-2">Teléfono de empresa</th>
+                <th class="px-4 py-2">Persona atendió</th>
+                <th class="px-4 py-2">Productos</th>
+                <th class="px-4 py-2">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for provider in proveedores %}
+            <tr>
+                <td class="border px-4 py-2">{{ provider.nombre_empresa }}</td>
+                <td class="border px-4 py-2">{{ provider.direccion_empresa
+                    }}</td>
+                <td class="border px-4 py-2">{{ provider.telefono_empresa
+                    }}</td>
+                <td class="border px-4 py-2">{{ provider.nombre_encargado
+                    }}</td>
+                <td class="border px-4 py-2">{{ provider.productos }}</td>
+                <td class="border px-4 py-2">
+                    <a
+                        href="{{ url_for('proveedores.ed_provider', id=provider.id) }}"
+                        class="btn btn-primary">Editar</a>
+                    <a
+                        href="{{ url_for('proveedores.del_provider', id=provider.id) }}"
+                        class="btn btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 </section>
 
 <!-- Javascript -->
