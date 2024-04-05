@@ -1,0 +1,82 @@
+{% extends 'layouts/layout_page.html' %}
+{% block content %}  
+
+  <div class="flex flex-col items-center justify-center">
+    <h1 class="text-4xl font-bold text-primary mt-5 mb-4 text-center">Producción</h1>
+    <!-- Contenedor para el botón con alineación a la derecha -->
+    <div class="w-full flex justify-end me-5 mb-4">
+        <a href={{url_for('produccion.revisar_solicitudes')}} class="btn btn-primary mt-4 me-5">Solicitudes de producción</a>
+    </div>
+</div>
+<div class="flex justify-center">
+  <div class="flex-grow table-container overflow-y-auto max-h-96 w-full max-w-3xl mr-5">
+    <table class="mt-5 table w-full text-black">
+      <!-- Encabezado de la tabla -->
+      <thead>
+        <tr>
+          <th class="text-black text-lg text-center p-5">Tipo de Galleta</th>
+          <th class="text-black text-lg text-center p-5">Cantidad</th>
+          <th class="text-black text-lg text-center p-5">Producción Actual</th>
+          <th class="text-black text-lg text-center p-5">Estatus</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prod in produccion %}
+        <!-- Buscar la solicitud correspondiente -->
+        {% for sol in solicitud %}
+        {% if sol.idSolicitud == prod.idSolicitud %}
+        <tr>
+          <td class="text-md text-center p-5">{{ sol.nombreGalleta }}</td>
+          <td class="text-md text-center p-5">{{ sol.cantidad }}</td>
+          <td class="text-md text-center p-5">{{ prod.produccionActual }}</td>
+          <td class="text-md text-center p-5">{{ prod.estatus }}</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-container ml-5 w-1/4">
+    <div class="card bg-white text-black shadow-lg rounded-lg p-5">
+      <div class="card-header text-center">
+        <h3 class="card-title font-bold">Agregar</h3>
+      </div>
+      <div class="card-body">
+        <form class="flex flex-col items-center gap-5">
+          <div class="w-full">
+            <h5 for="tipoGalleta" class="font-bold text-lg mb-2 text-center">Galletas</h5>
+            <select class="form-select w-full" id="tipoGalleta" aria-label="Seleccione el tipo de galleta">
+              <option value="" disabled selected>Selecciona el tipo de galleta</option>
+              <!-- Dropdown options -->
+            </select>
+          </div>
+          <!-- Input and button wrapper with flex and item alignment -->
+          <div class="flex items-center w-full gap-2">
+            <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad">
+            <button type="submit" class="btn btn-primary">Agregar</button>
+          </div>
+          <div class="w-full">
+            <h5 for="merma" class="font-bold text-lg mb-2 text-center">Merma</h5>
+            <select class="form-select w-full" id="ingrediente" aria-label="Seleccione el ingrediente">
+              <option value="" disabled selected>Selecciona el ingrediente</option>
+              <!-- Dropdown options -->
+            </select>
+            <input type="text" class="form-input mt-3 w-full" id="cantidadIngrediente" placeholder="Unidad de medida" readonly>
+            <div class="flex items-center w-full gap-2 mt-3">
+              <input type="number" class="form-input w-full" id="cantidadIngrediente" placeholder="Cantidad">
+              <button type="submit" class="btn btn-primary">Agregar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  
+</div>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'layouts/layout_page.html' %}
+{% block content %}
+<div class="flex flex-col items-center justify-center">
+    <h1 class="text-4xl font-bold text-primary mt-5 mb-2 text-center">Solicitud de producción</h1>
+    <div class="w-full flex justify-start ms-5 mb-5">
+        <a href={{url_for('produccion.index')}} class="btn btn-primary mt-4 ms-5">Regresar a producción</a>
+    </div>
+</div>
+<div class="flex justify-center">
+    <form action="" method="post" class="w-full max-w-7xl flex">
+        <!-- Contenedor de la tabla y la carta como flex items -->
+        <div class="flex-grow table-container overflow-y-auto max-h-96">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <table class="table w-full text-black">
+                    <!-- head -->
+                    <thead>
+                        <tr>
+                            <th class="text-black">Tipo de galleta</th>
+                            <th class="text-black">Cantidad</th>
+                            <th class="text-black">Estatus</th>
+                            <th class="text-black">Aceptar</th>
+                            <th class="text-black">Rechazar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sol in solicitud %}
+                        <tr>
+                            <td>
+                                {% for galleta in galletas %}
+                                {% if galleta.id == sol.idGalleta %}
+                                {{ galleta.nombre }}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ sol.cantidad }}</td>
+                            <td>{{ sol.estatus }}</td>
+                            <td>
+                                <input type="hidden" name="solicitud_id" value="{{ sol.idSolicitud }}">
+                                <button type="submit" name="aceptada" class="btn btn-primary">Aceptar</button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-accent reject-btn">Rechazar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- Justificación de rechazo card, inicialmente oculta y alineada a la derecha -->
+            <div class="w-1/4 hidden justification-card">
+                <div class="card bg-white shadow-xl p-5">
+                    <div class="card-body">
+                        <h2 class="card-title text-black">Justificación de rechazo</h2>
+                        <input type="hidden" id="rejection_solicitud_id" name="solicitud_id" value="">
+                        <textarea class="textarea textarea-bordered w-full h-24 bg-white text-black" placeholder="Justificación" name="justificacion"></textarea>
+                        <div class="card-actions justify-end">
+                            <button type="submit" name="rechazada" class="btn btn-primary">Enviar</button>
+                            <button type="button" class="btn btn-accent rejected-btn">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const rejectButtons = document.querySelectorAll('.reject-btn');
+        // Cambia 'cancel-btn' por 'rejected-btn' aquí
+        const cancelButton = document.querySelector('.justification-card .rejected-btn');
+        const justificationCard = document.querySelector('.justification-card');
+        const tableContainer = document.querySelector('.table-container');
+    
+        rejectButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Muestra la card de justificación
+                justificationCard.classList.remove('hidden');
+                // Ajusta el ancho de la tabla para que sea 3/4
+                tableContainer.classList.remove('lg:w-full', 'mx-auto');
+                tableContainer.classList.add('lg:w-3/4');
+                
+                // Asigna el ID de la solicitud al input dentro de la card de justificación
+                const solicitudId = this.closest('tr').querySelector('input[name="solicitud_id"]').value;
+                document.getElementById('rejection_solicitud_id').value = solicitudId;
+            });
+        });
+    
+        cancelButton.addEventListener('click', function() {
+            // Oculta la card de justificación
+            justificationCard.classList.add('hidden');
+            // Restablece el ancho de la tabla para que esté centrada y ocupe el ancho completo
+            tableContainer.classList.add('lg:w-full', 'mx-auto');
+            tableContainer.classList.remove('lg:w-3/4');
+    
+            // Opcional: Limpia el valor del textarea y el input oculto si es necesario
+            justificationCard.querySelector('textarea').value = '';
+            document.getElementById('rejection_solicitud_id').value = '';
+        });
+    });
+</script>
+
+{% endblock %}
