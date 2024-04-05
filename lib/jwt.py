@@ -1,10 +1,12 @@
 from functools import wraps
-from flask import request,redirect,url_for
+from flask import request,redirect,url_for, flash
 import jwt
 import os
 import dotenv
 from datetime import datetime, timedelta
 envs = dotenv.dotenv_values()
+
+import hashlib
 
 """
 Decorador para verificar el token en las cookies
@@ -15,24 +17,26 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.cookies.get('token')
-
+        
         if not token:
-            return redirect(url_for('login.not_found')) #redirige a la pagina de login si no hay token
+            return redirect('/login') #redirige a la pagina de login si no hay token
         try:
             data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
             #si el token es valido, se ejecuta la funcion
             return f(*args, **kwargs)
         except jwt.ExpiredSignatureError:
-            return redirect(url_for('login.not_found'), message="Token expirado")
+            flash('Token expirado')
+            return redirect('/login')
         except jwt.InvalidTokenError:
-            return redirect(url_for('login.not_found'), message="Token invalido")
+            flash('Token invalido')
+            return redirect('/login')
     return decorated
 
 
 """
 Decorador para verficar los roles y permitir o negar el acceso a las rutas
 """
-def allowed_roles(roles):
+def allowed_roles(roles=['admin']):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -95,3 +99,25 @@ def negate_login(f):
             return redirect(last_page)
         return f(*args, **kwargs)
     return decorated
+
+
+"""
+encriptar la contraseña a sha256
+"""
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+"""
+obtener el rol del token
+"""
+def get_role():
+    try:
+        token = request.cookies.get('token')
+        data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+        return data['role']
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+    

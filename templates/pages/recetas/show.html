@@ -23,8 +23,9 @@ content %}
 	input[type='date'],
 	input[type='time'],
 	input[type='datetime-local'],
+	select,
 	input[type='search'] {
-		background-color: white;
+		background-color: white !important;
 	}
 </style>
 
@@ -38,13 +39,22 @@ content %}
 
   <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto">
 		<!-- imagen -->
-		<div>
+		<div class="flex justify-center">
+			
+
 				<figure>
 						{% if id %}
 								<img src="{{ url_for('static', filename='img/' + id|string + '.webp') }}"
 										 alt="galleta"
+										 
 									
 								/>
+								{% if isEdit %}
+								<button class="btn btn-primary" type="button" id="openDialog2" align="center">
+									Cambiar imagen
+
+									</button>
+								{% endif %}
 						{% else %}
 								<p>No se encontró ninguna imagen.</p>
 						{% endif %}
@@ -52,44 +62,90 @@ content %}
 		</div>
 
 	
-		<form method="POST" novalidate  class="card w-96 bg-accent shadow-xl p-4 flex flex-col justify-between text-black">
+		<form method="POST" novalidate  class="card w-[700px] bg-accent shadow-xl p-4 flex flex-col justify-between text-black" enctype="multipart/form-data">
+			<dialog id="changeImage" class="modal" class="text-white">
+				
+				<div class="modal-box px-32 py-4">
+					<h1>Cambiar imagen</h1>
+				<img src="{{ url_for('static', filename='img/' + id|string + '.webp') }}"
+						 alt="galleta"
+						 width="200"
+						 height="200"
+						 id="img"
+						 class="my-4"
+				/>
+				<input type="file" name="file" id="file"
+				class="file-input file-input-bordered w-full max-w-xs bg-white"  
+				>
+
+				
+				<div class="modal-action" class="my-4">
+					<input type="submit" name="change" value="Cambiar" class="btn btn-primary">
+				<button
+						type="button"
+						id="closeDialog2"
+						class="btn btn-error"
+						>Cerrar</button>
+				</div>
+				</div>
+			</dialog>
 			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-			<dialog id="addIngrediente">
-				<h1>Agregar ingrediente</h1>
-				<div>
-					<label for="cantidad">Cantidad</label>
-					<input type="text" name="cantidad" id="cantidad" required>
-					<label for="ingrediente"></label>
-					<select name="ingrediente" id="ingrediente" required>
-						{% for material_option in material_options %}
-							<option value="{{ material_option }}">{{ material_option }}</option>
+			<dialog id="addIngrediente" class="modal" class="text-white">
+				<h1
+				class="text-pretty text-2xl font-bold text-center"
+				>Agregar ingrediente</h1>
+				<div class="modal-box px-32 py-4">
+					<label for="cantidad"
+					class="text-pretty text-sm text-white"
+					>Cantidad</label>
+					<input type="text" name="cantidad" id="cantidad" required class="input input-bordered w-full max-w-xs">
+					<div>
+						<label for="ingrediente" class="text-pretty text-sm text-white">
+							Ingrediente
+						</label>
+						<select name="ingrediente" id="ingrediente" required class="select select-bordered w-full max-w-xs bg-white">
+							{% for material_option in material_options %}
+								<option value="{{ material_option }}">{{ material_option }}</option>
+					</div>
 						{% endfor %}
 	
 					</select>
 	
-					<input type="submit" name="add" value="Agregar">
+					<div class="modal-action">
+						<input type="submit" name="add" value="Agregar"
+						class="btn btn-primary"
+						>
 					<button
 							type="button"
+							class="btn btn-error"
 							id="closeDialog"
 							>Cerrar</button>
 				</div>
+					</div>
 			</dialog>
 			
 	
 			<div>
 					{% if not isEdit %}
-							<h2>Ingredientes</h2>
+							<h2
+							class="text-pretty text-2xl font-bold text-center"
+							>Ingredientes</h2>
 							<ul>
 									{% for ingrediente in ingredientes %}
-											<li>{{ ingrediente.cantidad}} {{ ingrediente.tipo}} {{ ingrediente.material}}</li>
+											<li
+											class="text-pretty text-lg "
+											>{{ ingrediente.cantidad}} {{ ingrediente.tipo}} {{ ingrediente.material}}</li>
 									{% endfor %}
 							</ul>
-							<p class="text-pretty">{{ receta.receta }}</p>
+							<p class="text-pretty text-lg my-4">{{ receta.receta }}</p>
 							<input type="submit" name="edit" value="Editar" class="btn btn-primary">
+							<a href="/recetas"
+							class="btn btn-error"
+							>Regresar</a>
 							
 					{% else %}
 							<!-- Mostrar como tabla y text area -->
-							<table>
+							<table class="table">
 									<thead>
 											<tr>
 												<th>Material</th>
@@ -103,10 +159,12 @@ content %}
 													<tr>
 															<td>{{ ingrediente.tipo }}</td>												
 															<td>
-																	<input type="text" name="cantidad_{{ ingrediente.id }}" value="{{ ingrediente.cantidad }}">
+																	<input type="text" name="cantidad_{{ ingrediente.id }}" value="{{ ingrediente.cantidad }}"
+																	class="input input-bordered w-full max-w-xs"
+																	>
 															</td>
 															<td>
-																<select name="material_{{ ingrediente.id }}">
+																<select name="material_{{ ingrediente.id }}" class="select select-bordered w-full max-w-xs bg-white">
 																	{% for material_option in material_options %}
 																			<option value="{{ material_option }}" {% if material_option == ingrediente.material %} selected {% endif %}>{{ material_option }}</option>
 																	{% endfor %}
@@ -120,32 +178,67 @@ content %}
 									</tbody>
 							</table>
 							
-							<textarea name="receta" id="receta" cols="30" rows="10">{{ receta.receta }}</textarea>
+							<div class="flex flex-col">
+								<textarea name="receta" id="receta" cols="30" rows="10"
+								class="textarea textarea-bordered  text-black"
+								style="background-color: white;"
+								>{{ receta.receta }}</textarea>
 							<input type="hidden" value="{{ receta.id }}" name="id">
+							</div>
 	
-							<input type="submit" name="save" value="Guardar" class="btn btn-primary">
+							<div class="flex justify-between my-4">
+								<input type="submit" name="save" value="Guardar" class="btn btn-primary">
 							<input type="submit" name="regret" value="Cancelar" class="btn btn-error">
 							<button id="openDialog" class="btn btn-primary" type="button">
 								Agregar ingrediente
 							</button>
+							</div>
 						
 					{% endif %}
 			</div>
 	</form>
 
 	<script>
-		const dialog = document.getElementById('addIngrediente');
-		const openDialog = document.getElementById('openDialog');
-		const closeDialog = document.getElementById('closeDialog');
-	
-		openDialog.addEventListener('click', () => {
-			dialog.showModal();
-		});
-	
-		closeDialog.addEventListener('click', () => {
-			dialog.close();
-		});
-	</script>
+    const dialog = document.getElementById('addIngrediente');
+    const dialog2 = document.getElementById('changeImage');
+    const openDialog = document.getElementById('openDialog');
+    const openDialog2 = document.getElementById('openDialog2');
+    const closeDialog = document.getElementById('closeDialog');
+    const closeDialog2 = document.getElementById('closeDialog2');
+    const img = document.getElementById('img');
+    const fileInput = document.getElementById('file'); // Cambiado a fileInput para evitar la duplicación de nombres
+
+    openDialog.addEventListener('click', () => {
+        dialog.showModal();
+    });
+
+    closeDialog.addEventListener('click', () => {
+        dialog.close();
+    });
+
+    openDialog2.addEventListener('click', () => {
+        dialog2.showModal();
+    });
+
+    closeDialog2.addEventListener('click', () => {
+        dialog2.close();
+        // Limpiar el input file
+        fileInput.value = '';
+        img.src = ''; // Limpiar la imagen
+    });
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0]; // Obtener el primer archivo seleccionado
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                img.src = event.target.result; // Establecer la imagen src con el contenido del archivo seleccionado
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
 	
 </section>
 

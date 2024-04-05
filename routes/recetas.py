@@ -1,9 +1,20 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template,jsonify
 from models.Recetas import Galletas,Ingredientes,MateriaPrima,db
+from models.proveedor import Proveedor
 from lib.d import D
+from lib.jwt import allowed_roles, token_required
+
+
 recetas = Blueprint('recetas', __name__, template_folder='templates')
 
 log = D(debug=True)
+
+@recetas.route('/proveedores')
+def proveedores():
+    proveedores = Proveedor.query.all()
+    prov = [proveedor.serialize() for proveedor in proveedores]
+    return jsonify(prov)
+
 
 def get_Galletas():
     galletas = Galletas.query.all()
@@ -111,16 +122,18 @@ def delete_ingredientes(id):
 
     db.session.commit()
 
-    
 
 @recetas.route('/recetas')
+@token_required
 def index():
     recetas = get_Galletas()
     print(recetas)
     return render_template('pages/recetas/index.html', recetas=recetas)
 
 @recetas.route('/recetas/<int:id>', methods=['GET', 'POST'])
+@token_required
 def show(id):
+
     ingredientes = get_ingrediente(id)
     receta = get_galleta_by_id(id)
     receta = {key: receta[key] for key in ['id', 'receta']}
@@ -156,6 +169,14 @@ def show(id):
             receta = get_galleta_by_id(id)
             ingredientes = get_ingrediente(id)
             return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
+        elif 'change' in request.form:
+            filename = f"static/img/{id}.webp"
+            file = request.files['file']
+            file.save(filename)
+
+        
+
+
 
     return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
 

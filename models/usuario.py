@@ -11,12 +11,14 @@ class Usuario(db.Model):
   nombre = db.Column(db.String(50))
   apellido = db.Column(db.String(50))
   email = db.Column(db.String(50))
-  password = db.Column(db.String(50))
+  password = db.Column(db.Text)
   rol = db.Column(db.String(50))
   estado = db.Column(db.String(50))
   fecha_creacion = db.Column(db.DateTime, default=db.func.current_timestamp())
   is_blocked = db.Column(db.Boolean, default=False)
   blocked_until = db.Column(db.DateTime, default=None)
+  updated_at = db.Column(db.DateTime, server_default=db.func.now(),default=db.func.now(), onupdate=db.func.now())
+  deleted_at = db.Column(db.DateTime, nullable=True)
   
   db.Index('idx_usuario_email', email, unique=True)
 
@@ -54,7 +56,11 @@ class Usuario(db.Model):
       'password': self.password,
       'rol': self.rol,
       'estado': self.estado,
-      'fecha_creacion': self.fecha_creacion
+      'fecha_creacion': self.fecha_creacion,
+      'is_blocked': self.is_blocked,
+      'blocked_until': self.blocked_until,
+      'updated_at': self.updated_at,
+      'deleted_at': self.deleted_at
     }
 
 

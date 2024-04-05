@@ -1,0 +1,320 @@
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
+import Button %} {% from 'macros/_macros.html' import camposNuevos %}
+{% block title %} Login - Cookies and Dreams{% endblock %} {% block
+content %}
+
+<style>
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	select,
+	input[type='search'] {
+		background-color: white !important;
+	}
+</style>
+
+<section class="w-full h-screen flex flex-col">
+	<div class="flash-messages">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %} {% for category, message in messages %}
+		<div class="alert alert-{{ category }}">{{ message }}</div>
+		{% endfor %} {% endif %} {% endwith %}
+	</div>
+	<form novalidate method="POST">
+		<input
+			type="hidden"
+			name="csrf_token"
+			value="{{ csrf_token() }}"
+		/>
+		<section class="text-black">
+			<dialog id="addUsuario" class="dialog">
+				<div class="dialog-content">
+					<h1>Agregar Usuario</h1>
+					<div>
+						<div>{{ camposNuevos(form.id) }}</div>
+						<div>
+							{{ camposNuevos(form.nombre) }}
+							<ul>
+								{% if errors.nombre %}
+								<li
+									style="
+										color: red;
+										font-size: 12px;
+										font-weight: bold;
+										list-style: none;
+									"
+								>
+									{{ errors.nombre[0] }}
+								</li>
+								{% endif %}
+							</ul>
+						</div>
+						<div>
+							{{ camposNuevos(form.apellido) }}
+							<ul>
+								{% if errors.apellido %}
+								<li
+									style="
+										color: red;
+										font-size: 12px;
+										font-weight: bold;
+										list-style: none;
+									"
+								>
+									{{ errors.apellido[0] }}
+								</li>
+								{% endif %}
+							</ul>
+						</div>
+						<div>
+							{{ camposNuevos(form.email) }}
+							<ul>
+								{% if errors.email %}
+								<li
+									style="
+										color: red;
+										font-size: 12px;
+										font-weight: bold;
+										list-style: none;
+									"
+								>
+									{{ errors.email[0] }}
+								</li>
+								{% endif %}
+							</ul>
+						</div>
+						<div class="hidden" id="pass">
+							{{ camposNuevos(form.password) }}
+							<ul>
+								{% if errors.password %}
+								<li
+									style="
+										color: red;
+										font-size: 12px;
+										font-weight: bold;
+										list-style: none;
+									"
+								>
+									{{ errors.password[0] }}
+								</li>
+								{% endif %}
+							</ul>
+						</div>
+
+						<div>
+							{{ camposNuevos(form.rol) }}
+							<ul>
+								{% if errors.rol %}
+								<li
+									style="
+										color: red;
+										font-size: 12px;
+										font-weight: bold;
+										list-style: none;
+									"
+								>
+									{{ errors.rol[0] }}
+								</li>
+								{% endif %}
+							</ul>
+						</div>
+					</div>
+
+					<div class="modal-action">
+						<input
+							type="submit"
+							name="add"
+							id="action"
+							value="Agregar"
+							class="btn btn-primary"
+						/>
+						<button
+							type="button"
+							name="remove"
+							id="remove"
+							class="btn btn-error"
+						>
+							Eliminar
+						</button>
+						<button
+							type="button"
+							id="closeDialog"
+							class="btn btn-secondary"
+						>
+							Cerrar
+						</button>
+					</div>
+				</div>
+			</dialog>
+			<div>
+				<button id="newUsuario" class="btn btn-primary" type="button">
+					Agregar Usuario
+				</button>
+				<table class="table">
+					<th>
+						<tr>
+							<td>
+								<h1>Nombres</h1>
+							</td>
+							<td>
+								<h1>Apellidos</h1>
+							</td>
+							<td>
+								<h1>Correo</h1>
+							</td>
+							<td>
+								<h1>Rol</h1>
+							</td>
+						</tr>
+					</th>
+					<tbody>
+						{% for usuario in usuarios %}
+						<tr id="usuario_{{ usuario.id }}">
+							<td>{{ usuario.nombre }}</td>
+							<td>{{ usuario.apellido }}</td>
+							<td>{{ usuario.email }}</td>
+							<td>{{ usuario.rol }}</td>
+							<td>
+								<a id="edit_{{usuario.id}}" class="btn btn-primary"
+									>Editar</a
+								>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</form>
+	<script>
+		const openDialog = document.getElementById('addUsuario');
+		const closeDialog = document.getElementById('closeDialog');
+		const $action = document.getElementById('action');
+		const newUsuario = document.getElementById('newUsuario');
+		const $nombre = document.getElementById('nombre');
+		const $apellido = document.getElementById('apellido');
+		const $email = document.getElementById('email');
+		const $rol = document.getElementById('rol');
+		const $id = document.getElementById('id');
+		const $pass = document.getElementById('pass');
+		const $password = document.getElementById('password');
+		const $remove = document.getElementById('remove');
+
+		$remove.addEventListener('click', () => {
+			if (confirm('¿Está seguro de eliminar este usuario?')) {
+				const form = document.querySelector('form');
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'remove';
+
+				form.appendChild(input);
+				form.submit();
+
+				openDialog.close();
+			}
+		});
+
+		closeDialog.addEventListener('click', () => {
+			openDialog.close();
+		});
+
+		newUsuario.addEventListener('click', () => {
+			$action.value = 'Agregar';
+			$action.name = 'add';
+			$pass.classList.remove('hidden');
+			$pass.classList.remove('hidden');
+			$remove.classList.add('hidden');
+
+			$nombre.value = '';
+			$apellido.value = '';
+			$email.value = '';
+			$rol.value = '';
+			$id.value = '';
+			$password.value = '';
+
+			openDialog.showModal();
+		});
+
+		if ('{{ Mode }}' == 'add' && '{{showModal}}' == 'true') {
+			openDialog.showModal();
+			$action.value = 'Agregar';
+			$action.name = 'add';
+			$pass.classList.remove('hidden');
+			$remove.classList.add('hidden');
+			$nombre.value = '{{ form.nombre.data | safe }}';
+			$apellido.value = '{{ form.apellido.data | safe }}';
+			$email.value = '{{ form.email.data | safe }}';
+			$rol.value = '{{ form.rol.data | safe }}';
+			$id.value = '{{ form.id.data | safe }}';
+			$password.value = '{{ form.password.data | safe }}';
+		} else if (
+			'{{ Mode }}' === 'edit' &&
+			'{{showModal}}' === 'true'
+		) {
+			openDialog.showModal();
+			$action.value = 'Editar';
+			$action.name = 'edit';
+			$pass.classList.add('hidden');
+			$remove.classList.remove('hidden');
+
+			$nombre.value = '{{ form.nombre.data | safe }}';
+			$apellido.value = '{{ form.apellido.data | safe }}';
+			$email.value = '{{ form.email.data | safe }}';
+			$rol.value = '{{ form.rol.data | safe }}';
+			$id.value = '{{ form.id.data | safe }}';
+		}
+
+		//al hacer click en el boton editar debe abrir el dialogo con los datos del usuario
+		const editButtons = document.querySelectorAll('[id^="edit_"]');
+
+		editButtons.forEach(button => {
+			button.addEventListener('click', e => {
+				const id = e.target.id.split('_')[1];
+				const usuario = document.getElementById(`usuario_${id}`);
+				const nombre = usuario.children[0].innerText;
+				const apellido = usuario.children[1].innerText;
+				const email = usuario.children[2].innerText;
+				const rol = usuario.children[3].innerText;
+
+				$nombre.value = nombre;
+				$apellido.value = apellido;
+				$email.value = email;
+				$rol.value = rol;
+				$id.value = id;
+				$action.value = 'Editar';
+				$action.name = 'edit';
+				$pass.classList.add('hidden');
+				$remove.classList.remove('hidden');
+
+				openDialog.showModal();
+			});
+		});
+	</script>
+
+	<script>
+		const flashMessage = document.querySelector('.flash-messages');
+		if (flashMessage) {
+			setTimeout(() => {
+				flashMessage.remove();
+			}, 5000);
+		}
+	</script>
+</section>
+
+{% endblock %}

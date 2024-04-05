@@ -213,8 +213,7 @@ INSERT INTO ingredientes (galleta_id, material_id, cantidad) VALUES
     (10, 7, 5),     -- Bicarbonato de sodio
     (10, 17, 50);  
 
-#quitar de ingredientes el campo receta
-ALTER TABLE ingredientes DROP COLUMN cantidad;
+
 
 #agregarlo en galleteas
 ALTER TABLE Galletas ADD COLUMN receta TEXT;
