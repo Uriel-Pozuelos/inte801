@@ -21,7 +21,7 @@ class Proveedor(db.Model):
             'nombre_empresa': self.nombre_empresa,
             'direccion_empresa': self.direccion_empresa,
             'telefono_empresa': self.telefono_empresa,
-            'nombre_encargado': self.nombre_atencion,
+            'nombre_encargado': self.nombre_encargado,
             'estatus': self.estatus,
             'created_at': self.created_at,
             'updated_at': self.updated_at,

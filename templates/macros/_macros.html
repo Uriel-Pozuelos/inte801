@@ -10,7 +10,8 @@
 	/>
 </span>
 
-{% endmacro %} {% macro camposNuevos(field) %}
+{% endmacro %} 
+{% macro camposNuevos(field) %}
 
 <td>{{field.label}}</td>
 <dd>{{field(**kwargs) | safe}}</dd>

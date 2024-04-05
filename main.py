@@ -8,7 +8,9 @@ from routes.recetas import recetas
 from routes.solicitud_produccion import solicitud
 from routes.poduccion import produccion
 from routes.proveedores import proveedores
+from routes.compras import compras
 from routes.usuario import usuario
+from routes.inventario_mp import inventario_mp
 from db import seeder
 import json
 from db.db import db,create_db
@@ -20,6 +22,12 @@ app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
 app.register_blueprint(recetas)
 app.register_blueprint(login)
+
+app.register_blueprint(proveedores)
+app.register_blueprint(usuario)
+app.register_blueprint(compras)
+app.register_blueprint(inventario_mp)
+
 
 @app.route("/b", methods=["GET", "POST"])
 @token_required

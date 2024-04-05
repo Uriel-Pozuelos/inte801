@@ -16,6 +16,7 @@ content %}
 		color: #fff;
 		text-align: center;
 	}
+
 	input[type='text'],
 	input[type='email'],
 	input[type='password'],
@@ -37,11 +38,7 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 	<form novalidate method="POST">
-		<input
-			type="hidden"
-			name="csrf_token"
-			value="{{ csrf_token() }}"
-		/>
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 		<section class="text-black">
 			<dialog id="addUsuario" class="dialog">
 				<div class="dialog-content">
@@ -52,14 +49,12 @@ content %}
 							{{ camposNuevos(form.nombre) }}
 							<ul>
 								{% if errors.nombre %}
-								<li
-									style="
+								<li style="
 										color: red;
 										font-size: 12px;
 										font-weight: bold;
 										list-style: none;
-									"
-								>
+									">
 									{{ errors.nombre[0] }}
 								</li>
 								{% endif %}
@@ -69,14 +64,12 @@ content %}
 							{{ camposNuevos(form.apellido) }}
 							<ul>
 								{% if errors.apellido %}
-								<li
-									style="
+								<li style="
 										color: red;
 										font-size: 12px;
 										font-weight: bold;
 										list-style: none;
-									"
-								>
+									">
 									{{ errors.apellido[0] }}
 								</li>
 								{% endif %}
@@ -86,14 +79,12 @@ content %}
 							{{ camposNuevos(form.email) }}
 							<ul>
 								{% if errors.email %}
-								<li
-									style="
+								<li style="
 										color: red;
 										font-size: 12px;
 										font-weight: bold;
 										list-style: none;
-									"
-								>
+									">
 									{{ errors.email[0] }}
 								</li>
 								{% endif %}
@@ -103,14 +94,12 @@ content %}
 							{{ camposNuevos(form.password) }}
 							<ul>
 								{% if errors.password %}
-								<li
-									style="
+								<li style="
 										color: red;
 										font-size: 12px;
 										font-weight: bold;
 										list-style: none;
-									"
-								>
+									">
 									{{ errors.password[0] }}
 								</li>
 								{% endif %}
@@ -121,14 +110,12 @@ content %}
 							{{ camposNuevos(form.rol) }}
 							<ul>
 								{% if errors.rol %}
-								<li
-									style="
+								<li style="
 										color: red;
 										font-size: 12px;
 										font-weight: bold;
 										list-style: none;
-									"
-								>
+									">
 									{{ errors.rol[0] }}
 								</li>
 								{% endif %}
@@ -137,26 +124,11 @@ content %}
 					</div>
 
 					<div class="modal-action">
-						<input
-							type="submit"
-							name="add"
-							id="action"
-							value="Agregar"
-							class="btn btn-primary"
-						/>
-						<button
-							type="button"
-							name="remove"
-							id="remove"
-							class="btn btn-error"
-						>
+						<input type="submit" name="add" id="action" value="Agregar" class="btn btn-primary" />
+						<button type="button" name="remove" id="remove" class="btn btn-error">
 							Eliminar
 						</button>
-						<button
-							type="button"
-							id="closeDialog"
-							class="btn btn-secondary"
-						>
+						<button type="button" id="closeDialog" class="btn btn-secondary">
 							Cerrar
 						</button>
 					</div>
@@ -191,9 +163,7 @@ content %}
 							<td>{{ usuario.email }}</td>
 							<td>{{ usuario.rol }}</td>
 							<td>
-								<a id="edit_{{usuario.id}}" class="btn btn-primary"
-									>Editar</a
-								>
+								<a id="edit_{{usuario.id}}" class="btn btn-primary">Editar</a>
 							</td>
 						</tr>
 						{% endfor %}
