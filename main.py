@@ -5,13 +5,14 @@ from config import DevConfig
 from flask_wtf.csrf import CSRFProtect
 from models.usuario import Usuario
 from routes.recetas import recetas
+from routes.solicitud_produccion import solicitud
+from routes.poduccion import produccion
 from routes.proveedores import proveedores
 from routes.usuario import usuario
-from db.db import db, create_db
-from lib.jwt import token_required, allowed_roles
 from db import seeder
 import json
-
+from db.db import db,create_db
+from lib.jwt import token_required,allowed_roles
 load_dotenv()
 
 app = Flask(__name__)
@@ -19,8 +20,6 @@ app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
 app.register_blueprint(recetas)
 app.register_blueprint(login)
-app.register_blueprint(proveedores)
-app.register_blueprint(usuario)
 
 @app.route("/b", methods=["GET", "POST"])
 @token_required
@@ -52,7 +51,13 @@ def a():
     # convertir a diccionario
     usuarios = [usuario.serialize() for usuario in usuarios]
     print(usuarios)
-    return "ok"
+    return 'ok'
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

@@ -79,4 +79,3 @@ class Ingredientes(db.Model):
             'updated_at': self.updated_at,
             'deleted_at': self.deleted_at
         }
-
