@@ -17,10 +17,10 @@ def index():
     ventas = Venta.query.all()
     return render_template("pages/venta/ventas.html", ventas=ventas)
 
-@ventas.route("/add_venta", methods=["GET", "POST"])
+@ventas.route("/venta", methods=["GET", "POST"])
 def new_venta():
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    form = Venta()
+    form = DetalleVenta()
     token = request.cookies.get("token")
     
     if not token:
