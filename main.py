@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request,g
 from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
@@ -11,6 +11,7 @@ from routes.proveedores import proveedores
 from routes.compras import compras
 from routes.usuario import usuario
 from routes.inventario_mp import inventario_mp
+from lib.jwt import get_role
 from db import seeder
 import json
 from db.db import db,create_db
@@ -29,6 +30,12 @@ app.register_blueprint(proveedores)
 app.register_blueprint(usuario)
 app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
+
+
+@app.before_request
+def before_request():
+    rol = get_role()
+    g.rol = rol if rol else 'invitado'
 
 
 @app.route("/b", methods=["GET", "POST"])
