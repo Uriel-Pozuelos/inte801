@@ -37,7 +37,9 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 
-  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto">
+  <section class="grid grid-cols-1 md:grid-cols-2  overflow-y-auto overflow-x-hidden px-8 place-content-between mt-4">
+		
+
 		<!-- imagen -->
 		<div class="flex justify-center">
 			
@@ -62,7 +64,7 @@ content %}
 		</div>
 
 	
-		<form method="POST" novalidate  class="card w-[700px] bg-accent shadow-xl p-4 flex flex-col justify-between text-black" enctype="multipart/form-data">
+		<form method="POST" novalidate  class="card w-[600px] bg-accent shadow-xl p-4 flex flex-col justify-between text-black" enctype="multipart/form-data">
 			<dialog id="changeImage" class="modal" class="text-white">
 				
 				<div class="modal-box px-32 py-4">
@@ -127,9 +129,22 @@ content %}
 	
 			<div>
 					{% if not isEdit %}
+							
 							<h2
-							class="text-pretty text-2xl font-bold text-center"
+							class="text-pretty text-2xl font-bold text-center text-white"
 							>Ingredientes</h2>
+							<div class="w-full flex flex-col justify-center items-center my-4">
+								<span class="text-pretty text-lg">
+									<span class="text-white">
+										Peso: 
+									</span>
+									{{ receta.pesoGalleta }} gramos
+								</span>
+								<span class="text-pretty text-lg">
+									Porciones: {{ receta.totalGalletas }} galletas
+								</span>
+	
+							</div>
 							<ul>
 									{% for ingrediente in ingredientes %}
 											<li
@@ -146,7 +161,7 @@ content %}
 					{% else %}
 							<!-- Mostrar como tabla y text area -->
 							<table class="table">
-									<thead>
+									<thead class="text-black">
 											<tr>
 												<th>Material</th>
 												<th>Cantidad</th>
@@ -197,6 +212,8 @@ content %}
 					{% endif %}
 			</div>
 	</form>
+
+	
 
 	<script>
     const dialog = document.getElementById('addIngrediente');
@@ -252,5 +269,5 @@ content %}
 			}
 		</script>
 	</section>
-	{% endblock %}
 </section>
+	{% endblock %}

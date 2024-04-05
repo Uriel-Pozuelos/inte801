@@ -127,7 +127,7 @@ def delete_ingredientes(id):
 @token_required
 def index():
     recetas = get_Galletas()
-    print(recetas)
+    log.info(recetas)
     return render_template('pages/recetas/index.html', recetas=recetas)
 
 @recetas.route('/recetas/<int:id>', methods=['GET', 'POST'])
@@ -136,9 +136,11 @@ def show(id):
 
     ingredientes = get_ingrediente(id)
     receta = get_galleta_by_id(id)
-    receta = {key: receta[key] for key in ['id', 'receta']}
+    receta = {key: receta[key] for key in ['id', 'receta', 'nombre', 'precio', 'descripcion', 'totalGalletas', 'pesoGalleta']}
     material_option = get_names_materials()
     tipo = get_tipo_material()
+
+    log.info(receta)
     
     if request.method == 'POST':
         if 'edit' in request.form:
