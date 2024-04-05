@@ -14,7 +14,6 @@ class MateriaPrima(db.Model):
     __tablename__ = 'materiaprima'
     id = db.Column(db.Integer, primary_key=True)
     material = db.Column(db.String(255), nullable=False)
-    cantidad = db.Column(db.DECIMAL(10,2), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)
     estatus = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now(),default=db.func.now())
@@ -26,7 +25,6 @@ class MateriaPrima(db.Model):
         return {
             'id': self.id,
             'material': self.material,
-            'cantidad': str(self.cantidad),  # Convertir a string para la serialización JSON
             'tipo': self.tipo
         }
 
@@ -47,7 +45,6 @@ class Galletas(db.Model):
             'id': self.id,
             'nombre': self.nombre,
             'precio': self.precio,
-            'cantidad': self.cantidad,
             'enable': self.enable,
             'descripcion': self.descripcion,
             'receta': self.receta,
@@ -60,14 +57,16 @@ class Galletas(db.Model):
 class Ingredientes(db.Model):
     __tablename__ = 'ingredientes'
     id = db.Column(db.Integer, primary_key=True)
-    galleta_id = db.Column(db.Integer, db.ForeignKey('Galletas.id'), nullable=False)
-    material_id = db.Column(db.Integer, db.ForeignKey('MateriaPrima.id'), nullable=False)
+    galleta_id = db.Column(db.Integer, db.ForeignKey('galletas.id'), nullable=False)
+    material_id = db.Column(db.Integer, db.ForeignKey('materiaprima.id'), nullable=False)
     cantidad = db.Column(db.DECIMAL(10,2), nullable=False)
     estatus = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now(),default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(),default=db.func.now(), onupdate=db.func.now())
     deleted_at = db.Column(db.DateTime, nullable=True)
     
+    # Relación muchos a uno con Galletas
+    galletas = db.relationship('Galletas', backref=db.backref('ingredientes', lazy='dynamic'))
 
     def serialize(self):
         return {
