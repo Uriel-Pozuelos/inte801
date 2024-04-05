@@ -22,6 +22,8 @@ app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
 app.register_blueprint(recetas)
 app.register_blueprint(login)
+app.register_blueprint(produccion)
+app.register_blueprint(solicitud)
 
 app.register_blueprint(proveedores)
 app.register_blueprint(usuario)
