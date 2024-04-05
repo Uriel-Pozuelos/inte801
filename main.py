@@ -8,6 +8,8 @@ from flask import request
 import json
 from models.usuario import Usuario
 from routes.recetas import recetas
+from routes.solicitud_produccion import solicitud
+from routes.poduccion import produccion
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles
 load_dotenv()
@@ -19,6 +21,8 @@ app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
 app.register_blueprint(recetas)
 app.register_blueprint(login)
+app.register_blueprint(solicitud)
+app.register_blueprint(produccion)
 
 
 
@@ -50,11 +54,6 @@ def a():
     usuarios = [usuario.serialize() for usuario in usuarios]
     print(usuarios)
     return 'ok'
-
-
-@app.route('/p')
-def p():
-    return render_template('pages/produccion/index.html')
 
 
 

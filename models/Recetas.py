@@ -21,14 +21,12 @@ class MateriaPrima(db.Model):
     __tablename__ = 'MateriaPrima'
     id = db.Column(db.Integer, primary_key=True)
     material = db.Column(db.String(255), nullable=False)
-    cantidad = db.Column(db.DECIMAL(10,2), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)
 
     def serialize(self):
         return {
             'id': self.id,
             'material': self.material,
-            'cantidad': self.cantidad,
             'tipo': self.tipo
         }
     
@@ -37,7 +35,6 @@ class Galletas(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(255), nullable=False)
     precio = db.Column(db.DECIMAL(10,2), nullable=False)
-    cantidad = db.Column(db.DECIMAL(10,2), nullable=False)
     enable = db.Column(db.Integer, default=1)
     descripcion = db.Column(db.Text)
     receta = db.Column(db.Text)
@@ -47,7 +44,6 @@ class Galletas(db.Model):
             'id': self.id,
             'nombre': self.nombre,
             'precio': self.precio,
-            'cantidad': self.cantidad,
             'enable': self.enable,
             'descripcion': self.descripcion,
             'receta': self.receta
