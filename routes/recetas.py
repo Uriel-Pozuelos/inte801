@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template,jsonify
+from flask import Blueprint, request, render_template,jsonify, Response
 from models.Recetas import Galletas,Ingredientes,MateriaPrima,db
 from models.proveedor import Proveedor
 from lib.d import D
@@ -9,11 +9,11 @@ recetas = Blueprint('recetas', __name__, template_folder='templates')
 
 log = D(debug=True)
 
-@recetas.route('/proveedores')
-def proveedores():
-    proveedores = Proveedor.query.all()
-    prov = [proveedor.serialize() for proveedor in proveedores]
-    return jsonify(prov)
+# @recetas.route('/proveedores')
+# def proveedores():
+#     proveedores = Proveedor.query.all()
+#     # prov = [proveedor.serialize() for proveedor in proveedores]
+#     return Response("ok")
 
 
 def get_Galletas():
@@ -127,7 +127,7 @@ def delete_ingredientes(id):
 @token_required
 def index():
     recetas = get_Galletas()
-    print(recetas)
+    log.info(recetas)
     return render_template('pages/recetas/index.html', recetas=recetas)
 
 @recetas.route('/recetas/<int:id>', methods=['GET', 'POST'])
@@ -136,9 +136,11 @@ def show(id):
 
     ingredientes = get_ingrediente(id)
     receta = get_galleta_by_id(id)
-    receta = {key: receta[key] for key in ['id', 'receta']}
+    receta = {key: receta[key] for key in ['id', 'receta', 'nombre', 'precio', 'descripcion', 'totalGalletas', 'pesoGalleta']}
     material_option = get_names_materials()
     tipo = get_tipo_material()
+
+    log.info(receta)
     
     if request.method == 'POST':
         if 'edit' in request.form:

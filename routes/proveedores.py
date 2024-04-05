@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, flash, redirect
-from forms.ProveedorForm import ProveedorForm
+from flask import Blueprint, render_template, request, flash, redirect, Response
+from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
 from models.proveedor import Proveedor
 from datetime import datetime
 from db.db import db
@@ -7,30 +7,29 @@ from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 
 proveedores = Blueprint("proveedores", __name__, template_folder="templates")
 
-@proveedores.route("/proveedores", methods=["GET"])
+@proveedores.route("/proveedores", methods=["GET", "POST"])
+@token_required
 def index():
-    token = request.cookies.get("token")
-    if not token:
-        return redirect("/login")
+    form = ProveedorForm()
     proveedores = Proveedor.query.all()
-    return render_template("pages/provider/index.html", proveedores=proveedores)
+    
+    if request.method == 'POST':
+        pass
+    
+    return render_template("pages/provider/index.html", proveedores=proveedores, form=form)
 
 @proveedores.route("/add_provider", methods=["GET", "POST"])
+@token_required
 def new_provider():
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     form = ProveedorForm()
-    token = request.cookies.get("token")
 
-    if not token:
-        return redirect("/login")
-
-    if request.method == "POST" and form.validate():
-        nombre_empresa = form.nombre_empresa.data
-        direccion_empresa = form.direccion_empresa.data
-        telefono_empresa = form.telefono_empresa.data
-        nombre_atencion = form.nombre_atencion.data
-        productos = form.productos.data
-        estatus = form.estatus.data
+    if request.method == "POST":
+        nombre_empresa = request.form.get("nombre_empresa")
+        direccion_empresa = request.form.get("direccion_empresa")
+        telefono_empresa = request.form.get("telefono_empresa")
+        nombre_encargado = request.form.get("nombre_encargado")
+        estatus = 1
         created_at = fecha
         updated_at = fecha
         deleted_at = None
@@ -39,8 +38,7 @@ def new_provider():
             nombre_empresa=nombre_empresa,
             direccion_empresa=direccion_empresa,
             telefono_empresa=telefono_empresa,
-            nombre_atencion=nombre_atencion,
-            productos=productos,
+            nombre_encargado=nombre_encargado,
             estatus=estatus,
             created_at=created_at,
             updated_at=updated_at,
@@ -56,13 +54,10 @@ def new_provider():
     return render_template("pages/provider/index.html", form=form)
 
 @proveedores.route("/edit_provider", methods=["GET", "POST"])
+@token_required
 def ed_provider():
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    form = ProveedorForm()
-    token = request.cookies.get("token")
-
-    if not token:
-        return redirect("/login")
+    form = ProveedorEditForm()
 
     if request.method == "POST" and form.validate():
         id = form.id.data
@@ -71,7 +66,6 @@ def ed_provider():
         proveedor.direccion_empresa = form.direccion_empresa.data
         proveedor.telefono_empresa = form.telefono_empresa.data
         proveedor.nombre_atencion = form.nombre_atencion.data
-        proveedor.productos = form.productos.data
         proveedor.estatus = form.estatus.data
         proveedor.updated_at = fecha
 
@@ -86,11 +80,7 @@ def ed_provider():
 def del_provider():
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     form = ProveedorForm()
-    token = request.cookies.get("token")
-
-    if not token:
-        return redirect("/login")
-
+    
     if request.method == "POST" and form.validate():
         id = form.id.data
         proveedor = Proveedor.query.get(id)
