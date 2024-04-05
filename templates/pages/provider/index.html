@@ -1,5 +1,5 @@
 {% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
-import Button %} {% from 'macros/_proveedor.html' import addProv,txtArea %}
+import Button %} {% from 'macros/_proveedor.html' import addProv,edProv,delProv %}
 {% block title %} Login - Cookies and Dreams{% endblock %} {% block
 content %}
 <style>
@@ -44,39 +44,6 @@ content %}
                 Agregar Proveedor
             </button>
         </div>
-
-        <!-- Form Add -->
-        <form novalidate action="{{ url_for('proveedores.new_provider') }}" method="POST">
-            <section class="text-black">
-                <dialog id="addProvider" class="dialog">
-                    <div class="dialog-content">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                        <div class="form-group mt-3">
-                            {{ addProv("Nombre de empresa", "",
-                            "nombre_empresa","nombre_empresa") }}
-                        </div>
-                        <div class="form-group mt-3">
-                            {{ addProv("Dirección de empresa", "",
-                            "direccion_empresa","direccion_empresa") }}
-                        </div>
-                        <div class="form-group mt-3">
-                            {{ addProv("Teléfono de empresa", "",
-                            "telefono_empresa", "telefono_empresa") }}
-                        </div>
-                        <div class="form-group mt-3">
-                            {{ addProv("Persona atendió", "",
-                            "nombre_encargado", "nombre_encargado")
-                            }}
-                        </div>
-                        <div class="form-group mt-3">
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                            <button type="button" class="btn btn-secondary" id="btnCloseProvider">Cerrar</button>
-                        </div>
-                    </div>
-                </dialog>
-            </section>
-        </form>
-
     </section>
 
     <!-- Table -->
@@ -108,7 +75,7 @@ content %}
                                 <button id="edit_{{provider.id}}" class="btn btn-secondary">
                                     Editar
                                 </button>
-                                <button id="btnDelProvider" class="btn btn-danger">
+                                <button id="del_{{provider.id}}" class="btn btn-danger">
                                     Eliminar
                                 </button>
                             </td>
@@ -120,14 +87,95 @@ content %}
         </section>
     </div>
 
+    <!-- Form Add -->
+    <form novalidate action="{{ url_for('proveedores.new_provider') }}" method="POST">
+        <section class="text-black">
+            <dialog id="addProvider" class="dialog">
+                <div class="dialog-content">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <div class="form-group mt-3">
+                        {{ addProv("Nombre de empresa", "",
+                        "nombre_empresa","nombre_empresa") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ addProv("Dirección de empresa", "",
+                        "direccion_empresa","direccion_empresa") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ addProv("Teléfono de empresa", "",
+                        "telefono_empresa", "telefono_empresa") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ addProv("Persona atendió", "",
+                        "nombre_encargado", "nombre_encargado")
+                        }}
+                    </div>
+                    <div class="form-group mt-3">
+                        <button type="button" class="btn btn-primary" id="btnAddRow">Agregar Fila</button>
+                        <button type="button" class="btn btn-danger" id="btnRemoveRow">Eliminar Fila</button>
+                    </div>
+                    <div id="rows-container">
+
+                    </div>
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger" id="btnCloseProvider">Cerrar</button>
+                    </div>
+                </div>
+            </dialog>
+        </section>
+    </form>
+
     <!-- Dialog Edit -->
-    <form action="" novalidate method="POST">
+    <form novalidate action="{{ url_for('proveedores.ed_provider') }}" method="POST">
         <section class="text-black">
             <dialog id="editProvider" class="dialog">
                 <div class="dialog-content">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <input type="hidden" name="id" id="id">
                     <div class="form-group mt-3">
-                        
+                        {{ edProv("Nombre de empresa", "", "nombre_empresa_edit", "nombre_empresa_edit") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ edProv("Dirección de empresa", "", "direccion_empresa_edit", "direccion_empresa_edit") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ edProv("Teléfono empresa", "", "telefono_empresa_edit", "telefono_empresa_edit") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ edProv("Nombre encargado", "", "nombre_encargado_edit", "nombre_encargado_edit") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                        <button type="button" class="btn btn-danger" id="btnCloseProvider">Cerrar</button>
+                    </div>
+                </div>
+            </dialog>
+        </section>
+    </form>
+
+    <!-- Dialog Delete -->
+    <form novalidate action="{{ url_for('proveedores.del_provider') }}" method="POST">
+        <section class="text-black">
+            <dialog id="delProvider" class="dialog">
+                <div class="dialog-content">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <input type="hidden" name="id_del" id="id_del">
+                    <div class="form-group mt-3">
+                        {{ delProv("Nombre de empresa", "nombre_empresa_del", "nombre_empresa_del") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ delProv("Dirección de empresa", "direccion_empresa_del", "direccion_empresa_del") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ delProv("Teléfono de empresa", "telefono_empresa_del", "telefono_empresa_del") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        {{ delProv("Nombre de encargado", "nombre_encargado_del", "nombre_encargado_del") }}
+                    </div>
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-primary">Eliminar</button>
+                        <button type="button" class="btn btn-danger" id="btnCloseProvider">Cerrar</button>
                     </div>
                 </div>
             </dialog>
@@ -144,11 +192,67 @@ content %}
         }, 5000);
     }
 
-    const btnAddProvider = document.getElementById('btnAddProvider');
     const addProvider = document.getElementById('addProvider');
     const editProvider = document.getElementById('editProvider');
+    const delProvider = document.getElementById('delProvider');
+    const btnAddProvider = document.getElementById('btnAddProvider');
     const btnCloseProvider = document.getElementById('btnCloseProvider');
 
+    document.querySelectorAll('[id^="edit_"]').forEach(item => {
+        item.addEventListener('click', event => {
+            const id = item.id.split('_')[1];
+            const nombre_empresa = document.querySelector(`#proveedor_${id} td:nth-child(1)`).innerText;
+            const direccion_empresa = document.querySelector(`#proveedor_${id} td:nth-child(2)`).innerText;
+            const telefono_empresa = document.querySelector(`#proveedor_${id} td:nth-child(3)`).innerText;
+            const nombre_encargado = document.querySelector(`#proveedor_${id} td:nth-child(4)`).innerText;
+
+            document.querySelector('#nombre_empresa_edit').value = nombre_empresa;
+            document.querySelector('#direccion_empresa_edit').value = direccion_empresa;
+            document.querySelector('#telefono_empresa_edit').value = telefono_empresa;
+            document.querySelector('#nombre_encargado_edit').value = nombre_encargado;
+            document.querySelector('#id').value = id;
+
+            document.querySelector('#editProvider').showModal();
+        });
+    });
+
+    document.querySelectorAll('[id^="del_"]').forEach(item => {
+        item.addEventListener('click', event => {
+            const id = item.id.split('_')[1];
+            const nombre_empresa = document.querySelector(`#proveedor_${id} td:nth-child(1)`).innerText;
+            const direccion_empresa = document.querySelector(`#proveedor_${id} td:nth-child(2)`).innerText;
+            const telefono_empresa = document.querySelector(`#proveedor_${id} td:nth-child(3)`).innerText;
+            const nombre_encargado = document.querySelector(`#proveedor_${id} td:nth-child(4)`).innerText;
+
+            document.querySelector('#nombre_empresa_del').value = nombre_empresa;
+            document.querySelector('#direccion_empresa_del').value = direccion_empresa;
+            document.querySelector('#telefono_empresa_del').value = telefono_empresa;
+            document.querySelector('#nombre_encargado_del').value = nombre_encargado;
+            document.querySelector('#id_del').value = id;
+
+            document.querySelector('#delProvider').showModal();
+        });
+    });
+
+    const rowsContainer = document.getElementById("rows-container");
+    const btnAddRow = document.getElementById("btnAddRow");
+    const btnRemoveRow = document.getElementById("btnRemoveRow");
+
+    btnAddRow.addEventListener("click", function () {
+        const newRow = `
+                <div class="form-group mt-3">
+                    <input type="text" class="form-control" name="producto[]" placeholder="Nombre del producto">
+                    <input type="number" class="form-control" name="precio[]" placeholder="Precio del producto">
+                </div>
+            `;
+        rowsContainer.insertAdjacentHTML("beforeend", newRow);
+    });
+
+    btnRemoveRow.addEventListener("click", function () {
+        if (rowsContainer.children.length > 0) {
+            rowsContainer.removeChild(rowsContainer.lastElementChild);
+        }
+    });
 
     btnAddProvider.addEventListener('click', () => {
         addProvider.showModal();
@@ -156,26 +260,8 @@ content %}
 
     btnCloseProvider.addEventListener('click', () => {
         addProvider.close();
-    });
 
-    const editButtons = document.querySelectorAll('[id^="edit_"]');
-
-    editButtons.forEach(button => {
-        button.addEventListener('click', e =>{ 
-            const id = e.target.id.split('_')[1];
-            const proveedor = document.getElementById(`proveedor_${id}`);
-            const nombre_empresa = proveedor.children[0].innerText;
-            const direccion_empresa = proveedor.children[1].innertext;
-            const telefono_empresa = proveedor.children[2].innerText;
-            const nombre_encargado = proveedor.children[3].innerText;
-
-            $nombre_empresa.value=nombre_empresa;
-            $direccion_empresa.value=direccion_empresa;
-            $telefono_empresa.value =telefono_empresa;
-            $nombre_encargado.value=nombre_encargado;
-            $id.value =  id;
-            editProvider.showModal();
-        });
+        rowsContainer.innerHTML = '';
     });
 </script>
 {% endblock %}
