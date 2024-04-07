@@ -568,6 +568,27 @@ DELIMITER ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 
+
+DROP PROCEDURE IF EXISTS block_user;
+DELIMITER //
+CREATE PROCEDURE unblock_user(IN user_email VARCHAR(50))
+BEGIN
+    DECLARE actual_date DATETIME;
+    DECLARE blocked_until DATETIME;
+    SET actual_date = NOW();
+
+    # ver si la fecha de bloqueo es menor a la fecha actual
+    SET blocked_until = (SELECT blocked_until FROM usuario WHERE email = user_email);
+
+    IF blocked_until < actual_date THEN
+        UPDATE usuario SET is_blocked = 0, blocked_until = NULL WHERE email = user_email;
+    END IF;
+END //
+DELIMITER ;
+
+
+
+
 --
 -- Table structure for table `venta`
 --

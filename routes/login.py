@@ -6,6 +6,7 @@ from models.histDB import PasswordHistories
 from dotenv import load_dotenv
 from db.db import db
 import datetime
+from sqlalchemy import text
 from lib.d import D
 from lib.jwt import allowed_roles,token_required,createToken,decodeToken,hash_password
 login = Blueprint('login', __name__, template_folder='templates')
@@ -13,7 +14,7 @@ load_dotenv()
 
 log = D(debug=True)
 
-TIME_TO_BLOCK = 0.1
+TIME_TO_BLOCK = 1
 
 def save_login_log(user_id, estado):
     login_log = loginLog(user_id=user_id, estado=estado)
@@ -59,14 +60,23 @@ def check_user_blocked(user):
         return False
     
 def unban_user(user):
-    #si la fecha actual es mayor a la fecha de desbloqueo, se desbloquea el usuario
-    if user.blocked_until < datetime.datetime.now():
-        user.is_blocked = 0
-        user.blocked_until = None
-        db.session.commit()
-        return True
-    else:
+    print('Desbloqueando usuario')
+    stmt = text(' CALL unblock_users();')
+    try:
+        db.session.execute(stmt)
+        continue_block = Usuario.query.with_entities(Usuario.is_blocked).filter_by(id=user.id).first()
+        if continue_block[0] == 1:
+            return True
+        else:
+            return False
+    except Exception as e:
+        log.error(e)
         return False
+    
+       
+    
+
+
     
 def check_last_logins(user, intentos):
     last_logins = loginLog.query.filter_by(user_id=user.id).order_by(loginLog.fecha_login.desc()).limit(intentos).all()
@@ -111,24 +121,23 @@ def login_page():
             response = redirect('/login')
             response.set_cookie('token', '', expires=0)
             return response
-        return redirect('/home')
+        return redirect('/')
 
     if request.method == 'POST' and form.validate():
         email = form.correo.data
         contraseña = hash_password(form.password.data)
+        print(contraseña)
+        print(email)
 
         # Consultar si el usuario existe
         usuario = Usuario.query.filter_by(email=email).first()
         if usuario:
             # Verificar si el usuario está bloqueado
             if check_user_blocked(usuario):
-                is_unblocked = unban_user(usuario)
-                if is_unblocked is False:
-                    flash('Tu cuenta está bloqueada. Intenta más tarde.', 'danger')
-                    return render_template('pages/login/index.html', form=form)
-                else:
-                    flash('Tu cuenta ha sido desbloqueada', 'success')
-                    return render_template('pages/login/index.html', form=form)
+                
+                flash('Tu cuenta está bloqueada. Intenta más tarde.', 'danger')
+                return render_template('pages/login/index.html', form=form)
+               
             
             #advertir al usuario que su cuenta esta bloqueada
             if check_last_logins(usuario, 2):
@@ -145,7 +154,7 @@ def login_page():
             if usuario.password == contraseña:
                 # Guardar como cookie el token
                 print('-------------------------------------')
-                response = redirect('/home')
+                response = redirect('/')
                 token = createToken(email, usuario.rol)
                 response.set_cookie('token', token)
 

@@ -16,6 +16,7 @@ from db import seeder
 import json
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles
+from lib.security import safe
 
 load_dotenv()
 
@@ -33,15 +34,17 @@ app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
 
 
+
 @app.before_request
 def before_request():
     rol = get_role()
     g.rol = rol if rol else 'invitado'
-
+    
 @app.route("/")
 @app.route("/home")
 def index():
     rol = g.rol
+    print(rol)
     if rol == 'invitado':
         return redirect('/login')
     if rol == 'admin':
