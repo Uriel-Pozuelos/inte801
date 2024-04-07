@@ -56,6 +56,7 @@ def add_usuario(form):
 
 @usuario.route('/usuario', methods=['GET', 'POST'])
 @token_required
+@allowed_roles(['admin'])
 def index():
     log.warning(request.form)
     form = UsuarioForm(request.form)

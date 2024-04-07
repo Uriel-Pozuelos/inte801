@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request,g
+from flask import Flask, render_template, request,g,redirect,url_for
 from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
@@ -16,6 +16,7 @@ from db import seeder
 import json
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -37,10 +38,24 @@ def before_request():
     rol = get_role()
     g.rol = rol if rol else 'invitado'
 
+@app.route("/")
+@app.route("/home")
+def index():
+    rol = g.rol
+    if rol == 'invitado':
+        return redirect('/login')
+    if rol == 'admin':
+        return redirect('/recetas')
+    if rol == 'produccion':
+        return redirect('/produccion')
+    if rol == 'compras':
+        return redirect('/compras')
+
+
 
 @app.route("/b", methods=["GET", "POST"])
 @token_required
-@allowed_roles(["admin"])
+@allowed_roles(["ventas"])
 def b():
     if request.method == "POST":
         print(request.form)
@@ -70,6 +85,9 @@ def a():
     print(usuarios)
     return 'ok'
 
+@app.errorhandler(404)
+def page_not_found(e):
+    redirect('/404')
 
 
 
