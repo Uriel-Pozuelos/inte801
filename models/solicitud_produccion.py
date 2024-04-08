@@ -2,7 +2,7 @@ from db.db import db
 import datetime
 
 class solicitud_produccion(db.Model):
-    __tablename__ = "solicitudProduccion"
+    __tablename__ = "solicitudproduccion"
     idSolicitud = db.Column(db.Integer, primary_key=True)
     idLoteGalletas = db.Column(db.Integer, nullable=False)
     cantidad = db.Column(db.Integer, nullable = False)

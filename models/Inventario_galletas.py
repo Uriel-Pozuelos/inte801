@@ -2,7 +2,7 @@ from db.db import db
 import datetime
 
 class Inventario_galletas(db.Model):
-    __tablename__ = "inventarioGalletas"
+    __tablename__ = "inventariogalletas"
     idLoteGalletas = db.Column(db.Integer, primary_key=True)
     idGalleta = db.Column(db.Integer, nullable=False)
     cantidad = db.Column(db.Integer, nullable = False)

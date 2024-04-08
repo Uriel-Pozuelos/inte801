@@ -101,6 +101,11 @@ def before_request():
                 'ruta': 'inventario_mp.index',
                 'name': 'Inventario MP',
                 'icon': None
+                },
+                {
+                    'ruta': 'ventas.index',
+                    'name': 'Ventas',
+                    'icon': None
                 }
             ]
         
@@ -122,9 +127,6 @@ def before_request():
 @app.route("/")
 @app.route("/home")
 def index():
-
-
-
     rol = g.rol
     print(rol)
     if rol == 'invitado':
