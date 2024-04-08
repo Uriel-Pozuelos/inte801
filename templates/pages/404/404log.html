@@ -1,0 +1,17 @@
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
+import Button %} {% from 'macros/_macros.html' import camposNuevos %}
+{% block title %} 404 - Don Galleto {% endblock %} {% block content %}
+
+<section>
+	<div class="container mx-auto">
+		<div class="flex justify-center items-center h-screen">
+			<div class="text-center">
+				<h1 class="text-4xl font-bold text-primary">404</h1>
+				<p class="text-lg text-primary">Página no encontrada</p>
+				<a href="/" class="btn btn-primary">Volver al inicio</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock %}

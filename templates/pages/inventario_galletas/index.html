@@ -1,0 +1,71 @@
+{% extends 'layouts/layout_page.html' %}
+{% block content %}
+
+<div class="flex flex-col items-center justify-center">
+    <h1 class="text-4xl font-bold text-primary mt-5 mb-2 text-center">Inventario galletas</h1>
+    <div class="w-full flex justify-end me-5 mb-5">
+        <a href={{url_for('solicitud.index')}} class="btn btn-primary mt-4 ms-5">Solicitar producción</a>
+    </div>
+</div>
+
+<h2 class="text-2xl font-bold text-black mt-5 mb-2 text-center">Inventario disponible</h2>
+<div class="flex justify-center">
+<div class="flex-grow table-container overflow-y-auto max-h-96 w-full max-w-5xl mr-5 mb-5">
+    <table class="mt-5 table w-full text-black">
+        <!-- Encabezado de la tabla -->
+        <thead>
+            <tr>
+                <th class="text-black text-lg text-center p-5">Tipo de Galleta</th>
+                <th class="text-black text-lg text-center p-5">Cantidad</th>
+                <th class="text-black text-lg text-center p-5">Fecha de Caducidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lote in inventario %}
+            <tr>
+                <td class="text-md text-center p-5">{{ lote.nombreGalleta }}</td>
+                <td class="text-md text-center p-5">{{ lote.cantidad }}</td>
+                <td class="text-md text-center p-5">{{ lote.fechaCaducidad.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+
+<h2 class="text-2xl font-bold text-black mt-5 mb-2 text-center">Inventario caducado</h2>
+<div class="flex justify-center">
+
+    <div class="flex-grow table-container overflow-y-auto max-h-96 w-full max-w-5xl mr-5 mb-5">
+        <table class="mt-5 table w-full text-black">
+            <!-- Encabezado de la tabla -->
+            <thead>
+                <tr>
+                    <th class="text-black text-lg text-center p-5">Tipo de Galleta</th>
+                    <th class="text-black text-lg text-center p-5">Cantidad</th>
+                    <th class="text-black text-lg text-center p-5">Fecha de Caducidad</th>
+                    <th class="text-black text-lg text-center p-5">Merma</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lote in caducado %}
+                <tr>
+                    <td class="text-md text-center p-5">{{ lote.nombreGalleta }}</td>
+                    <td class="text-md text-center p-5">{{ lote.cantidad }}</td>
+                    <td class="text-md text-center p-5">{{ lote.fechaCaducidad.strftime('%Y-%m-%d') }}</td>
+                    <td class="text-md text-center p-5">
+                        <form action="" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="idLoteGalletas" value="{{ lote.idLoteGalletas }}">
+                            <button type="submit" class="btn btn-danger">Remover</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

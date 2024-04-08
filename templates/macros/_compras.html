@@ -1,0 +1,6 @@
+{% macro lblipt(for="", id="", name="") %}
+<div class="mt-3">
+    <label for="{{for}}" class="text-gray-700">{{for}}</label>
+    <input type="text" class="input mt-1 input-bordered input-primary" id="{{id}}" name="{{name}}">
+</div>
+{% endmacro %}

@@ -4,18 +4,18 @@ import datetime
 class solicitud_produccion(db.Model):
     __tablename__ = "solicitudProduccion"
     idSolicitud = db.Column(db.Integer, primary_key=True)
-    idGalleta = db.Column(db.Integer, nullable=False)
+    idLoteGalletas = db.Column(db.Integer, nullable=False)
     cantidad = db.Column(db.Integer, nullable = False)
-    estatus = db.Column(db.String, default='Pendiente')
-    justificacion = db.Column(db.String, nullable = True)
+    estatus = db.Column(db.String(50), default='Pendiente')
+    justificacion = db.Column(db.Text, nullable = True)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
-    updated_at = db.Column(db.DateTime, nullable = True)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
 
     def serialize(self):
         return {
             'idSolicitud': self.idSolicitud,
-            'idGalleta': self.idGalleta,
+            'idLoteGalletas': self.idLoteGalletas,
             'cantidad': self.cantidad,
             'estatus': self.estatus,
             'justificacion': self.justificacion,

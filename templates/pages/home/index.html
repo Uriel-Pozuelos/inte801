@@ -1,132 +1,53 @@
-{% extends 'layouts/layout.html' %} {% from 'macros/_button.html'
-import Button %} {% block title %} Home - Don Galleto {% endblock %}
-{% block content %}
-<h1>Home</h1>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+	integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+	crossorigin="anonymous"
+	referrerpolicy="no-referrer"
+></script>
 
-<input type="text" id="fruta" name="fruta" />
-<input type="text" id="ciudad" name="ciudad" value="Lima" />
+<div id="app">
+	<article
+		class="container flex flex-row text-black justify-center items-center"
+	>
+		<h1>Cookies and Dreams</h1>
+		<img src="/static/img/2.webp" alt="" width="50" />
+	</article>
+	<article>
+		<table style="width: 100%; background-color: brown">
+			<tr>
+				<th>Id</th>
+				<th>Name</th>
+				<th>email</th>
+			</tr>
+			<tbody>
+				{% for user in users %}
+				<tr>
+					<td>{{ user.id }}</td>
+					<td>{{ user.name }}</td>
+					<td>{{ user.email }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</article>
+</div>
+<button class="btn btn-secondary" id="download-pdf-button">
+	Descargar PDF
+</button>
 
-<p>Esta es la página de inicio 2</p>
+<script type="module">
+	const element = document.getElementById('app');
+	const options = {
+		margin: 1,
+		filename: 'Cookies and Dreams.pdf',
+		image: { type: 'jpeg', quality: 0.98 },
+		html2canvas: { scale: 2 },
+		jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+	};
 
-{{apellidos | safe}} {{ nombres | safe }} {{ title }} {{
-Button('login', 'accent', 'Login', False, '', '/login') }}
-
-<p class="mt-5 text-2xl text-blue-500">
-	click para ver una alerta {{ Button('alert', 'primary', 'Alert',
-	True, '') }}
-</p>
-
-<div id="nombres-data" data-nombres="{{ nombres | safe }}"></div>
-<div id="apellidos-data" data-apellidos="{{ apellidos| safe }}"></div>
-
-<form id="datos-form" action="/b" method="POST">
-	<!-- csrf -->
-	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-	<input type="hidden" id="datos-input" name="datos" />
-	<button type="submit">Enviar Datos</button>
-</form>
-
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		var ref = new Proxy(
-			{},
-			{
-				get: function (target, prop) {
-					return document.getElementById(`${prop}`).value;
-				},
-				set: function (target, prop, value) {
-					target[prop] = value;
-					document.getElementById(`${prop}`).value = value;
-					return true;
-				}
-			}
-		);
-
-		let input = ref.fruta;
-		console.log(input); // Debería ser undefined, ya que aún no se ha modificado
-
-		ref.fruta = 'manzana';
-		console.log(ref.fruta); // Debería ser 'manzana', ya que se ha modificado
-
-		console.log(ref.ciudad); // Debería ser 'Lima', ya que ya tiene un valor por defecto
-
-		// Ahora si el usuario cambia el valor en el input, se reflejará en ref.fruta
-		document
-			.getElementById('fruta')
-			.addEventListener('input', function () {
-				ref.fruta = this.value;
-
-				console.log(ref.fruta);
-			});
-
-		document
-			.getElementById('alert')
-			.addEventListener('click', function () {
-				ref.ciudad = 'Arequipa';
-			});
-	});
-</script>
-
-<script>
-	var dataProxy = new Proxy(
-		{},
-		{
-			get: function (target, prop) {
-				return target[prop]?.replace(/'/g, '"') || '';
-			},
-			set: function (target, prop, value) {
-				target[prop] = value;
-				console.log({ prop, value, target });
-				updateHiddenInput(prop, value);
-				return true;
-			}
-		}
-	);
-
-	// Inicializar datos y proxy
-	var elementosData = document.querySelectorAll('[id$="-data"]');
-	elementosData.forEach(function (elementoData) {
-		var nombre = elementoData.id.replace('-data', '');
-		console.log(nombre);
-		console.log(elementoData.dataset[nombre]);
-		dataProxy[nombre] = elementoData.dataset[nombre];
-	});
-
-	// Función para actualizar el campo oculto con los datos del proxy
-	function updateHiddenInput(prop, value) {
-		document.getElementById('datos-input').value =
-			JSON.stringify(dataProxy);
-
-		document.getElementById(`${prop}-data`).dataset[prop] = value;
-	}
-
-	// Función para serializar un atributo data
-	function serialize(attr) {
-		return JSON.parse(dataProxy[attr]);
-	}
-
-	console.log(dataProxy);
-
-	// Al hacer clic en el botón "Enviar Datos", actualiza el valor del campo oculto
 	document
-		.getElementById('datos-form')
-		.addEventListener('submit', function () {
-			//actualizar el proxy de nombres con brenda,yuri,uriel
-			dataProxy.nombres = '["brenda","yuri","uriel"]';
-			console.log(dataProxy.nombres);
-			updateHiddenInput();
+		.getElementById('download-pdf-button')
+		.addEventListener('click', () => {
+			html2pdf().from(element).set(options).save();
 		});
-
-	// Ejemplo de cómo utilizar la función serialize
-	var nombres = serialize('nombres');
-	var apellidos = serialize('apellidos');
-	console.log(nombres);
-	console.log(apellidos);
-	//actualizar el proxy de nombres con brenda,yuri,uriel
-	dataProxy.nombres = '["brenda","yuri","uriel"]';
-	console.log(serialize('nombres'));
-	dataProxy.apellidos = '["perez","gomez","garcia"]';
-	console.log(serialize('apellidos'));
 </script>
-
-{% endblock %}

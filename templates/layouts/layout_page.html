@@ -24,199 +24,56 @@
 							class="flex items-center text-white font-bold text-2xl -ml-3"
 						>
 							<a href="/">Cookies and Dreams</a>
-							<!-- <img class="h-8 w-auto" src="" alt="Cookies and dreams logo"> -->
 						</div>
 					</div>
 
 					<div class="m-8 sm:ml-6 sm:block">
 						<div class="flex space-x-4">
+							<!-- Dinámico basado en roles y rutas permitidas -->
+							{% for role in g.allowed_routes if role.rol == g.rol %}
+							{% for route in role.routes %}
 							<a
-								href="#"
-								class="bg-accent text-white rounded-md px-3 py-2 text-sm font-medium"
-								aria-current="page"
-								>Usuarios</a
-							>
-							<a
-								href="#"
+								href="{{ url_for(route.ruta) }}"
 								class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
-								>Proveedores</a
+								>{{ route.name }}</a
 							>
-							<a
-								href="#"
-								class="text-white hover:bg-accent/60 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-								>Ventas</a
-							>
-							<a
-								href="#"
-								class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
-								>Inventario</a
-							>
-							<a
-								href="#"
-								class="text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
-								>Recetas</a
-							>
+							{% endfor %} {% endfor %}
 
-							<div class="relative inline-block text-left">
-								<div>
-									<button
-										type="button"
-										class="flex text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
-										id="options-menu"
-										aria-expanded="true"
-										aria-haspopup="true"
-									>
-										Producción
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											class="lucide lucide-chevron-down"
-										>
-											<path d="m6 9 6 6 6-6" />
-										</svg>
-									</button>
-								</div>
-								<!-- opciones del select -->
-								<div
-									class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-									role="menu"
-									aria-orientation="vertical"
-									aria-labelledby="options-menu"
+							<!-- Logout para todos -->
+							<div
+								class="relative text-left flex flex-row items-center"
+							>
+								<a
+									href="/logout"
+									class="flex hover:bg-accent/60 text-sm text-white rounded-md px-3 py-2 font-medium"
+									aria-current="page"
 								>
-									<div class="py-1" role="none">
-										<a
-											href="#"
-											class="text-gray-700 block px-4 py-2 text-sm"
-											role="menuitem"
-											tabindex="-1"
-											id="options-menu-0"
-											>P1</a
-										>
-										<a
-											href="#"
-											class="text-gray-700 block px-4 py-2 text-sm"
-											role="menuitem"
-											tabindex="-1"
-											id="options-menu-1"
-											>P2</a
-										>
-										<a
-											href="#"
-											class="text-gray-700 block px-4 py-2 text-sm"
-											role="menuitem"
-											tabindex="-1"
-											id="options-menu-2"
-											>P3</a
-										>
-									</div>
-								</div>
-							</div>
-							<!--Select de costos con opciones de c1, c2  -->
-							<div class="relative inline-block text-left">
-								<div>
-									<button
-										type="button"
-										class="flex text-white hover:bg-accent/60 rounded-md px-3 py-2 text-sm font-medium"
-										id="options-menu"
-										aria-expanded="true"
-										aria-haspopup="true"
-									>
-										Costos
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											class="lucide lucide-chevron-down"
-										>
-											<path d="m6 9 6 6 6-6" />
-										</svg>
-									</button>
-								</div>
-								<!-- opciones del select -->
-								<div
-									class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-									role="menu"
-									aria-orientation="vertical"
-									aria-labelledby="options-menu"
+									Logout
+								</a>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-user-round-x mt-2 mx-2"
 								>
-									<div class="py-1" role="none">
-										<a
-											href="#"
-											class="text-gray-700 block px-4 py-2 text-sm"
-											role="menuitem"
-											tabindex="-1"
-											id="options-menu-0"
-											>C1</a
-										>
-										<a
-											href="#"
-											class="text-gray-700 block px-4 py-2 text-sm"
-											role="menuitem"
-											tabindex="-1"
-											id="options-menu-1"
-											>C2</a
-										>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div
-						class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
-					>
-						<!-- Logout -->
-						<div class="relative">
-							<div class="flex">
-								<button
-									type="button"
-									class="flex hover:bg-accent/60 rounded-lg text-sm"
-									aria-expanded="false"
-									aria-haspopup="true"
-								>
-									<a
-										href="#"
-										class="text-white rounded-md ps-3 py-2 text-base font-medium"
-										aria-current="page"
-										>Logout</a
-									>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										class="lucide lucide-user-round-x mt-2 mx-2"
-									>
-										<path d="M2 21a8 8 0 0 1 11.873-7" />
-										<circle cx="10" cy="8" r="5" />
-										<path d="m17 17 5 5" />
-										<path d="m22 17-5 5" />
-									</svg>
-								</button>
+									<path d="M2 21a8 8 0 0 1 11.873-7" />
+									<circle cx="10" cy="8" r="5" />
+									<path d="m17 17 5 5" />
+									<path d="m22 17-5 5" />
+								</svg>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</nav>
+
 		<main class="container mx-auto">
 			{% block content %} {% endblock %}
 		</main>
