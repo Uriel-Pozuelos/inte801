@@ -35,7 +35,7 @@ def index():
     current_user = Usuario.query.filter_by(email=email).first()
     mat_prim_prov = MateriaPrimaProveedor.query.all()
     materiap = MateriaPrima.query.all()
-    
+
     tbl_prov = []
     for prov in proveedores:
         mats_list = []
@@ -130,7 +130,8 @@ def new_provider():
                 presentacion = tip.split("-")[0]
                 tipom = tip.split("-")[1]
 
-                mp = MateriaPrima.query.filter_by(material=producto.lower()).first()
+                mp = MateriaPrima.query.filter_by(
+                    material=producto.lower()).first()
 
                 if mp is None:
                     mp = MateriaPrima(
@@ -184,50 +185,53 @@ def ed_provider():
             id = request.form.get("id")
             proveedor = Proveedor.query.get(id)
             proveedor.nombre_empresa = request.form.get("nombre_empresa_edit")
-            proveedor.direccion_empresa = request.form.get("direccion_empresa_edit")
-            proveedor.telefono_empresa = request.form.get("telefono_empresa_edit")
-            proveedor.nombre_encargado = request.form.get("nombre_encargado_edit")
+            proveedor.direccion_empresa = request.form.get(
+                "direccion_empresa_edit")
+            proveedor.telefono_empresa = request.form.get(
+                "telefono_empresa_edit")
+            proveedor.nombre_encargado = request.form.get(
+                "nombre_encargado_edit")
             proveedor.updated_at = fecha
             proveedor.id_usuario = current_user.id
 
-            productos_list = request.form.getlist("producto_edit[]")
-            precio_list = request.form.getlist("precio_edit[]")
-            cantidad_list = request.form.getlist("cantidad_edit[]")
-            tipo_list = request.form.getlist("tipo_edit[]")
-            id_list = request.form.getlist("material_id[]")
+            # productos_list = request.form.getlist("producto_edit[]")
+            # precio_list = request.form.getlist("precio_edit[]")
+            # cantidad_list = request.form.getlist("cantidad_edit[]")
+            # tipo_list = request.form.getlist("tipo_edit[]")
+            # id_list = request.form.getlist("material_id[]")
 
-            if len(tipo_list) == 0:
-                for idl, producto, precio, cant in zip(
-                    id_list, productos_list, precio_list, cantidad_list
-                ):
-                    materia_prima = MateriaPrima.query.get(idl)
-                    mpp = MateriaPrimaProveedor.query.filter_by(
-                        materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
-                    ).first()
+            # if len(tipo_list) == 0:
+            #     for idl, producto, precio, cant in zip(
+            #         id_list, productos_list, precio_list, cantidad_list
+            #     ):
+            #         materia_prima = MateriaPrima.query.get(idl)
+            #         mpp = MateriaPrimaProveedor.query.filter_by(
+            #             materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
+            #         ).first()
 
-                    mpp.precio = precio
-                    mpp.cantidad = cant
+            #         mpp.precio = precio
+            #         mpp.cantidad = cant
 
-                    materia_prima.material = producto
+            #         materia_prima.material = producto
 
-            else:
-                for idl, producto, precio, cant, tip in zip(
-                    id_list, productos_list, precio_list, cantidad_list, tipo_list
-                ):
-                    materia_prima = MateriaPrima.query.get(idl)
-                    mpp = MateriaPrimaProveedor.query.filter_by(
-                        materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
-                    ).first()
+            # else:
+            #     for idl, producto, precio, cant, tip in zip(
+            #         id_list, productos_list, precio_list, cantidad_list, tipo_list
+            #     ):
+            #         materia_prima = MateriaPrima.query.get(idl)
+            #         mpp = MateriaPrimaProveedor.query.filter_by(
+            #             materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
+            #         ).first()
 
-                    presentacion = tip.split("-")[0]
-                    tipom = tip.split("-")[1]
+            #         presentacion = tip.split("-")[0]
+            #         tipom = tip.split("-")[1]
 
-                    mpp.precio = precio
-                    mpp.cantidad = cant
-                    mpp.tipo = presentacion
+            #         mpp.precio = precio
+            #         mpp.cantidad = cant
+            #         mpp.tipo = presentacion
 
-                    materia_prima.material = producto
-                    materia_prima.tipo = tipom
+            #         materia_prima.material = producto
+            #         materia_prima.tipo = tipom
 
             db.session.commit()
 
@@ -291,3 +295,60 @@ def get_mats():
         )
 
     return jsonify(mats_list)
+
+
+@proveedores.route("/edit_mats", methods=["GET", "POST"])
+@token_required
+@allowed_roles(roles=["admin"])
+def ed_mats():
+    try:
+        if request.method == "POST":
+            productos_list = request.form.getlist("producto_edit[]")
+            precios_list = request.form.getlist("precio_edit[]")
+            cantidad_list = request.form.getlist("cantidad_edit[]")
+            tipos_list = request.form.getlist("tipo_edit[]")
+            id_list = request.form.getlist("matids[]")
+            prov_id = request.form.get("providerId")
+
+            presentacion = ""
+            medida = ""
+
+            proveedor = Proveedor.query.filter_by(id=int(prov_id)).first()
+            mpp = MateriaPrimaProveedor.query.all()
+
+            for product, precio, cantidad, tipo, mid in zip(productos_list, precios_list, cantidad_list, tipos_list, id_list):
+                if tipo:
+                    presentacion = tipo.split("-")[0]
+                    medida = tipo.split("-")[1]
+
+                    for mp in mpp:
+                        if mp.materiaprima_id == int(mid) and mp.proveedor_id == int(proveedor.id):
+                            materia = MateriaPrima.query.filter_by(
+                                id=mp.materiaprima_id).first()
+                            materia.material = product
+                            materia.tipo = medida
+
+                            mp.precio = precio
+                            mp.cantidad = cantidad
+                            mp.tipo = presentacion
+
+                            db.session.commit()
+                else:
+                    for mp in mpp:
+                        if mp.materiaprima_id == int(mid) and mp.proveedor_id == int(proveedor.id):
+                            materia = MateriaPrima.query.filter_by(
+                                id=mp.materiaprima_id).first()
+                            materia.material = product
+
+                            mp.precio = precio
+                            mp.cantidad = cantidad
+
+                            db.session.commit()
+
+            flash("Materiales actualizados correctamente", "success")
+            return redirect("/proveedores")
+        return redirect("/proveedores")
+    except Exception as ex:
+        print(str(ex))
+        flash("Se produjo un error al actualizar las materias primas", "error")
+        return str(ex)
