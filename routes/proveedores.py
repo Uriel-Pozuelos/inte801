@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, flash, redirect, Response
+from flask import Blueprint, render_template, request, flash, redirect, Response, jsonify
 from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
 from models.proveedor import Proveedor
 from models.usuario import Usuario
+from models.Recetas import MateriaPrima
 from models.materia_prima_proveedor import MateriaPrimaProveedor
 from datetime import datetime
 from db.db import db
@@ -12,32 +13,42 @@ proveedores = Blueprint("proveedores", __name__, template_folder="templates")
 
 @proveedores.route("/proveedores", methods=["GET", "POST"])
 @token_required
+@allowed_roles(roles=["admin"])
 def index():
-    active_token = request.cookies.get('token')
+    active_token = request.cookies.get("token")
     token = decodeToken(active_token)
-    email = token['email']
+    email = token["email"]
 
     form = ProveedorForm()
     formE = ProveedorEditForm()
+    
     proveedores = Proveedor.query.filter_by(estatus=1).all()
     current_user = Usuario.query.filter_by(email=email).first()
+    mat_prim_prov = MateriaPrimaProveedor.query.all()
+    materiap = MateriaPrima.query.all()
 
-    if request.method == 'POST':
+    if request.method == "POST":
         pass
 
-    return render_template("pages/provider/index.html", proveedores=proveedores, form=form, current_user=current_user.id)
+    return render_template(
+        "pages/provider/index.html",
+        proveedores=proveedores,
+        form=form,
+        current_user=current_user.id,
+    )
 
 
 @proveedores.route("/add_provider", methods=["GET", "POST"])
 @token_required
+@allowed_roles(roles=["admin"])
 def new_provider():
     try:
         fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         form = ProveedorForm()
 
-        active_token = request.cookies.get('token')
+        active_token = request.cookies.get("token")
         token = decodeToken(active_token)
-        email = token['email']
+        email = token["email"]
 
         if request.method == "POST":
             current_user = Usuario.query.filter_by(email=email).first()
@@ -52,74 +63,140 @@ def new_provider():
             id_usuario = current_user.id
 
             proveedor = Proveedor(
-                nombre_empresa=nombre_empresa,
-                direccion_empresa=direccion_empresa,
-                telefono_empresa=telefono_empresa,
-                nombre_encargado=nombre_encargado,
+                nombre_empresa=str(nombre_empresa),
+                direccion_empresa=str(direccion_empresa),
+                telefono_empresa=str(telefono_empresa),
+                nombre_encargado=str(nombre_encargado),
                 estatus=estatus,
                 created_at=created_at,
                 updated_at=updated_at,
                 deleted_at=deleted_at,
-                id_usuario=id_usuario
+                id_usuario=id_usuario,
             )
 
-            # db.session.add(proveedor)
+            db.session.add(proveedor)
+            db.session.commit()
 
-            # Obtener los valores de las filas dinámicas
             productos = request.form.getlist("producto[]")
             precios = request.form.getlist("precio[]")
+            cantidad = request.form.getlist("cantidad[]")
+            tipo = request.form.getlist("tipo[]")
 
-            for producto, precio in zip(productos, precios):
-                mpp = MateriaPrimaProveedor(
-                    proveedor_id = proveedor.id
+            for producto, precio, cant, tip in zip(productos, precios, cantidad, tipo):
+                presentacion = tip.split("-")[0]
+                tipom = tip.split("-")[1]
+
+                mp = MateriaPrima.query.filter_by(material=producto.lower()).first()
+
+                if mp is None:
+                    mp = MateriaPrima(
+                        material=str(producto),
+                        tipo=str(tipom),
+                        estatus=1,
+                        created_at=fecha,
+                        updated_at=fecha,
+                        deleted_at=None,
+                    )
+
+                    db.session.add(mp)
+                    db.session.commit()
+
+                mat_prim_prov = MateriaPrimaProveedor(
+                    materiaprima_id=mp.id,
+                    proveedor_id=proveedor.id,
+                    precio=float(precio),
+                    cantidad=cant,
+                    tipo=presentacion,
+                    created_at=fecha,
                 )
 
-            # db.session.commit()
+                db.session.add(mat_prim_prov)
+                db.session.commit()
 
             flash("Proveedor creado correctamente", "success")
 
             return redirect("/proveedores")
         return render_template("pages/provider/index.html", form=form)
     except Exception as e:
+        db.session.rollback()
         flash(str(e), "error")
-        return redirect("/proveedores")
+        return str(e)
 
 
 @proveedores.route("/edit_provider", methods=["GET", "POST"])
 @token_required
+@allowed_roles(roles=["admin"])
 def ed_provider():
-    active_token = request.cookies.get('token')
+    active_token = request.cookies.get("token")
     token = decodeToken(active_token)
-    email = token['email']
+    email = token["email"]
 
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     form = ProveedorEditForm()
     current_user = Usuario.query.filter_by(email=email).first()
 
-    if request.method == "POST":
-        id = request.form.get("id")
-        proveedor = Proveedor.query.get(id)
-        proveedor.nombre_empresa = request.form.get("nombre_empresa_edit")
-        proveedor.direccion_empresa = request.form.get(
-            "direccion_empresa_edit")
-        proveedor.telefono_empresa = request.form.get("telefono_empresa_edit")
-        proveedor.nombre_encargado = request.form.get("nombre_encargado_edit")
-        proveedor.updated_at = fecha
-        proveedor.id_usuario = current_user.id
+    try:
+        if request.method == "POST":
+            id = request.form.get("id")
+            proveedor = Proveedor.query.get(id)
+            proveedor.nombre_empresa = request.form.get("nombre_empresa_edit")
+            proveedor.direccion_empresa = request.form.get("direccion_empresa_edit")
+            proveedor.telefono_empresa = request.form.get("telefono_empresa_edit")
+            proveedor.nombre_encargado = request.form.get("nombre_encargado_edit")
+            proveedor.updated_at = fecha
+            proveedor.id_usuario = current_user.id
+            
+            productos_list = request.form.getlist("producto_edit[]")
+            precio_list = request.form.getlist("precio_edit[]")
+            cantidad_list = request.form.getlist("cantidad_edit[]")
+            tipo_list = request.form.getlist("tipo_edit[]")
+            id_list = request.form.getlist("material_id[]")
+            
+            if len(tipo_list) == 0:
+                for idl, producto, precio, cant in zip(id_list, productos_list, precio_list, cantidad_list):
+                    materia_prima = MateriaPrima.query.get(idl)
+                    mpp = MateriaPrimaProveedor.query.filter_by(materiaprima_id=materia_prima.id, proveedor_id=proveedor.id).first()
+                        
+                    mpp.precio = precio
+                    mpp.cantidad = cant
+                    
+                    materia_prima.material = producto
 
-        db.session.commit()
+            else:
+                for idl, producto, precio, cant, tip in zip(id_list, productos_list, precio_list, cantidad_list, tipo_list):
+                    materia_prima = MateriaPrima.query.get(idl)
+                    mpp = MateriaPrimaProveedor.query.filter_by(materiaprima_id=materia_prima.id, proveedor_id=proveedor.id).first()
+                    
+                    presentacion = tip.split("-")[0]
+                    tipom = tip.split("-")[1]
+                        
+                    mpp.precio = precio
+                    mpp.cantidad = cant
+                    mpp.tipo = presentacion
+                    
+                    materia_prima.material = producto
+                    materia_prima.tipo = tipom
+            
+            db.session.commit()
 
-        flash("Proveedor actualizado correctamente", "success")
+            flash("Proveedor actualizado correctamente", "success")
 
+            return redirect("/proveedores")
         return redirect("/proveedores")
-    return render_template("pages/provider/index.html", form=form)
+    except Exception as e:
+        db.session.rollback()
+        print(str(e))
+        flash("Ocurrio un error al actualizar los datos", "error")
+        return redirect("/proveedores")
 
 
 @proveedores.route("/delete_provider", methods=["GET", "POST"])
+@token_required
+@allowed_roles(roles=["admin"])
 def del_provider():
-    active_token = request.cookies.get('token')
+    active_token = request.cookies.get("token")
     token = decodeToken(active_token)
-    email = token['email']
+    email = token["email"]
 
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     form = ProveedorForm()
@@ -138,3 +215,28 @@ def del_provider():
 
         return redirect("/proveedores")
     return render_template("pages/provider/index.html", form=form)
+
+
+@proveedores.route("/get_materials", methods=["GET", "POST"])
+@token_required
+@allowed_roles(roles=["admin"])
+def get_mats():
+    pov_id = request.json["proveedor_id"]
+    mats_list = []
+    
+    mats = MateriaPrimaProveedor.query.filter_by(proveedor_id=pov_id).all()
+    for mat in mats:
+        material = MateriaPrima.query.filter_by(id=mat.materiaprima_id).first()
+        
+        mats_list.append(
+                {
+                    "id": mat.materiaprima_id,
+                    "material": material.material,
+                    "precio": mat.precio,
+                    "cantidad": mat.cantidad,
+                    "tipo": mat.tipo,
+                }
+            )
+        
+    return jsonify(mats_list)   
+        

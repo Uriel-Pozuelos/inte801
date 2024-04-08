@@ -11,5 +11,5 @@ class Config:
 
 
 class DevConfig(Config):
-    SQLALCHEMY_DATABASE_URI: str = 'mysql+pymysql://root:root@127.0.0.2:3306/cookies'
+    SQLALCHEMY_DATABASE_URI: str = 'mysql+pymysql://root:admin@127.0.0.2:3306/cookies'
     SQLALCHEMY_TRACK_MODIFICATIONS: bool = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS').lower() == 'true'  # Convierte a booleano

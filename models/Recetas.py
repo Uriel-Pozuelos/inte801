@@ -1,14 +1,14 @@
 from db.db import db
 
-class MateriaPrimaProveedor(db.Model):
-    __tablename__ = 'materia_prima_proveedor'
-    materiaprima_id = db.Column(db.Integer, db.ForeignKey('materiaprima.id'), primary_key=True)
-    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedor.id'), primary_key=True)
+# class MateriaPrimaProveedor(db.Model):
+#     __tablename__ = 'materia_prima_proveedor'
+#     materiaprima_id = db.Column(db.Integer, db.ForeignKey('materiaprima.id'), primary_key=True)
+#     proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedor.id'), primary_key=True)
 
-    # Relación muchos a muchos con MateriaPrima
-    materiaprima = db.relationship('MateriaPrima', backref=db.backref('materia_prima_proveedor', lazy='dynamic'))
-    # Relación muchos a muchos con Proveedor
-    proveedor = db.relationship('Proveedor', backref=db.backref('materia_prima_proveedor', lazy='dynamic'))
+#     # Relación muchos a muchos con MateriaPrima
+#     materiaprima = db.relationship('MateriaPrima', backref=db.backref('materia_prima_proveedor', lazy='dynamic'))
+#     # Relación muchos a muchos con Proveedor
+#     proveedor = db.relationship('Proveedor', backref=db.backref('materia_prima_proveedor', lazy='dynamic'))
 
 class MateriaPrima(db.Model):
     __tablename__ = 'materiaprima'

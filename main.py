@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
@@ -15,6 +15,7 @@ from db import seeder
 import json
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles
+from apscheduler.schedulers.background import BackgroundScheduler
 load_dotenv()
 
 app = Flask(__name__)
@@ -62,19 +63,20 @@ def a():
     return 'ok'
 
 
-
-
-
-
+def task():
+    print("Hola mundo")
 
 
 if __name__ == "__main__":
     csrf.init_app(app)
     create_db(app)
+    
+    # cron = BackgroundScheduler()
+    # cron.add_job(task, "interval", seconds=5)
+    # cron.start()
 
     with app.app_context():
         print("Creando usuarios...")
         seeder.seed_users()
         print("Se crearon correctamente los usuarios...")
-
     app.run(debug=True, port=5000)
