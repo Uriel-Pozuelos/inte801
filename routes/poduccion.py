@@ -80,12 +80,11 @@ def get_materia_dict():
 
 def get_inventario():
     inventario = InventarioMP.query.all()
-    print (inventario)
     ingredientes_dict = get_materia_dict()
     inventario_update = []
     for lote in inventario:
         inventario_data = lote.serialize()
-        inventario_data['nombreMateria'] = ingredientes_dict.get(lote.idSolicitud, 'Nombre no encontrado')
+        inventario_data['nombreMateria'] = ingredientes_dict.get(lote.id, 'Nombre no encontrado')
         inventario_update.append(inventario_data)
     return inventario_update
 
@@ -108,6 +107,19 @@ def index():
     for lote in inventario_materia:
         if lote['estatus'] == 1:
             inventario_update.append(lote)
+
+    if request.method == 'POST':
+        if 'add_galleta' in request.form:
+            produccion_id = request.form.get('id_produccion')
+            cantidad_prod = request.form.get('cantidad_prod')
+            produccion_filter = Produccion.query.filter(idProduccion = produccion_id).all()
+            total = int(produccion_filter.produccionActual + cantidad_prod)
+            produccion_filter.produccionActual = total
+            produccion_filter.updated_at = datetime.now()
+            db.session.commit()
+
+
+
     
     return render_template('pages/produccion/index.html', solicitud=solicitud, form=form, produccion = produccion_filtro, inventario = inventario_update)
         
@@ -149,7 +161,7 @@ def revisar_solicitudes():
             inventario = Inventario_galletas.query.get(solicitud.idLoteGalletas)
             print(inventario)
             if inventario:
-                inventario.estatus = 0
+                inventario.estatus = 1
                 inventario.updated_at = datetime.now()
                 db.session.commit()
                 return redirect(url_for('produccion.revisar_solicitudes'))

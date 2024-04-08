@@ -20,7 +20,7 @@ def get_Galletas_dict():
     return galletas_dict
 
 def get_inventario_galletas():
-    inventario = Inventario_galletas.query.filter(Inventario_galletas.estatus == 0).all()
+    inventario = Inventario_galletas.query.filter(Inventario_galletas.estatus == 1).all()
     galletas_dict = get_Galletas_dict()
     registros_modificados = []
     for lote in inventario:
@@ -63,7 +63,7 @@ def index():
 
         inventario = Inventario_galletas.query.get(form.idLoteGalletas.data)
         if inventario:  # Verificar que el registro exista
-            inventario.estatus = 1
+            inventario.estatus = 0
             inventario.updated_at = datetime.now()
             db.session.commit()
 

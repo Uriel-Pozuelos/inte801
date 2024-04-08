@@ -57,7 +57,7 @@
       <div class="card-body">
         <form class="flex flex-col items-center gap-5">
           <!-- Input oculto para el ID de producción -->
-          <input type="hidden" id="produccionId">
+          <input type="hidden" id="produccionId" name="id_produccion">
           
           <div class="w-full">
             <h5 for="tipoGalleta" class="font-bold text-lg mb-2 text-center">Tipo de Galleta</h5>
@@ -66,8 +66,8 @@
           </div>
           <!-- Input and button wrapper with flex and item alignment -->
           <div class="flex items-center w-full gap-2">
-            <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad">
-            <button type="submit" class="btn btn-primary">Agregar</button>
+            <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad" name="cantidad_prod">
+            <button type="submit" class="btn btn-primary" name="add_galleta">Agregar</button>
           </div>
           <div class="w-full">
             <h5 for="merma" class="font-bold text-lg mb-2 text-center">Merma</h5>
@@ -81,7 +81,7 @@
             <input type="text" class="form-input mt-3 w-full" id="cantidadIngrediente" placeholder="Unidad de medida" readonly>
             <div class="flex items-center w-full gap-2 mt-3">
               <input type="number" class="form-input w-full" id="cantidadIngrediente" placeholder="Cantidad">
-              <button type="submit" class="btn btn-primary">Agregar</button>
+              <button type="submit" class="btn btn-primary" name="add_merma">Agregar</button>
             </div>
             <div class="flex justify-center mt-5">
               <button type="button" class="btn btn-secondary" id="cancelarBtn">Cancelar</button>

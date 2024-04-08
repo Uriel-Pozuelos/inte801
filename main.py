@@ -13,6 +13,7 @@ from routes.proveedores import proveedores
 from routes.compras import compras
 from routes.usuario import usuario
 from routes.inventario_mp import inventario_mp
+from routes.inventario_galletas import inventario_galletas
 from lib.jwt import get_role
 from db import seeder
 import json
@@ -38,6 +39,7 @@ app.register_blueprint(proveedores)
 app.register_blueprint(usuario)
 app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
+app.register_blueprint(inventario_galletas)
 
 
 
