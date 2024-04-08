@@ -343,10 +343,12 @@ CREATE TABLE mermas_material (
     merma_fecha VARCHAR(50) NOT NULL,
     cantidad INT NOT NULL,
     created_at DATETIME NOT NULL,
-    id_produccion INT NOT NULL,
+    id_produccion INT,
     justificacion VARCHAR(255) NOT NULL,
+    id_proveedor INT,
     FOREIGN KEY (id_produccion) REFERENCES produccion (idProduccion),
-    FOREIGN KEY (idInventarioMaterias) REFERENCES inventario_materias (id)
+    FOREIGN KEY (idInventarioMaterias) REFERENCES inventario_mp (id),
+    FOREIGN KEY (id_proveedor) REFERENCES proveedor (id)
 );
 
 --

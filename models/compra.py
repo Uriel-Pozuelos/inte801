@@ -3,8 +3,8 @@ from db.db import db
 class Compra(db.Model):
     __tablename__ = "compras"
     id = db.Column(db.Integer, primary_key=True)
-    id_proveedor = db.Column(db.Integer, db.ForeignKey("proveedores.id"), nullable=False)
-    id_usuario = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=False)
+    id_proveedor = db.Column(db.Integer, db.ForeignKey("proveedor.id"), nullable=False)
+    id_usuario = db.Column(db.Integer, db.ForeignKey("usuario.id"), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
     detalle_compra = db.relationship("DetalleCompra", backref="compra", lazy=True)
     
