@@ -125,6 +125,7 @@ def delete_ingredientes(id):
 
 @recetas.route('/recetas')
 @token_required
+@allowed_roles(['admin','produccion','compras'])
 def index():
     recetas = get_Galletas()
     log.info(recetas)
@@ -132,6 +133,7 @@ def index():
 
 @recetas.route('/recetas/<int:id>', methods=['GET', 'POST'])
 @token_required
+@allowed_roles(['admin','produccion','compras'])
 def show(id):
 
     ingredientes = get_ingrediente(id)

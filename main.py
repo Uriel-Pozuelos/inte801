@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request,g
+
+from flask import Flask, render_template, request,g,redirect,url_for
+
 from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
@@ -16,6 +18,12 @@ from db import seeder
 import json
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
+from lib.security import safe
+
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -32,32 +40,53 @@ app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
 
 
+
 @app.before_request
 def before_request():
     rol = get_role()
     g.rol = rol if rol else 'invitado'
+    
+@app.route("/")
+@app.route("/home")
+def index():
+    rol = g.rol
+    print(rol)
+    if rol == 'invitado':
+        return redirect('/login')
+    if rol == 'admin':
+        return redirect('/recetas')
+    if rol == 'produccion':
+        return redirect('/produccion')
+    if rol == 'compras':
+        return redirect('/compras')
+
 
 
 @app.route("/b", methods=["GET", "POST"])
-@token_required
-@allowed_roles(["admin"])
+
 def b():
-    if request.method == "POST":
-        print(request.form)
-        datos = json.loads(request.form["datos"])
-
-        c = json.loads(datos["nombres"])
-        print(c)
-        print(type(c))
-
-    nombres = ["Juan", "Pedro", "Luis"]
-    apellidos = ["Perez", "Gomez", "Gonzalez"]
-
+    users = [
+        {
+            "id": 1,
+            "name": "Juan",
+            "email": "juan",
+        },
+        {
+            "id": 2,
+            "name": "Pedro",
+            "email": "pedro",
+        },
+        {
+            "id": 3,
+            "name": "Maria",
+            "email": "maria",
+        },
+    ]
+        
     return render_template(
         "pages/home/index.html",
-        nombres=nombres,
-        titulo="Home klkk",
-        apellidos=apellidos,
+        users=users,
+        titulo="Home klkk"
     )
 
 
@@ -70,20 +99,24 @@ def a():
     print(usuarios)
     return 'ok'
 
+@app.errorhandler(404)
+def page_not_found(e):
+    redirect('/404')
 
-
-
-
-
+def task():
+    print("Hola mundo")
 
 
 if __name__ == "__main__":
     csrf.init_app(app)
     create_db(app)
+    
+    # cron = BackgroundScheduler()
+    # cron.add_job(task, "interval", seconds=5)
+    # cron.start()
 
     with app.app_context():
         print("Creando usuarios...")
         seeder.seed_users()
         print("Se crearon correctamente los usuarios...")
-
     app.run(debug=True, port=5000)

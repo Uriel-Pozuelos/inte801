@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, flash
+from flask import Blueprint, render_template, request, redirect, flash,g
 from forms.Login import LoginForm
 from forms.ResetPassword import ResetPasswordForm
 from models.usuario import Usuario,loginLog
@@ -6,6 +6,7 @@ from models.histDB import PasswordHistories
 from dotenv import load_dotenv
 from db.db import db
 import datetime
+from sqlalchemy import text
 from lib.d import D
 from lib.jwt import allowed_roles,token_required,createToken,decodeToken,hash_password
 login = Blueprint('login', __name__, template_folder='templates')
@@ -13,7 +14,7 @@ load_dotenv()
 
 log = D(debug=True)
 
-TIME_TO_BLOCK = 5
+TIME_TO_BLOCK = 1
 
 def save_login_log(user_id, estado):
     login_log = loginLog(user_id=user_id, estado=estado)
@@ -36,11 +37,17 @@ def block_user_until(user, minutes):
     db.session.commit()
 
 def unblock_user(user):
-    user.is_blocked = False
-    user.blocked_until = None
-    db.session.commit()
+    try:
+        user.is_blocked = False
+        user.blocked_until = None
+        db.session.commit()
+        return True
+    except Exception as e:
+        log.error(e)
+        return False
 
 def check_user_blocked(user):
+    
     if user.is_blocked:
         if user.blocked_until:
             if user.blocked_until < datetime.datetime.now():
@@ -51,6 +58,25 @@ def check_user_blocked(user):
             return False
     else:
         return False
+    
+def unban_user(user):
+    print('Desbloqueando usuario')
+    stmt = text(' CALL unblock_users();')
+    try:
+        db.session.execute(stmt)
+        continue_block = Usuario.query.with_entities(Usuario.is_blocked).filter_by(id=user.id).first()
+        if continue_block[0] == 1:
+            return True
+        else:
+            return False
+    except Exception as e:
+        log.error(e)
+        return False
+    
+       
+    
+
+
     
 def check_last_logins(user, intentos):
     last_logins = loginLog.query.filter_by(user_id=user.id).order_by(loginLog.fecha_login.desc()).limit(intentos).all()
@@ -64,6 +90,7 @@ def check_last_logins(user, intentos):
     elif user.is_blocked == 1:  # Usuario está bloqueado
         log.info('Usuario bloqueado')
         current_time = datetime.now()
+        print(current_time)
         if current_time > user.blocked_until:
             # Eliminar el estado de bloqueo
             user.is_blocked = 0
@@ -94,19 +121,23 @@ def login_page():
             response = redirect('/login')
             response.set_cookie('token', '', expires=0)
             return response
-        return redirect('/home')
+        return redirect('/')
 
     if request.method == 'POST' and form.validate():
         email = form.correo.data
         contraseña = hash_password(form.password.data)
+        print(contraseña)
+        print(email)
 
         # Consultar si el usuario existe
         usuario = Usuario.query.filter_by(email=email).first()
         if usuario:
             # Verificar si el usuario está bloqueado
             if check_user_blocked(usuario):
+                
                 flash('Tu cuenta está bloqueada. Intenta más tarde.', 'danger')
                 return render_template('pages/login/index.html', form=form)
+               
             
             #advertir al usuario que su cuenta esta bloqueada
             if check_last_logins(usuario, 2):
@@ -115,13 +146,15 @@ def login_page():
 
             # Verificar si los últimos tres logins fueron incorrectos
             if check_last_logins(usuario, 3):
-                flash(f'Tu cuenta ha sido bloqueada debido a múltiples intentos fallidos de inicio de sesión. Intenta en {TIME_TO_BLOCK} minutos', 'danger')
-                return render_template('pages/login/index.html', form=form)
+                is_unblocked = unban_user(usuario)
+                if is_unblocked is False:
+                    flash(f'Tu cuenta ha sido bloqueada debido a múltiples intentos fallidos de inicio de sesión. Intenta en {TIME_TO_BLOCK} minutos', 'danger')
+                    return render_template('pages/login/index.html', form=form)
 
             if usuario.password == contraseña:
                 # Guardar como cookie el token
                 print('-------------------------------------')
-                response = redirect('/home')
+                response = redirect('/')
                 token = createToken(email, usuario.rol)
                 response.set_cookie('token', token)
 
@@ -187,7 +220,9 @@ def reset_password():
 
 @login.route('/404')
 def not_found():
-    return "Not found", 404
+    if g.rol == 'invitado':
+        return render_template('pages/404/404.html'), 404
+    return render_template('pages/404/404log.html'), 404
 
 
 
