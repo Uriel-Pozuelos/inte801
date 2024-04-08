@@ -112,6 +112,7 @@ CREATE TABLE `detalleventa` (
   `cantidad` decimal(10,2) NOT NULL,
   `precio_unitario` decimal(10,2) NOT NULL,
   `created_at` DATETIME NOT NULL,
+  `tipoVenta` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `venta_id` (`venta_id`),
   KEY `galleta_id` (`galleta_id`),

@@ -7,9 +7,9 @@ CREATE TABLE `inventario_mp` (
     `caducidad` DATETIME NOT NULL,
     `estatus` BOOLEAN NOT NULL DEFAULT TRUE,
     `created_at` DATETIME NOT NULL,
-    FOREIGN KEY (id_materia_prima) REFERENCES MateriaPrima (id),
+    FOREIGN KEY (id_materia_prima) REFERENCES materiaprima (id),
     FOREIGN KEY (idCompra) REFERENCES compras (id)
-)
+);
 
 INSERT INTO inventariogalletas(idGalleta, cantidad, estatus, fechaCaducidad, created_at, updated_at) 
 VALUES(1, 1, 0, '2024-04-30 02:54:24', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()),

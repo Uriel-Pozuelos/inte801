@@ -1,48 +1,100 @@
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-	integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
-	crossorigin="anonymous"
-	referrerpolicy="no-referrer"
-></script>
+<main
+	style="
+		width: 100%;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+	"
+>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+		integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+		crossorigin="anonymous"
+		referrerpolicy="no-referrer"
+	></script>
 
-<div id="app">
-	<article
-		class="container flex flex-row text-black justify-center items-center"
-	>
-		<h1>Cookies and Dreams</h1>
-		<img src="/static/img/2.webp" alt="" width="50" />
-	</article>
-	<article>
-		<table>
-			<tr>
-				<th>Galleta</th>
-				<th>Cantidad</th>
-				<th>Tipo Venta</th>
-                <th>Precio Unitario</th>
-			</tr>
-			<tbody>
-				{% for venta in detalles_venta %}
-				<tr>
-					<td>{{ venta.galleta }}</td>
-					<td>{{ venta.tipoVenta }}</td>
-					<td>{{ venta.cantidad }}</td>
-                    <td>{{ venta.precio_unitario }}</td>
+	<input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+
+	<div id="app">
+		<article style="display: flex; justify-content: space-between">
+			<h1 style="margin-bottom: 1rem; color: #6f3ac5">
+				Cookies and Dreams
+			</h1>
+			<img
+				src="/static/img/2.webp"
+				alt=""
+				width="50"
+				style="object-fit: contain"
+			/>
+		</article>
+		<article>
+			<table
+				style="
+					width: 100%;
+					border-collapse: collapse;
+					border-spacing: 0;
+					border: 1px solid #000;
+				"
+			>
+				<tr style="border: 1px solid #000">
+					<th>Galleta</th>
+					<th>Cantidad</th>
+					<th>Tipo Venta</th>
+					<th>Precio Unitario</th>
 				</tr>
-				{% endfor %}
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td>Total</td>
-                    <td>{{ total_venta }}</td>
-                </tr>
-			</tbody>
-		</table>
-	</article>
-</div>
-<button class="btn btn-secondary" id="download-pdf-button">
-	Descargar PDF
-</button>
+				<tbody style="border: 1px solid #000; text-align: center">
+					{% for venta in detalles_venta %}
+					<tr>
+						<td>{{ venta.galleta }}</td>
+						<td>{{ venta.tipoVenta }}</td>
+						<td>{{ venta.cantidad }}</td>
+						<td>{{ venta.precio_unitario }}</td>
+					</tr>
+					{% endfor %}
+					<tr>
+						<td></td>
+						<td></td>
+						<td>Total</td>
+						<td>{{ total_venta }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+	</div>
 
+	<div>
+		<button
+			class="btn btn-secondary"
+			id="download-pdf-button"
+			style="
+				margin-top: 1rem;
+				background-color: #6f3ac5;
+				color: white;
+				border: none;
+				padding: 0.5rem 1rem;
+				border-radius: 0.5rem;
+				cursor: pointer;
+			"
+		>
+			Descargar PDF
+		</button>
+
+		<a
+			href="/venta"
+			class="btn btn-secondary"
+			style="
+				margin-top: 1rem;
+				background-color: #6f3ac5;
+				color: white;
+				border: none;
+				padding: 0.5rem 1rem;
+				border-radius: 0.5rem;
+				cursor: pointer;
+			"
+			>Volver</a
+		>
+	</div>
+</main>
 <script type="module">
 	const element = document.getElementById('app');
 	const options = {
@@ -55,7 +107,17 @@
 
 	document
 		.getElementById('download-pdf-button')
-		.addEventListener('click', () => {
+		.addEventListener('click', async () => {
 			html2pdf().from(element).set(options).save();
+
+			fetch('/createPdf', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': document.querySelector(
+						'input[name="csrf_token"]'
+					).value
+				}
+			});
 		});
 </script>
