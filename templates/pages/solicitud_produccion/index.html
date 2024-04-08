@@ -2,20 +2,23 @@
 {% from 'macros/_macros.html' import camposNuevos %}
 {% block content %}
 <div class="container flex flex-col items-center justify-center">
-    <h1 class="text-4xl font-bold mt-5 mb-5 text-black">Solicitud de Producción</h1>
-    <div class="mt-5">
+    <h1 class="text-4xl font-bold mt-5 mb-1 text-black">Solicitud de Producción</h1>
+    <div class="w-full flex justify-start ms-5">
+        <a href={{url_for('inventario_galletas.index')}} class="btn btn-primary mt-4 ms-5">Solicitar producción</a>
+    </div>
+    <div class="mt-1">
     <form action="" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="flex justify-between space-x-4">
+        <div class="flex justify-between space-x-4 text-black">
             <div class="mt-5 mb-4 flex-1">
-                <label for="idGalleta" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Galleta:</label>
-                <select name="idGalleta" id="idGalleta" class="input input-bordered w-full max-w-xs text-black bg-white" required>
+                <label for="idLoteGalletas" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Galleta:</label>
+                <select name="idLoteGalletas" id="idLoteGalletas" class="input input-bordered w-full max-w-xs text-black bg-white" required>
                     <option value="">Seleccione una galleta</option>
-                    {% for galleta in galletas %}
-                        <option value="{{ galleta.id }}">{{ galleta.nombre }}</option>
+                    {% for lote in lotes %}
+                        <option value="{{ lote.idLoteGalletas }}">{{ lote.nombreGalleta }}</option>
                     {% endfor %}
                 </select>
-                {% if form.idGalleta.errors %}
+                {% if form.idLoteGalletas.errors %}
                 <ul>
                     {% for error in form.idGalleta.errors %}
                         <li style="color: red; font-size: 12px; font-weight: bold; list-style: none;">

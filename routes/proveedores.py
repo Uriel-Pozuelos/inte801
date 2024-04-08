@@ -22,7 +22,7 @@ proveedores = Blueprint("proveedores", __name__, template_folder="templates")
 
 @proveedores.route("/proveedores", methods=["GET", "POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def index():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)
@@ -84,7 +84,7 @@ def index():
 
 @proveedores.route("/add_provider", methods=["GET", "POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def new_provider():
     try:
         fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -170,7 +170,7 @@ def new_provider():
 
 @proveedores.route("/edit_provider", methods=["GET", "POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def ed_provider():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)
@@ -248,7 +248,7 @@ def ed_provider():
 
 @proveedores.route("/delete_provider", methods=["GET", "POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def del_provider():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)
@@ -275,7 +275,7 @@ def del_provider():
 
 @proveedores.route("/get_materials", methods=["GET", "POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def get_mats():
     pov_id = request.json["proveedor_id"]
     mats_list = []

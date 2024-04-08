@@ -5,10 +5,11 @@ class Produccion(db.Model):
     __tablename__ = "produccion"
     idProduccion = db.Column(db.Integer, primary_key=True)
     idSolicitud = db.Column(db.Integer, nullable=False)
+    idUsuario = db.Column(db.Integer, nullable=False)
     produccionActual = db.Column(db.Integer, default=0)
-    estatus = db.Column(db.String, default='En espera')
+    estatus = db.Column(db.String, default=0)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
-    updated_at = db.Column(db.DateTime, nullable = True)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def serialize(self):
         return {

@@ -12,7 +12,11 @@ from routes.poduccion import produccion
 from routes.proveedores import proveedores
 from routes.compras import compras
 from routes.usuario import usuario
+from routes.venta import ventas
+from db.db import db, create_db
+from lib.jwt import token_required, allowed_roles
 from routes.inventario_mp import inventario_mp
+from routes.inventario_galletas import inventario_galletas
 from lib.jwt import get_role
 from db import seeder
 import json
@@ -36,8 +40,10 @@ app.register_blueprint(solicitud)
 
 app.register_blueprint(proveedores)
 app.register_blueprint(usuario)
+app.register_blueprint(ventas)
 app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
+app.register_blueprint(inventario_galletas)
 
 
 
@@ -46,9 +52,79 @@ def before_request():
     rol = get_role()
     g.rol = rol if rol else 'invitado'
     
+
+    allowed_routes = [
+        {
+            'rol': 'produccion',
+            'routes': [
+                {
+                'ruta': 'produccion.index',
+                'name': 'Produccion',
+                'icon': None
+            },
+                {
+                'ruta': 'inventario_mp.index',
+                'name': 'inventario P',
+                'icon': None
+            },
+                {
+                'ruta': 'inventario_mp.index',
+                'name': 'Inventario MP',
+                'icon': None
+            }
+            ]
+            
+        },
+        {
+            'rol': 'compras',
+            'routes': [
+                {
+                'ruta': 'compras.index',
+                'name': 'Compras',
+                'icon': None
+            },
+                {
+                'ruta': 'proveedores.index',
+                'name': 'Proveedores',
+                'icon': None
+            }
+            ]
+        },{
+            'rol': 'ventas',
+            'routes': [
+                {
+                'ruta': 'recetas.index',
+                'name': 'Recetas',
+                'icon': None
+                },
+                {
+                'ruta': 'inventario_mp.index',
+                'name': 'Inventario MP',
+                'icon': None
+                }
+            ]
+        
+        }]
+    #agrergar rutas de admin, haciendo un merge de las rutas de los otros roles
+    admin_routes = [
+        {
+            'rol': 'admin',
+            'routes': []
+        }
+    ]
+    for route in allowed_routes:
+        admin_routes[0]['routes'] += route['routes']
+    allowed_routes += admin_routes
+
+
+    g.allowed_routes = allowed_routes
+    
 @app.route("/")
 @app.route("/home")
 def index():
+
+
+
     rol = g.rol
     print(rol)
     if rol == 'invitado':
@@ -59,6 +135,8 @@ def index():
         return redirect('/produccion')
     if rol == 'compras':
         return redirect('/compras')
+    if rol == 'ventas':
+        return redirect('/recetas')
 
 
 

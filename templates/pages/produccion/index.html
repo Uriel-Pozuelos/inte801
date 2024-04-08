@@ -18,6 +18,7 @@
           <th class="text-black text-lg text-center p-5">Cantidad</th>
           <th class="text-black text-lg text-center p-5">Producción Actual</th>
           <th class="text-black text-lg text-center p-5">Estatus</th>
+          <th class="text-black text-lg text-center p-5">Agregar</th> <!-- Nueva columna Agregar -->
         </tr>
       </thead>
       <tbody>
@@ -26,10 +27,21 @@
         {% for sol in solicitud %}
         {% if sol.idSolicitud == prod.idSolicitud %}
         <tr>
-          <td class="text-md text-center p-5">{{ sol.nombreGalleta }}</td>
-          <td class="text-md text-center p-5">{{ sol.cantidad }}</td>
-          <td class="text-md text-center p-5">{{ prod.produccionActual }}</td>
-          <td class="text-md text-center p-5">{{ prod.estatus }}</td>
+          <td class="text-md text-center p-3">{{ prod.nombreGalleta }}</td>
+          <td class="text-md text-center p-3">{{ sol.cantidad }}</td>
+          <td class="text-md text-center p-3">{{ prod.produccionActual }}</td>
+          <td class="text-md text-center p-3">
+            {% if prod.estatus == 0 %}
+            En producción
+            {% elif prod.estatus == 1 %}
+            Terminado
+            {% else %}
+            {{ prod.estatus }}
+            {% endif %}
+          </td>
+          <td class="text-md text-center p-3">
+            <button type="button" class="btn btn-primary agregar-btn" data-id="{{ prod.idProduccion }}">Agregar</button> <!-- Botón Agregar -->
+          </td>
         </tr>
         {% endif %}
         {% endfor %}
@@ -37,46 +49,68 @@
       </tbody>
     </table>
   </div>
-  <div class="card-container ml-5 w-1/4">
+  <div class="card-container ml-5 w-1/4 hidden" id="formularioContainer">
     <div class="card bg-white text-black shadow-lg rounded-lg p-5">
       <div class="card-header text-center">
         <h3 class="card-title font-bold">Agregar</h3>
       </div>
       <div class="card-body">
         <form class="flex flex-col items-center gap-5">
+          <!-- Input oculto para el ID de producción -->
+          <input type="hidden" id="produccionId" name="id_produccion">
+          
           <div class="w-full">
-            <h5 for="tipoGalleta" class="font-bold text-lg mb-2 text-center">Galletas</h5>
-            <select class="form-select w-full" id="tipoGalleta" aria-label="Seleccione el tipo de galleta">
-              <option value="" disabled selected>Selecciona el tipo de galleta</option>
-              <!-- Dropdown options -->
-            </select>
+            <h5 for="tipoGalleta" class="font-bold text-lg mb-2 text-center">Tipo de Galleta</h5>
+            <!-- Se reemplaza el select por un input readonly -->
+            <input type="text" class="form-input w-full" id="tipoGalleta" readonly>
           </div>
           <!-- Input and button wrapper with flex and item alignment -->
           <div class="flex items-center w-full gap-2">
-            <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad">
-            <button type="submit" class="btn btn-primary">Agregar</button>
+            <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad" name="cantidad_prod">
+            <button type="submit" class="btn btn-primary" name="add_galleta">Agregar</button>
           </div>
           <div class="w-full">
             <h5 for="merma" class="font-bold text-lg mb-2 text-center">Merma</h5>
             <select class="form-select w-full" id="ingrediente" aria-label="Seleccione el ingrediente">
               <option value="" disabled selected>Selecciona el ingrediente</option>
-              <!-- Dropdown options -->
+              {% for item in inventario %}
+              <option value="{{ item.id }}">{{ item.nombreMateria }}</option>
+              {% endfor %}
             </select>
+            
             <input type="text" class="form-input mt-3 w-full" id="cantidadIngrediente" placeholder="Unidad de medida" readonly>
             <div class="flex items-center w-full gap-2 mt-3">
               <input type="number" class="form-input w-full" id="cantidadIngrediente" placeholder="Cantidad">
-              <button type="submit" class="btn btn-primary">Agregar</button>
+              <button type="submit" class="btn btn-primary" name="add_merma">Agregar</button>
+            </div>
+            <div class="flex justify-center mt-5">
+              <button type="button" class="btn btn-secondary" id="cancelarBtn">Cancelar</button>
             </div>
           </div>
         </form>
       </div>
     </div>
   </div>
-  
-  
 </div>
 
+<script>
+  document.querySelectorAll('.agregar-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const prodId = this.getAttribute('data-id');
+        const row = this.closest('tr'); // Encuentra la fila más cercana al botón presionado
+        const galletaNombre = row.cells[0].innerText; // Obtiene el texto del primer td de esa fila
 
+        document.getElementById('produccionId').value = prodId;
+        document.getElementById('tipoGalleta').value = galletaNombre; // Establece el nombre de la galleta en el input
+        document.getElementById('formularioContainer').classList.remove('hidden'); // Muestra el formulario
+    });
+});
 
+// Manejador para el botón cancelar
+document.getElementById('cancelarBtn').addEventListener('click', function() {
+    document.getElementById('formularioContainer').classList.add('hidden'); // Oculta el formulario
+});
+
+</script>
 
 {% endblock %}

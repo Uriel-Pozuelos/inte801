@@ -3,7 +3,7 @@ from wtforms import SelectField, IntegerField
 from wtforms.validators import InputRequired, NumberRange
 
 class SolicitudForm(Form):
-    idGalleta = SelectField('Nombre de Galleta', coerce=int, validators=[
+    idLoteGalletas = SelectField('Nombre de Galleta', coerce=int, validators=[
         InputRequired(message="Selecciona una galleta.")
     ], render_kw={"class": "input input-bordered w-full max-w-xs text-black"})
 
