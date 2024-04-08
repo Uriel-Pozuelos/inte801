@@ -1,0 +1,61 @@
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+	integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+	crossorigin="anonymous"
+	referrerpolicy="no-referrer"
+></script>
+
+<div id="app">
+	<article
+		class="container flex flex-row text-black justify-center items-center"
+	>
+		<h1>Cookies and Dreams</h1>
+		<img src="/static/img/2.webp" alt="" width="50" />
+	</article>
+	<article>
+		<table>
+			<tr>
+				<th>Galleta</th>
+				<th>Cantidad</th>
+				<th>Tipo Venta</th>
+                <th>Precio Unitario</th>
+			</tr>
+			<tbody>
+				{% for venta in detalles_venta %}
+				<tr>
+					<td>{{ venta.galleta }}</td>
+					<td>{{ venta.tipoVenta }}</td>
+					<td>{{ venta.cantidad }}</td>
+                    <td>{{ venta.precio_unitario }}</td>
+				</tr>
+				{% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>Total</td>
+                    <td>{{ total_venta }}</td>
+                </tr>
+			</tbody>
+		</table>
+	</article>
+</div>
+<button class="btn btn-secondary" id="download-pdf-button">
+	Descargar PDF
+</button>
+
+<script type="module">
+	const element = document.getElementById('app');
+	const options = {
+		margin: 1,
+		filename: 'Ticket.pdf',
+		image: { type: 'jpeg', quality: 0.98 },
+		html2canvas: { scale: 2 },
+		jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+	};
+
+	document
+		.getElementById('download-pdf-button')
+		.addEventListener('click', () => {
+			html2pdf().from(element).set(options).save();
+		});
+</script>

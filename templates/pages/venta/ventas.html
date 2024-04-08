@@ -1,0 +1,137 @@
+{% extends 'layouts/layout_page.html' %}
+{% from 'macros/_macros.html' import camposNuevos %} 
+
+{% block title %} Venta - Cookies and Dreams {% endblock %}
+    
+    {% block content %}
+
+    <style>
+            html,body{
+                overflow-y: hidden;
+            }
+            .my-auto {
+                margin-top: 3rem;
+            }
+            .flash-messages {
+                position: fixed;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1000;
+                width: 100%;
+                max-width: 600px;
+                padding: 10px;
+                color: #fff;
+                text-align: center;
+            }
+    </style>
+
+<section class="w-full h-screen flex flex-col">
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
+    </div>
+
+    <form class="text-black text-center" method="POST">
+        <div class="text-black mx-auto my-auto card w-96 bg-white p-5 space-y-5">
+            <span class="text-center text-2xl">Realizar una venta</span>
+            <input type="submit" value="Agregar" id="addVenta" name="btn" class="btn btn-accent w-full mt-2">
+        </div>
+        
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        {{camposNuevos(form.venta_id, class="hidden")}}
+        {{camposNuevos(form.fecha_venta, class="hidden")}}
+
+    </form>
+
+    <div class="flex flex-col items-center text-black mt-5">
+        <form action="" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <table class="table-md table-auto w-1/2" id="venta">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Id</th>
+                        <th class="px-4 py-2">Fecha</th>
+                        <th class="px-4 py-2">Usuario</th>
+                        <th class="px-4 py-2">Total</th>
+                        <!-- <th class="px-4 py-2"><input type="button" value="Ver" id="ver" name="btn" class="btn btn-secondary"></th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in ventas %}
+                    <tr>
+                        <td>{{venta.id}}</td>
+                        <td class="border px-4 py-2">{{ venta.fecha_venta }}</td>
+                        <td class="border px-4 py-2">{{ venta.idUsuario }}</td>
+                        <td class="border px-4 py-2">{{ venta.total }}</td>
+                        <!-- <td><input type="button" value="Ver" id="ver" name="btn" class="btn btn-secondary"></td>  -->
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Total</td>
+                        <td>{{ total }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+        
+        <table class="table-md table-auto w-12 hidden" id="detalle_venta" >
+            <thead >
+                <tr>
+                    <th class="px-4 py-2">Venta</th>
+                    <th class="px-4 py-2">Cantidad</th>
+                    <th class="px-4 py-2">Precio Unitario</th>
+                    <th class="px-4 py-2">Tipo Venta</th>
+                    <th class="px-4 py-2">
+                        <button type="button" id="regresar" class="btn btn-secondary">Regresar</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Haz que cargue unicamente las ventas asociadas a el boton que presiono -->
+                {% for detalle in detalle_venta %}
+                    <tr>
+                        <td class="border px-4 py-2">{{ detalle.venta_id }}</td>
+                        <td class="border px-4 py-2">{{ detalle.cantidad }}</td>
+                        <td class="border px-4 py-2">{{ detalle.precio_unitario }}</td>
+                        <td class="border px-4 py-2">{{ detalle.tipoVenta }}</td>
+                    </tr>
+                {% endfor %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="border px-4 py-2">Total</td>
+                        <td class="border px-4 py-2">{{ total }}</td>
+                    </tr>
+            </tbody>
+            
+        </table>
+</section>
+
+
+
+<script>
+    document.getElementById('fecha_venta').value = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    document.querySelectorAll('#ver').forEach((element, index) => {
+        element.addEventListener('click', function() {
+            document.getElementById('venta').classList.toggle('hidden');
+            document.getElementById('detalle_venta').classList.toggle('hidden');
+            /*venta_id = document.getElementById('venta_id').value;
+            venta_id = document.querySelectorAll('#venta_id')[index].value;
+            console.log(venta_id);*/
+            
+        });
+    });
+
+    document.getElementById('regresar').addEventListener('click', function() {
+        document.getElementById('venta').classList.toggle('hidden');
+        document.getElementById('detalle_venta').classList.toggle('hidden');
+    });
+</script>
+
+{% endblock %}
