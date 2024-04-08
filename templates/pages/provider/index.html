@@ -57,10 +57,16 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
               <th scope="col" class="px-6 py-3">Teléfono de empresa</th>
               <th scope="col" class="px-6 py-3">Persona atendió</th>
               <th scope="col" class="px-6 py-3">Acciones</th>
+              <!-- <th hidden>materiaprima_id</th>
+              <th hidden>material</th>
+              <th hidden>precio</th>
+              <th hidden>cantidad</th>
+              <th hidden>tipo</th>
+              <th hidden>material_tipo</th> -->
             </tr>
           </thead>
           <tbody class="bg-transparent border-b text-center">
-            {% for provider in proveedores %}
+            {% for provider in tbl_prov %}
             <tr id="proveedor_{{provider.id}}">
               <td class="border px-6 py-3">{{ provider.nombre_empresa }}</td>
               <td class="border px-6 py-3">{{ provider.direccion_empresa }}</td>
@@ -74,6 +80,18 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
                   Eliminar
                 </button>
               </td>
+              {% for materia in provider.mats_list %}
+              {% if materia.proveedor_id == provider.id %}
+              <tr hidden id="mat_{{materia.id}}">
+                <td hidden>{{ materia.proveedor_id }}</td>
+                <td hidden>{{ materia.material }}</td>
+                <td hidden>{{ materia.precio }}</td>
+                <td hidden>{{ materia.cantidad }}</td>
+                <td hidden>{{ materia.tipo }}</td>
+                <td hidden>{{ materia.material_tipo }}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
             </tr>
             {% endfor %}
           </tbody>
@@ -172,7 +190,7 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
             {{ edProv("Nombre encargado", "", "nombre_encargado_edit",
             "nombre_encargado_edit") }}
           </div>
-          <div class="mt-3 text-center">
+          <div class="mt-3 text-center" hidden id="title_productos">
             <label class="text-gray-700">Productos</label>
           </div>
           <div class="mt-3" id="rowMatsEdit"></div>
@@ -198,7 +216,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
     action="{{ url_for('proveedores.del_provider') }}"
     method="POST">
     <div class="card">
-      <dialog id="delProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
+      <dialog id="delProvider"
+        class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
           <h3 class="text-lg font-semibold">Eliminar Proveedor</h3>
         </div>
@@ -255,106 +274,57 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   const btnCloseProviderEdit = document.getElementById("btnCloseProviderEdit");
   const btnCloseProviderDel = document.getElementById("btnCloseProviderDel");
   const rowMatsEdit = document.getElementById("rowMatsEdit");
+  const title_productos = document.getElementById("title_productos");
 
   document.querySelectorAll('[id^="edit_"]').forEach((item) => {
     item.addEventListener("click", (event) => {
-      const id = item.id.split("_")[1];
-      const nombre_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(1)`
-      ).innerText;
-      const direccion_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(2)`
-      ).innerText;
-      const telefono_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(3)`
-      ).innerText;
-      const nombre_encargado = document.querySelector(
-        `#proveedor_${id} td:nth-child(4)`
-      ).innerText;
+        const id = item.id.split("_")[1];
+        const mats = document.querySelectorAll(`#mat_${id}`);
 
-      document.querySelector("#nombre_empresa_edit").value = nombre_empresa;
+        rowMatsEdit.innerHTML = ""; // Limpiar cualquier contenido existente
+
+        mats.forEach((mat) => {
+            const proveedor_id = mat.cells[0].innerText;
+            const material = mat.cells[1].innerText;
+            const precio = mat.cells[2].innerText;
+            const cantidad = mat.cells[3].innerText;
+            const tipo = mat.cells[4].innerText;
+            const material_tipo = mat.cells[5].innerText;
+
+            const newRow = `
+                <div class="mt-3">
+                    <input type="text" class="input mt-1 input-bordered input-primary" name="producto[]" value="${material}" placeholder="Nombre del producto">
+                    <input type="number" class="input mt-1 input-bordered input-primary" name="precio[]" value="${precio}" placeholder="Precio del producto">
+                    <input type="text" class="input mt-1 input-bordered input-primary" name="cantidad[]" value="${cantidad}" placeholder="Cantidad del producto">
+                </div>
+                <div class="mt-3">
+                    <select class="select select-bordered select-primary min-w-full max-w-xs" name="tipo[]">
+                        <option value="" selected disabled>Seleccione una opción</option>
+                        <!-- Opciones del select -->
+                    </select>
+                </div>
+            `;
+
+            rowMatsEdit.innerHTML += newRow;
+            
+          });
+          
+          rowMatsEdit.removeAttribute("hidden"); // Mostrar los campos de material
+        // Otro código que necesites ejecutar al hacer clic en el botón "Editar"
+        // ...
+        document.querySelector("#nombre_empresa_edit").value = nombre_empresa;
       document.querySelector("#direccion_empresa_edit").value =
         direccion_empresa;
       document.querySelector("#telefono_empresa_edit").value = telefono_empresa;
       document.querySelector("#nombre_encargado_edit").value = nombre_encargado;
       document.querySelector("#id").value = id;
 
-      fetch("/get_materials", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": "{{ csrf_token() }}",
-        },
-        body: JSON.stringify({ proveedor_id: id }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          rowMatsEdit.innerHTML = "";
-          data.forEach((item) => {
-            console.log(item.tipo);
-            const newRow = `
-                            <div class="mt-3">
-                                <input type="hidden" name="material_id[]" value="${
-                                  item.id
-                                }">
-                                <label class="text-gray-700">Producto</label>
-                                <input type="text" class="input mt-1 input-bordered input-primary" name="producto_edit[]" value="${
-                                  item.material
-                                }" placeholder="Nombre del producto">
-                                <label class="text-gray-700">Precio</label>
-                                <input type="number" class="input mt-1 input-bordered input-primary" name="precio_edit[]" value="${
-                                  item.precio
-                                }" placeholder="Precio del producto">
-                                <label class="text-gray-700">Cantidad</label>
-                                <input type="text" class="input mt-1 input-bordered input-primary" name="cantidad_edit[]" value="${
-                                  item.cantidad
-                                }" placeholder="Cantidad del producto">
-                            </div>
-                            <div class="mt-3">
-                                  <label class="text-gray-700">Tipo</label>
-                                  <select class="select select-bordered select-primary min-w-full max-w-xs" name="tipo_edit[]">
-                                      <option value="" selected disabled>Seleccione una opción</option>
-                                      <option value="costal-kilos" ${
-                                        item.tipo === "costal" ? "selected" : ""
-                                      }>Colstal</option>
-                                      <option value="galon-galones" ${
-                                        item.tipo === "galon" ? "selected" : ""
-                                      }>Galon</option>
-                                      <option value="pieza-gramos" ${
-                                        item.tipo === "pieza" ? "selected" : ""
-                                      }>Pieza</option>
-                                      <option value="caja-kilos" ${
-                                        item.tipo === "caja" ? "selected" : ""
-                                      }>Caja</option>
-                                      <option value="botella-litros" ${
-                                        item.tipo === "botella"
-                                          ? "selected"
-                                          : ""
-                                      }>Botella</option>
-                                      <option value="bolsa-gramos" ${
-                                        item.tipo === "bolsa" ? "selected" : ""
-                                      }>Bolsa</option>
-                                      <option value="paquete-kilos" ${
-                                        item.tipo === "paquete"
-                                          ? "selected"
-                                          : ""
-                                      }>Paquete</option>
-                                      <option value="lata-litros" ${
-                                        item.tipo === "lata" ? "selected" : ""
-                                      }>Lata</option>
-                                      <option value="sobre-gramos" ${
-                                        item.tipo === "sobre" ? "selected" : ""
-                                      }>Sobre</option>
-                                  </select>
-                            </div>
-                        `;
-            rowMatsEdit.insertAdjacentHTML("beforeend", newRow);
-          });
-        });
+
 
       document.querySelector("#editProvider").showModal();
     });
-  });
+});
+
 
   document.querySelectorAll('[id^="del_"]').forEach((item) => {
     item.addEventListener("click", (event) => {

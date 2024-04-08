@@ -1,4 +1,13 @@
-from flask import Blueprint, render_template, request, flash, redirect, Response, jsonify
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    flash,
+    redirect,
+    Response,
+    jsonify,
+    g
+)
 from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
 from models.proveedor import Proveedor
 from models.usuario import Usuario
@@ -21,11 +30,45 @@ def index():
 
     form = ProveedorForm()
     formE = ProveedorEditForm()
-    
+
     proveedores = Proveedor.query.filter_by(estatus=1).all()
     current_user = Usuario.query.filter_by(email=email).first()
     mat_prim_prov = MateriaPrimaProveedor.query.all()
     materiap = MateriaPrima.query.all()
+    
+    tbl_prov = []
+    for prov in proveedores:
+        mats_list = []
+        for mat in mat_prim_prov:
+            if mat.proveedor_id == prov.id:
+                for mp in materiap:
+                    if mp.id == mat.materiaprima_id:
+                        mats_list.append(
+                            {
+                                "id": mat.materiaprima_id,
+                                "material": mp.material,
+                                "precio": mat.precio,
+                                "cantidad": mat.cantidad,
+                                "tipo": mat.tipo,
+                                "proveedor_id": mat.proveedor_id,
+                                "material_tipo": mp.tipo,
+                            }
+                        )
+        tbl_prov.append(
+            {
+                "id": prov.id,
+                "nombre_empresa": prov.nombre_empresa,
+                "direccion_empresa": prov.direccion_empresa,
+                "telefono_empresa": prov.telefono_empresa,
+                "nombre_encargado": prov.nombre_encargado,
+                "estatus": prov.estatus,
+                "created_at": prov.created_at,
+                "updated_at": prov.updated_at,
+                "deleted_at": prov.deleted_at,
+                "id_usuario": prov.id_usuario,
+                "mats_list": mats_list,
+            }
+        )
 
     if request.method == "POST":
         pass
@@ -35,6 +78,7 @@ def index():
         proveedores=proveedores,
         form=form,
         current_user=current_user.id,
+        tbl_prov=tbl_prov,
     )
 
 
@@ -145,38 +189,46 @@ def ed_provider():
             proveedor.nombre_encargado = request.form.get("nombre_encargado_edit")
             proveedor.updated_at = fecha
             proveedor.id_usuario = current_user.id
-            
+
             productos_list = request.form.getlist("producto_edit[]")
             precio_list = request.form.getlist("precio_edit[]")
             cantidad_list = request.form.getlist("cantidad_edit[]")
             tipo_list = request.form.getlist("tipo_edit[]")
             id_list = request.form.getlist("material_id[]")
-            
+
             if len(tipo_list) == 0:
-                for idl, producto, precio, cant in zip(id_list, productos_list, precio_list, cantidad_list):
+                for idl, producto, precio, cant in zip(
+                    id_list, productos_list, precio_list, cantidad_list
+                ):
                     materia_prima = MateriaPrima.query.get(idl)
-                    mpp = MateriaPrimaProveedor.query.filter_by(materiaprima_id=materia_prima.id, proveedor_id=proveedor.id).first()
-                        
+                    mpp = MateriaPrimaProveedor.query.filter_by(
+                        materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
+                    ).first()
+
                     mpp.precio = precio
                     mpp.cantidad = cant
-                    
+
                     materia_prima.material = producto
 
             else:
-                for idl, producto, precio, cant, tip in zip(id_list, productos_list, precio_list, cantidad_list, tipo_list):
+                for idl, producto, precio, cant, tip in zip(
+                    id_list, productos_list, precio_list, cantidad_list, tipo_list
+                ):
                     materia_prima = MateriaPrima.query.get(idl)
-                    mpp = MateriaPrimaProveedor.query.filter_by(materiaprima_id=materia_prima.id, proveedor_id=proveedor.id).first()
-                    
+                    mpp = MateriaPrimaProveedor.query.filter_by(
+                        materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
+                    ).first()
+
                     presentacion = tip.split("-")[0]
                     tipom = tip.split("-")[1]
-                        
+
                     mpp.precio = precio
                     mpp.cantidad = cant
                     mpp.tipo = presentacion
-                    
+
                     materia_prima.material = producto
                     materia_prima.tipo = tipom
-            
+
             db.session.commit()
 
             flash("Proveedor actualizado correctamente", "success")
@@ -223,20 +275,19 @@ def del_provider():
 def get_mats():
     pov_id = request.json["proveedor_id"]
     mats_list = []
-    
+
     mats = MateriaPrimaProveedor.query.filter_by(proveedor_id=pov_id).all()
     for mat in mats:
         material = MateriaPrima.query.filter_by(id=mat.materiaprima_id).first()
-        
+
         mats_list.append(
-                {
-                    "id": mat.materiaprima_id,
-                    "material": material.material,
-                    "precio": mat.precio,
-                    "cantidad": mat.cantidad,
-                    "tipo": mat.tipo,
-                }
-            )
-        
-    return jsonify(mats_list)   
-        
+            {
+                "id": mat.materiaprima_id,
+                "material": material.material,
+                "precio": mat.precio,
+                "cantidad": mat.cantidad,
+                "tipo": mat.tipo,
+            }
+        )
+
+    return jsonify(mats_list)
