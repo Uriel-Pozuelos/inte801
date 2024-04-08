@@ -1,4 +1,4 @@
--- Active: 1710645724998@@127.0.0.1@3306@cookies
+-- Active: 1710919255921@@127.0.0.1@3306@cookies
 #drop DATABASE cookies;
 CREATE DATABASE  IF NOT EXISTS `cookies` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `cookies`;
@@ -775,3 +775,5 @@ JOIN ingredientes i ON i.galleta_id = g.id
 JOIN materiaprima mp ON mp.id = i.material_id
 where g.nombre = 'Galleta de avena';
 ;
+
+drop table if exists materia_prima_proveedor;
