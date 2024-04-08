@@ -57,25 +57,30 @@ def index():
 
 
 @app.route("/b", methods=["GET", "POST"])
-@token_required
-@allowed_roles(["ventas"])
+
 def b():
-    if request.method == "POST":
-        print(request.form)
-        datos = json.loads(request.form["datos"])
-
-        c = json.loads(datos["nombres"])
-        print(c)
-        print(type(c))
-
-    nombres = ["Juan", "Pedro", "Luis"]
-    apellidos = ["Perez", "Gomez", "Gonzalez"]
-
+    users = [
+        {
+            "id": 1,
+            "name": "Juan",
+            "email": "juan",
+        },
+        {
+            "id": 2,
+            "name": "Pedro",
+            "email": "pedro",
+        },
+        {
+            "id": 3,
+            "name": "Maria",
+            "email": "maria",
+        },
+    ]
+        
     return render_template(
         "pages/home/index.html",
-        nombres=nombres,
-        titulo="Home klkk",
-        apellidos=apellidos,
+        users=users,
+        titulo="Home klkk"
     )
 
 
