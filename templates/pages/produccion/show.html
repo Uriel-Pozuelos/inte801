@@ -25,18 +25,12 @@
                     <tbody>
                         {% for sol in solicitud %}
                         <tr>
-                            <td>
-                                {% for galleta in galletas %}
-                                {% if galleta.id == sol.idGalleta %}
-                                {{ galleta.nombre }}
-                                {% endif %}
-                                {% endfor %}
-                            </td>
+                            <td>{{ sol.nombreGalleta}}</td>
                             <td>{{ sol.cantidad }}</td>
                             <td>{{ sol.estatus }}</td>
                             <td>
-                                <input type="hidden" name="solicitud_id" value="{{ sol.idSolicitud }}">
-                                <button type="submit" name="aceptada" class="btn btn-primary">Aceptar</button>
+                                <input type="hidden" data-id="{{ sol.idSolicitud }}" name="solicitud_id" value="{{ sol.idSolicitud }}">
+                                <button type="submit" name="aceptada" class="btn btn-primary" data-id="{{ sol.idSolicitud }}">Aceptar</button>
                             </td>
                             <td>
                                 <button type="button" class="btn btn-accent reject-btn">Rechazar</button>
@@ -51,10 +45,10 @@
                 <div class="card bg-white shadow-xl p-5">
                     <div class="card-body">
                         <h2 class="card-title text-black">Justificación de rechazo</h2>
-                        <input type="hidden" id="rejection_solicitud_id" name="solicitud_id" value="">
+                        <input type="hidden" id="rejection_solicitud_id" name="reject_solicitud_id" value="">
                         <textarea class="textarea textarea-bordered w-full h-24 bg-white text-black" placeholder="Justificación" name="justificacion"></textarea>
                         <div class="card-actions justify-end">
-                            <button type="submit" name="rechazada" class="btn btn-primary">Enviar</button>
+                            <button type="submit" name="rechazada" class="btn btn-primary">Aceptar</button>
                             <button type="button" class="btn btn-accent rejected-btn">Cancelar</button>
                         </div>
                     </div>
@@ -64,43 +58,44 @@
     </div>
 </div>
 
-
-
-
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
         const rejectButtons = document.querySelectorAll('.reject-btn');
-        // Cambia 'cancel-btn' por 'rejected-btn' aquí
+        const acceptButtons = document.querySelectorAll('button[name="aceptada"]');
+        const solicitudIdInput = document.querySelector('input[name="solicitud_id"]'); // Asegúrate de que este es el selector correcto para tu input
         const cancelButton = document.querySelector('.justification-card .rejected-btn');
         const justificationCard = document.querySelector('.justification-card');
         const tableContainer = document.querySelector('.table-container');
-    
+
         rejectButtons.forEach(button => {
             button.addEventListener('click', function() {
-                // Muestra la card de justificación
                 justificationCard.classList.remove('hidden');
-                // Ajusta el ancho de la tabla para que sea 3/4
                 tableContainer.classList.remove('lg:w-full', 'mx-auto');
                 tableContainer.classList.add('lg:w-3/4');
-                
-                // Asigna el ID de la solicitud al input dentro de la card de justificación
+
                 const solicitudId = this.closest('tr').querySelector('input[name="solicitud_id"]').value;
                 document.getElementById('rejection_solicitud_id').value = solicitudId;
             });
         });
-    
+
         cancelButton.addEventListener('click', function() {
-            // Oculta la card de justificación
             justificationCard.classList.add('hidden');
-            // Restablece el ancho de la tabla para que esté centrada y ocupe el ancho completo
             tableContainer.classList.add('lg:w-full', 'mx-auto');
             tableContainer.classList.remove('lg:w-3/4');
-    
-            // Opcional: Limpia el valor del textarea y el input oculto si es necesario
+
             justificationCard.querySelector('textarea').value = '';
             document.getElementById('rejection_solicitud_id').value = '';
         });
+
+        acceptButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const solicitudId = this.getAttribute('data-id');
+                solicitudIdInput.value = solicitudId;
+                // No es necesario llamar a form.submit() aquí ya que el clic del botón ya está intentando enviar el formulario
+            });
+        });
     });
 </script>
+
 
 {% endblock %}
