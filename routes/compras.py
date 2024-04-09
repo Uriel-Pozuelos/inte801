@@ -43,8 +43,29 @@ def index():
     provs = []
 
     options = []
+    mats = []
 
     for mp in mpp:
+        for prov in proveedores:
+            if mp.proveedor_id == prov.id:
+                mat = MateriaPrima.query.filter_by(id=mp.materiaprima_id).first()
+                mats.append(
+                    {
+                        "id": mat.id,
+                        "material": mat.material,
+                        "presentacion": mp.tipo,
+                        "precio": mp.precio,
+                        "cantidad": mp.cantidad,
+                        "medida": mp.tipo,
+                    }
+                )
+
+                options.append(
+                    {
+                        "id_proveedor": prov.id,
+                        "mats": mats,
+                    }
+                )
 
     for compra in compras:
         for det in det_com:
@@ -75,6 +96,7 @@ def index():
         proveedores_list=proveedores,
         materias_list=materias_primas_by_proveedor,
         usuarios_list=usuarios,
+        options=options,
     )
 
 
@@ -149,18 +171,20 @@ def purchase():
 
                             db.session.add(det_compra)
                             db.session.commit()
-                            
-                            cant_mpp = MateriaPrimaProveedor.query.filter_by(materiaprima_id=mat_id).first()
-                            
+
+                            cant_mpp = MateriaPrimaProveedor.query.filter_by(
+                                materiaprima_id=mat_id
+                            ).first()
+
                             inv_mat_prima = InventarioMP(
-                                id_materia_prima = mat_id,
-                                cantidad = (int(cant_mpp.cantidad) * int(cant)),
-                                idCompra = compra.id,
-                                caducidad = cl,
-                                estatus = 1,
-                                created_at = created_at
+                                id_materia_prima=mat_id,
+                                cantidad=(int(cant_mpp.cantidad) * int(cant)),
+                                idCompra=compra.id,
+                                caducidad=cl,
+                                estatus=1,
+                                created_at=created_at,
                             )
-                            
+
                             db.session.add(inv_mat_prima)
                             db.session.commit()
 
@@ -174,4 +198,4 @@ def purchase():
 
 
 def cleanNumber(number):
-    return number.replace('e', '')
+    return number.replace("e", "")
