@@ -64,12 +64,7 @@ def before_request():
             },
                 {
                 'ruta': 'inventario_mp.index',
-                'name': 'inventario P',
-                'icon': None
-            },
-                {
-                'ruta': 'inventario_mp.index',
-                'name': 'Inventario MP',
+                'name': 'Inventarios',
                 'icon': None
             }
             ]
