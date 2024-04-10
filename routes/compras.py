@@ -42,6 +42,8 @@ def index():
     materias_primas_by_proveedor = []
     provs = []
 
+    
+
     for compra in compras:
         for det in det_com:
             if compra.id == det.id_compra:

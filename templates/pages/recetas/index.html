@@ -36,9 +36,17 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 
+	<div>
+		<h1 class="text-3xl font-bold text-center text-primary">Recetas</h1>
+		<div class="flex justify-center w-full">
+			<a class="btn btn-primary w-full" href={{url_for('recetas.create')}}>Crear Receta</a>
+		</div>
+	</div>
 	<section
 		class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto"
 	>
+	
+
 		{% for receta in recetas %}
 		<div class="card w-96 bg-accent shadow-xl">
 			<figure>

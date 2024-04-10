@@ -12,6 +12,9 @@ from routes.poduccion import produccion
 from routes.proveedores import proveedores
 from routes.compras import compras
 from routes.usuario import usuario
+from routes.venta import ventas
+from db.db import db, create_db
+from lib.jwt import token_required, allowed_roles
 from routes.inventario_mp import inventario_mp
 from routes.inventario_galletas import inventario_galletas
 from lib.jwt import get_role
@@ -37,6 +40,7 @@ app.register_blueprint(solicitud)
 
 app.register_blueprint(proveedores)
 app.register_blueprint(usuario)
+app.register_blueprint(ventas)
 app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
 app.register_blueprint(inventario_galletas)
@@ -60,12 +64,7 @@ def before_request():
             },
                 {
                 'ruta': 'inventario_mp.index',
-                'name': 'inventario P',
-                'icon': None
-            },
-                {
-                'ruta': 'inventario_mp.index',
-                'name': 'Inventario MP',
+                'name': 'Inventarios',
                 'icon': None
             }
             ]
@@ -97,6 +96,11 @@ def before_request():
                 'ruta': 'inventario_mp.index',
                 'name': 'Inventario MP',
                 'icon': None
+                },
+                {
+                    'ruta': 'ventas.index',
+                    'name': 'Ventas',
+                    'icon': None
                 }
             ]
         
@@ -118,9 +122,6 @@ def before_request():
 @app.route("/")
 @app.route("/home")
 def index():
-
-
-
     rol = g.rol
     print(rol)
     if rol == 'invitado':

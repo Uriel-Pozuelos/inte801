@@ -27,10 +27,8 @@ def get_inventario_galletas():
         lote_data = lote.serialize()
         lote_data['nombreGalleta'] = galletas_dict.get(lote.idGalleta, 'Nombre no encontrado')
         registros_modificados.append(lote_data)
+    
     return registros_modificados
-
-#def get_InventarioGalletas():
- #   inventario_galletas = 
 
 def get_Galleta_nombre_por_idLote(idLoteGalletas):
     inventario_item = Inventario_galletas.query.filter_by(idLoteGalletas=idLoteGalletas).first()
@@ -68,5 +66,6 @@ def index():
             db.session.commit()
 
     lotes = get_inventario_galletas()
+    print(f"Lotes: {lotes}")
     solicitudes = get_Solicitud_inventario()
     return render_template('pages/solicitud_produccion/index.html', form=form, solicitudes = solicitudes, lotes=lotes)

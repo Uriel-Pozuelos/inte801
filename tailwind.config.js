@@ -5,8 +5,12 @@ module.exports = {
 		extend: {}
 	},
 	plugins: [require('daisyui')],
+
 	daisyui: {
 		themes: [
+			'retro',
+			'dracula',
+			'corporate',
 			{
 				cookies: {
 					primary: '#6F3AC5',
