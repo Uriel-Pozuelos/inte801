@@ -37,8 +37,9 @@ def index():
     materiap = MateriaPrima.query.all()
 
     tbl_prov = []
+    mats_list = []
+
     for prov in proveedores:
-        mats_list = []
         for mat in mat_prim_prov:
             if mat.proveedor_id == prov.id:
                 for mp in materiap:
@@ -79,6 +80,7 @@ def index():
         form=form,
         current_user=current_user.id,
         tbl_prov=tbl_prov,
+        mats_list=mats_list
     )
 
 
@@ -124,34 +126,38 @@ def new_provider():
             productos = request.form.getlist("producto[]")
             precios = request.form.getlist("precio[]")
             cantidad = request.form.getlist("cantidad[]")
-            tipo = request.form.getlist("tipo[]")
+            presentacion = request.form.getlist("presentacion[]")
+            medida =  request.form.getlist("medida[]")
 
-            for producto, precio, cant, tip in zip(productos, precios, cantidad, tipo):
-                presentacion = tip.split("-")[0]
-                tipom = tip.split("-")[1]
+            print(productos)
+            print(precios)
+            print(cantidad)
+            print(presentacion)
+            print(medida)
 
+            for producto, precio, cant, pres, med in zip(productos, precios, cantidad, presentacion, medida):
                 mp = MateriaPrima.query.filter_by(
                     material=producto.lower()).first()
 
-                if mp is None:
-                    mp = MateriaPrima(
+                
+                mp = MateriaPrima(
                         material=str(producto),
-                        tipo=str(tipom),
+                        tipo=str(med),
                         estatus=1,
                         created_at=fecha,
                         updated_at=fecha,
                         deleted_at=None,
                     )
 
-                    db.session.add(mp)
-                    db.session.commit()
+                db.session.add(mp)
+                db.session.commit()
 
                 mat_prim_prov = MateriaPrimaProveedor(
                     materiaprima_id=mp.id,
                     proveedor_id=proveedor.id,
                     precio=float(precio),
                     cantidad=cant,
-                    tipo=presentacion,
+                    tipo=pres,
                     created_at=fecha,
                 )
 
