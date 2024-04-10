@@ -6,7 +6,7 @@ from flask import (
     redirect,
     Response,
     jsonify,
-    g
+    g,
 )
 from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
 from models.proveedor import Proveedor
@@ -37,8 +37,9 @@ def index():
     materiap = MateriaPrima.query.all()
 
     tbl_prov = []
+    mats_list = []
+
     for prov in proveedores:
-        mats_list = []
         for mat in mat_prim_prov:
             if mat.proveedor_id == prov.id:
                 for mp in materiap:
@@ -79,6 +80,7 @@ def index():
         form=form,
         current_user=current_user.id,
         tbl_prov=tbl_prov,
+        mats_list=mats_list,
     )
 
 
@@ -124,34 +126,38 @@ def new_provider():
             productos = request.form.getlist("producto[]")
             precios = request.form.getlist("precio[]")
             cantidad = request.form.getlist("cantidad[]")
-            tipo = request.form.getlist("tipo[]")
+            presentacion = request.form.getlist("presentacion[]")
+            medida = request.form.getlist("medida[]")
 
-            for producto, precio, cant, tip in zip(productos, precios, cantidad, tipo):
-                presentacion = tip.split("-")[0]
-                tipom = tip.split("-")[1]
+            print(productos)
+            print(precios)
+            print(cantidad)
+            print(presentacion)
+            print(medida)
 
-                mp = MateriaPrima.query.filter_by(
-                    material=producto.lower()).first()
+            for producto, precio, cant, pres, med in zip(
+                productos, precios, cantidad, presentacion, medida
+            ):
+                mp = MateriaPrima.query.filter_by(material=producto.lower()).first()
 
-                if mp is None:
-                    mp = MateriaPrima(
-                        material=str(producto),
-                        tipo=str(tipom),
-                        estatus=1,
-                        created_at=fecha,
-                        updated_at=fecha,
-                        deleted_at=None,
-                    )
+                mp = MateriaPrima(
+                    material=str(producto),
+                    tipo=str(med),
+                    estatus=1,
+                    created_at=fecha,
+                    updated_at=fecha,
+                    deleted_at=None,
+                )
 
-                    db.session.add(mp)
-                    db.session.commit()
+                db.session.add(mp)
+                db.session.commit()
 
                 mat_prim_prov = MateriaPrimaProveedor(
                     materiaprima_id=mp.id,
                     proveedor_id=proveedor.id,
                     precio=float(precio),
                     cantidad=cant,
-                    tipo=presentacion,
+                    tipo=pres,
                     created_at=fecha,
                 )
 
@@ -185,53 +191,11 @@ def ed_provider():
             id = request.form.get("id")
             proveedor = Proveedor.query.get(id)
             proveedor.nombre_empresa = request.form.get("nombre_empresa_edit")
-            proveedor.direccion_empresa = request.form.get(
-                "direccion_empresa_edit")
-            proveedor.telefono_empresa = request.form.get(
-                "telefono_empresa_edit")
-            proveedor.nombre_encargado = request.form.get(
-                "nombre_encargado_edit")
+            proveedor.direccion_empresa = request.form.get("direccion_empresa_edit")
+            proveedor.telefono_empresa = request.form.get("telefono_empresa_edit")
+            proveedor.nombre_encargado = request.form.get("nombre_encargado_edit")
             proveedor.updated_at = fecha
             proveedor.id_usuario = current_user.id
-
-            # productos_list = request.form.getlist("producto_edit[]")
-            # precio_list = request.form.getlist("precio_edit[]")
-            # cantidad_list = request.form.getlist("cantidad_edit[]")
-            # tipo_list = request.form.getlist("tipo_edit[]")
-            # id_list = request.form.getlist("material_id[]")
-
-            # if len(tipo_list) == 0:
-            #     for idl, producto, precio, cant in zip(
-            #         id_list, productos_list, precio_list, cantidad_list
-            #     ):
-            #         materia_prima = MateriaPrima.query.get(idl)
-            #         mpp = MateriaPrimaProveedor.query.filter_by(
-            #             materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
-            #         ).first()
-
-            #         mpp.precio = precio
-            #         mpp.cantidad = cant
-
-            #         materia_prima.material = producto
-
-            # else:
-            #     for idl, producto, precio, cant, tip in zip(
-            #         id_list, productos_list, precio_list, cantidad_list, tipo_list
-            #     ):
-            #         materia_prima = MateriaPrima.query.get(idl)
-            #         mpp = MateriaPrimaProveedor.query.filter_by(
-            #             materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
-            #         ).first()
-
-            #         presentacion = tip.split("-")[0]
-            #         tipom = tip.split("-")[1]
-
-            #         mpp.precio = precio
-            #         mpp.cantidad = cant
-            #         mpp.tipo = presentacion
-
-            #         materia_prima.material = producto
-            #         materia_prima.tipo = tipom
 
             db.session.commit()
 
@@ -304,46 +268,30 @@ def ed_mats():
     try:
         if request.method == "POST":
             productos_list = request.form.getlist("producto_edit[]")
-            precios_list = request.form.getlist("precio_edit[]")
+            precio_list = request.form.getlist("precio_edit[]")
             cantidad_list = request.form.getlist("cantidad_edit[]")
-            tipos_list = request.form.getlist("tipo_edit[]")
-            id_list = request.form.getlist("matids[]")
+            presentacion_list = request.form.getlist("presentacion_edit[]")
+            medida_list = request.form.getlist("medida_edit[]")
+            id_list = request.form.getlist("material_id[]")
             prov_id = request.form.get("providerId")
+            proveedor = Proveedor.query.get(prov_id)
 
-            presentacion = ""
-            medida = ""
+            for idl, producto, precio, cant, pres, med in zip(
+                id_list, productos_list, precio_list, cantidad_list, presentacion_list, medida_list
+            ):
+                materia_prima = MateriaPrima.query.get(idl)
+                mpp = MateriaPrimaProveedor.query.filter_by(
+                    materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
+                ).first()
 
-            proveedor = Proveedor.query.filter_by(id=int(prov_id)).first()
-            mpp = MateriaPrimaProveedor.query.all()
-
-            for product, precio, cantidad, tipo, mid in zip(productos_list, precios_list, cantidad_list, tipos_list, id_list):
-                if tipo:
-                    presentacion = tipo.split("-")[0]
-                    medida = tipo.split("-")[1]
-
-                    for mp in mpp:
-                        if mp.materiaprima_id == int(mid) and mp.proveedor_id == int(proveedor.id):
-                            materia = MateriaPrima.query.filter_by(
-                                id=mp.materiaprima_id).first()
-                            materia.material = product
-                            materia.tipo = medida
-
-                            mp.precio = precio
-                            mp.cantidad = cantidad
-                            mp.tipo = presentacion
-
-                            db.session.commit()
-                else:
-                    for mp in mpp:
-                        if mp.materiaprima_id == int(mid) and mp.proveedor_id == int(proveedor.id):
-                            materia = MateriaPrima.query.filter_by(
-                                id=mp.materiaprima_id).first()
-                            materia.material = product
-
-                            mp.precio = precio
-                            mp.cantidad = cantidad
-
-                            db.session.commit()
+                mpp.precio = precio
+                mpp.cantidad = cant
+                mpp.tipo = pres
+                
+                materia_prima.material = producto
+                materia_prima.tipo = med
+                
+                db.session.commit()
 
             flash("Materiales actualizados correctamente", "success")
             return redirect("/proveedores")

@@ -1,38 +1,143 @@
-{% extends 'layouts/layout.html' %}
-{% from 'macros/_button.html' import Button %}
-{% from 'macros/_macros.html' import camposNuevos %}
-
-{% block title %} Dashboard - Cookies and Dreams {% endblock %}
-
-{% block content %}
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
+import Button %} {% from 'macros/_macros.html' import camposNuevos %}
+{% block title %} Dashboard - Cookies and Dreams {% endblock %} {%
+block content %}
 
 <style>
-    .flash-messages {
-        position: fixed;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        width: 100%;
-        max-width: 600px;
-        padding: 10px;
-        color: #fff;
-        text-align: center;
-    }
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
 </style>
+<script src="/static/js/chart.js"></script>
 
-<section class="w-full h-screen flex justify-center items-center flex-col">
-    <div class="flash-messages">
-    </div>
-    <form method="POST" novalidate>
-        <div class="card w-96 bg-primary text-primary-content">
-            <div class="card-body">
-                <h2 class="card-title">Dashboard</h2>
-                
-                
-            </div>
-        </div>
-    </form>
+<section class="w-full h-screen flex flex-col">
+	<div class="flash-messages"></div>
+	<section class="mt-8 w-full flex justify-between">
+		<div class="card w-96 bg-accent text-neutral-content">
+			<div class="card-body">
+				<h2 className="card-title text-4xl font-bold text-blue-400">
+					Galleta mas vendida
+				</h2>
+
+				<p class="text-2xl font-bold" id="cookie_name"></p>
+			</div>
+		</div>
+		<div class="card w-96 bg-accent text-neutral-content">
+			<div class="card-body">
+				<h2 className="card-title text-4xl font-bold text-blue-400">
+					Galleta con mas mermas
+				</h2>
+
+				<p class="text-2xl font-bold" id="cookie_nameM"></p>
+			</div>
+		</div>
+	</section>
+	<section>
+		<div>
+			<select
+				name="idProd"
+				id="idProd"
+				class="select select-bordered"
+			>
+				{% for prod in produccion_ids %}
+				<option value="{{ prod }}">{{ prod }}</option>
+				{% endfor %}
+			</select>
+			<span>
+				El empreso que realizo la produccion es:
+				<span id="empreado"></span>
+			</span>
+		</div>
+	</section>
+	<section class="grid grid-cols-2 gap-4 w-full h-full p-4">
+		<div>
+			<canvas id="ranking_cookies" width="400"></canvas>
+		</div>
+		<div>
+			<canvas id="ranking_mermas" width="400"></canvas>
+		</div>
+	</section>
 </section>
+
+<script>
+	const rankingCookies = JSON.parse('{{ ranking_cookies | safe }}');
+	const ranking_mermas = JSON.parse('{{ ranking_mermas | safe }}');
+	const empleado_produccion = JSON.parse(
+		'{{ lista_nombres_empleados | tojson }}'
+	);
+
+	document.getElementById('cookie_name').innerText =
+		rankingCookies.labels[0];
+
+	document.getElementById('cookie_nameM').innerText =
+		ranking_mermas.labels[0];
+
+	function cambiarEmpleado(id) {
+		const empleado = empleado_produccion.find(
+			empleado => empleado.id === parseInt(id)
+		);
+		document.getElementById('empreado').innerText =
+			empleado.nombre ?? 'El empleado no existe';
+	}
+	cambiarEmpleado(document.getElementById('idProd').value);
+
+	document.getElementById('idProd').addEventListener('change', e => {
+		const idProd = e.target.value;
+		console.log(idProd);
+		const empleado = empleado_produccion.find(
+			empleado => empleado.id === parseInt(idProd)
+		);
+
+		document.getElementById('empreado').innerText =
+			empleado.nombre ?? 'El empleado no existe';
+	});
+
+	const ctx = document
+		.getElementById('ranking_cookies')
+		.getContext('2d');
+
+	new Chart(ctx, {
+		type: 'bar',
+		data: {
+			labels: rankingCookies.labels,
+			datasets: rankingCookies.datasets
+		},
+		options: {
+			scales: {
+				y: {
+					beginAtZero: true
+				}
+			}
+		}
+	});
+
+	const ctx2 = document
+		.getElementById('ranking_mermas')
+		.getContext('2d');
+
+	new Chart(ctx2, {
+		type: 'bar',
+		data: {
+			labels: ranking_mermas.labels,
+			datasets: ranking_mermas.datasets
+		},
+		options: {
+			scales: {
+				y: {
+					beginAtZero: true
+				}
+			}
+		}
+	});
+</script>
 
 {% endblock %}

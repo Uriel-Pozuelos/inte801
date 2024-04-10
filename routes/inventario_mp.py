@@ -28,9 +28,12 @@ def index():
     email = token["email"]
 
     inv_mat_prima = InventarioMP.query.all()
+
     inv_mat_prima = [inv.serialize() for inv in inv_mat_prima]
 
+
     materias_primas = MateriaPrima.query.all()
+    materias_primas = [mat.serialize() for mat in materias_primas]
     compras = Compra.query.all()
     all_mermas = MermaMateria.query.all()
 
@@ -60,47 +63,62 @@ def index():
 
     for inv_mp in inv_mat_prima:
         for mat in materias_primas:
-            if inv_mp.id_materia_prima == mat.id:
-                material = mat.material
-                tipo = mat.tipo
-                prov_mpp = MateriaPrimaProveedor.query.filter_by(
-                    materiaprima_id=mat.id
-                ).first()
+            if inv_mp['id_materia_prima'] == mat['id']:
+                material = mat['material']
+                tipo = mat['tipo']
                 
 
-                prov = Proveedor.query.filter_by(id=prov_mpp.proveedor_id).first()
-                merma_inv = MermaMateria.query.filter_by(
-                    idInventarioMaterias=inv_mp.id
+                prov_mpp = MateriaPrimaProveedor.query.filter_by(
+                    materiaprima_id=mat["id"]
                 ).first()
 
-                estatus_merma = ""
-                fecha_caducidad = inv_mp.caducidad
+                if prov_mpp is None:
+                    continue
 
-                if fecha_actual > inv_mp.caducidad:
+                prov_mpp = prov_mpp.serialize()
+
+                
+
+                prov = Proveedor.query.filter_by(id=prov_mpp['proveedor']).first()
+                merma_inv = MermaMateria.query.filter_by(
+                    idInventarioMaterias=inv_mp["id"]
+                ).first()
+
+                print(inv_mp)
+
+                
+
+                estatus_merma = ""
+                fecha_caducidad = inv_mp["caducidad"]
+
+                if fecha_actual > inv_mp["caducidad"]:
                     estatus_merma = "Caduco"
-                elif fecha_actual < inv_mp.caducidad:
+                elif fecha_actual < inv_mp["caducidad"]:
                     estatus_merma = "Consumible"
                 elif merma_inv is not None:
                     estatus_merma = "Mermado"
 
                 estatus = ""
 
-                if int(inv_mp.cantidad) == 0:
+                if int(inv_mp["cantidad"]) == 0:
                     estatus = "Agotado"
-                elif int(inv_mp.cantidad) < 10 and int(inv_mp.cantidad) > 4:
+                elif int(inv_mp["cantidad"]) < 10 and int(inv_mp["cantidad"]) > 4:
                     estatus = "Por terminarse"
-                elif int(inv_mp.cantidad) > 10:
+                elif int(inv_mp["cantidad"]) > 10:
                     estatus = "Disponible"
+
+                nombre_empresa = Proveedor.query.filter_by(id=prov_mpp["proveedor"]).first().nombre_empresa
+
 
                 all_inv_mp.append(
                     {
-                        "id": inv_mp.id,
+                        "id": inv_mp["id"],
                         "nombre": material,
-                        "cantidad": inv_mp.cantidad,
+                        "cantidad": inv_mp["cantidad"],
                         "unidad_medida": tipo,
-                        "proveedor": prov.nombre_empresa,
+                        "proveedor": nombre_empresa,
                         "caducidad": str(fecha_caducidad).split(" ")[0],
-                        "fecha_compra": inv_mp.created_at,
+                        "fecha_compra": inv_mp["created_at"],
                         "estatus": estatus,
                         "merma": estatus_merma,
                     }

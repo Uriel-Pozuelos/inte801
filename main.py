@@ -1,6 +1,6 @@
 
 from flask import Flask, render_template, request,g,redirect,url_for
-
+from routes.dashboard import dashboard
 from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
@@ -44,7 +44,7 @@ app.register_blueprint(ventas)
 app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
 app.register_blueprint(inventario_galletas)
-
+app.register_blueprint(dashboard)
 
 
 @app.before_request
