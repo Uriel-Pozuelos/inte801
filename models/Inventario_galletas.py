@@ -6,10 +6,10 @@ class Inventario_galletas(db.Model):
     idLoteGalletas = db.Column(db.Integer, primary_key=True)
     idGalleta = db.Column(db.Integer, nullable=False)
     cantidad = db.Column(db.Integer, nullable = False)
-    estatus = db.Column(db.Boolean, default= 0)
+    estatus = db.Column(db.Boolean, default= 1)
     fechaCaducidad = db.Column(db.DateTime, nullable = False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
-    updated_at = db.Column(db.DateTime, nullable = True)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
 
     def serialize(self):

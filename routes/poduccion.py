@@ -1,13 +1,15 @@
 from flask import Blueprint, request, render_template, redirect, url_for
 from models.Produccion import Produccion
-from models.Recetas import Galletas, MateriaPrima
+from models.Recetas import Galletas, MateriaPrima, Ingredientes
 from models.solicitud_produccion import solicitud_produccion
 from models.Inventario_galletas import Inventario_galletas
 from models.inventario_mp import InventarioMP
 from lib.d import D
 from db.db import db
 from forms.Produccion import ProduccionForm
-from datetime import datetime
+from datetime import datetime, timedelta
+from sqlalchemy import cast, Date
+
 
 produccion = Blueprint('produccion', __name__, template_folder='templates')
 log = D(debug=True)
@@ -110,14 +112,41 @@ def index():
 
     if request.method == 'POST':
         if 'add_galleta' in request.form:
-            produccion_id = request.form.get('id_produccion')
+            print("Entró")
+            nombre_galleta = request.form.get('tipo_galleta')
             cantidad_prod = request.form.get('cantidad_prod')
-            produccion_filter = Produccion.query.filter(idProduccion = produccion_id).all()
+            fecha_hoy = datetime.now()
+            fecha_caducidad = fecha_hoy + timedelta(days=20)
+            fecha_caducidad_date = fecha_caducidad.date()
+            galleta = Galletas.query.filter_by(nombre = nombre_galleta).all()
+            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
+            if inventario_activo:
+                total = inventario_activo.cantidad + int(cantidad_prod)
+                inventario_activo.cantidad = total
+                inventario_activo.updated_at = datetime.now()
+            else:
+                Inventario_galletas(
+                    idGalleta = galleta.id,
+                    cantidad = cantidad_prod,
+                    estatus = 1,
+                    fechaCaducidad = fecha_caducidad
+                )
+            
+            
+            '''produccion_id = request.form.get('id_produccion')
+            cantidad_prod = request.form.get('cantidad_prod')   
+            nombre_galleta = request.form.get('tipo_galleta')
+            galleta = Galletas.query.get(nombre = nombre_galleta)
+            ingredientes = Ingredientes.query.filter(galleta_id = galleta.id).all()
+            for ingrediente in ingredientes:
+                lote_materia = Inventario_galletas.query.filter(id_materia_prima = ingredientes.material_id).all()
+                inventario_restante = int((ingrediente.cantidad * cantidad_prod))
+            galleta_bro = Produccion.query.get(idProduccion = produccion_id)
+            produccion_filter = Produccion.query.get(idProduccion = produccion_id)
             total = int(produccion_filter.produccionActual + cantidad_prod)
             produccion_filter.produccionActual = total
             produccion_filter.updated_at = datetime.now()
-            db.session.commit()
-
+            db.session.commit()'''
 
 
     
@@ -164,6 +193,6 @@ def revisar_solicitudes():
                 inventario.estatus = 1
                 inventario.updated_at = datetime.now()
                 db.session.commit()
-                return redirect(url_for('produccion.revisar_solicitudes'))
-
+                
+    print(solicitudes)
     return render_template('pages/produccion/show.html', solicitud=solicitues_filtro, galletas = galletas)

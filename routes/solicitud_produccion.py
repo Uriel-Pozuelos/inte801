@@ -32,20 +32,20 @@ def get_inventario_galletas():
 #def get_InventarioGalletas():
  #   inventario_galletas = 
 
-def get_inventario_dict():
-    inventario = get_inventario_galletas()
-    inventario_dict = {lote.idLoteGalletas: lote.nombreGalleta for lote in inventario}
-    return inventario_dict
+def get_Galleta_nombre_por_idLote(idLoteGalletas):
+    inventario_item = Inventario_galletas.query.filter_by(idLoteGalletas=idLoteGalletas).first()
+    if inventario_item:
+        galletas_dict = get_Galletas_dict()
+        return galletas_dict.get(inventario_item.idGalleta, 'Nombre no encontrado')
+    return 'Lote no encontrado'
 
 def get_Solicitud_inventario():
     solicitudes = solicitud_produccion.query.all()
-    inventario_dict = get_Galletas_dict()  # Obtener el diccionario de galletas
-    # Modificar cada solicitud para reemplazar idGalleta con el nombre de la galleta
+    # No necesitas obtener el diccionario de galletas aquí si ajustas la lógica según lo sugerido
     solicitudes_modificadas = []
     for solicitud in solicitudes:
         solicitud_data = solicitud.serialize()
-        # Usar el diccionario para obtener el nombre de la galleta
-        solicitud_data['nombreGalleta'] = inventario_dict.get(solicitud.idLoteGalletas, 'Nombre no encontrado')
+        solicitud_data['nombreGalleta'] = get_Galleta_nombre_por_idLote(solicitud.idLoteGalletas)
         solicitudes_modificadas.append(solicitud_data)
     return solicitudes_modificadas
 
