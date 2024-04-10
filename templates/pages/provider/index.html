@@ -48,8 +48,10 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   <div class="md:contaner px-4">
     <section class="mt-5">
       <div class="relative overflow-x-auto">
-        <table class="w-full text-md text-left rtl:text-right text-black" id="tbl_prov">
-          <thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+        <table class="w-full text-md text-left rtl:text-right text-black"
+          id="tbl_prov">
+          <thead
+            class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
             <tr>
               <th scope="col" class="px-6 py-3">Nombre de empresa</th>
               <th scope="col" class="px-6 py-3">Dirección de empresa</th>
@@ -78,21 +80,22 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
                 <button id="del_{{provider.id}}" class="btn btn-danger">
                   Eliminar proveedor
                 </button>
-                <button id="viewmats_{{provider.id}}" class="btn btn-primary">Ver Materiales</button>
+                <button id="viewmats_{{provider.id}}"
+                  class="btn btn-primary">Ver Materiales</button>
               </td>
               {% for materia in provider.mats_list %}
               {% if materia.proveedor_id == provider.id %}
-            <tr id="mat_{{materia.id}}">
-              <td hidden>{{ materia.id }}</td>
-              <td hidden>{{ materia.proveedor_id }}</td>
-              <td hidden>{{ materia.material }}</td>
-              <td hidden>{{ materia.precio }}</td>
-              <td hidden>{{ materia.cantidad }}</td>
-              <td hidden>{{ materia.tipo }}</td>
-              <td hidden>{{ materia.material_tipo }}</td>
-            </tr>
-            {% endif %}
-            {% endfor %}
+              <tr id="mat_{{materia.id}}">
+                <td hidden>{{ materia.id }}</td>
+                <td hidden>{{ materia.proveedor_id }}</td>
+                <td hidden>{{ materia.material }}</td>
+                <td hidden>{{ materia.precio }}</td>
+                <td hidden>{{ materia.cantidad }}</td>
+                <td hidden>{{ materia.tipo }}</td>
+                <td hidden>{{ materia.material_tipo }}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
             </tr>
             {% endfor %}
           </tbody>
@@ -102,7 +105,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   </div>
 
   <!-- Form Add -->
-  <form novalidate action="{{ url_for('proveedores.new_provider') }}" method="POST">
+  <form novalidate action="{{ url_for('proveedores.new_provider') }}"
+    method="POST">
     <div class="card">
       <dialog id="addProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
@@ -130,11 +134,12 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
             <button type="button" class="btn btn-primary w-auto" id="btnAddRow">
               Agregar Fila
             </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnRemoveRow">
+            <button type="button" class="btn btn-danger w-auto"
+              id="btnRemoveRow">
               Eliminar Fila
             </button>
           </div>
-          <div class="mt-3 text-center">
+          <div class="mt-3 text-center" id="lbl_productos" hidden>
             <label class="text-gray-700">Productos</label>
           </div>
           <div id="rows-container"></div>
@@ -142,7 +147,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
             <button type="submit" class="btn btn-primary w-auto">
               Guardar
             </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProvider">
+            <button type="button" class="btn btn-danger w-auto"
+              id="btnCloseProvider">
               Cerrar
             </button>
           </div>
@@ -152,9 +158,11 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   </form>
 
   <!-- Dialog Edit -->
-  <form novalidate action="{{ url_for('proveedores.ed_provider') }}" method="POST">
+  <form novalidate action="{{ url_for('proveedores.ed_provider') }}"
+    method="POST">
     <div class="card">
-      <dialog id="editProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
+      <dialog id="editProvider"
+        class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
           <h3 class="text-lg font-semibold">Editar Proveedor</h3>
         </div>
@@ -185,7 +193,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
             <button type="submit" class="btn btn-primary w-auto">
               Actualizar
             </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProviderEdit">
+            <button type="button" class="btn btn-danger w-auto"
+              id="btnCloseProviderEdit">
               Cerrar
             </button>
           </div>
@@ -197,20 +206,23 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   <!-- Dialog Mats -->
   <form action="{{url_for('proveedores.ed_mats')}}" novalidate method="POST">
     <div class="card">
-      <dialog id="manageMaterialsDialog" class="dialog p-6 bg-white shadow-lg rounded-md">
+      <dialog id="manageMaterialsDialog"
+        class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
           <h3 class="text-lg font-semibold">Administrar Materiales</h3>
         </div>
         <div class="dialog-content">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" id="providerId" name="providerId"/>
+          <input type="hidden" id="providerId" name="providerId" />
           <div id="materialsList"></div>
           <!-- <div class="mt-3">
             <button id="btnAddMaterial" class="btn btn-primary">Agregar Material</button>
           </div> -->
           <div class="flex justify-between mt-4">
-            <button type="submit" id="btnSaveMaterials" class="btn btn-primary">Guardar</button>
-            <button type="button" id="btnCloseMaterials" class="btn btn-secondary">Cerrar</button>
+            <button type="submit" id="btnSaveMaterials"
+              class="btn btn-primary">Guardar</button>
+            <button type="button" id="btnCloseMaterials"
+              class="btn btn-secondary">Cerrar</button>
           </div>
         </div>
       </dialog>
@@ -218,7 +230,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   </form>
 
   <!-- Dialog Delete -->
-  <form novalidate action="{{ url_for('proveedores.del_provider') }}" method="POST">
+  <form novalidate action="{{ url_for('proveedores.del_provider') }}"
+    method="POST">
     <div class="card">
       <dialog id="delProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
@@ -247,7 +260,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
             <button type="submit" class="btn btn-primary w-auto">
               Eliminar
             </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProviderDel">
+            <button type="button" class="btn btn-danger w-auto"
+              id="btnCloseProviderDel">
               Cerrar
             </button>
           </div>
@@ -280,6 +294,7 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   const rowMatsEdit = document.getElementById("rowMatsEdit");
   const title_productos = document.getElementById("title_productos");
   const editMats = document.getElementById("editMats");
+  const lbl_productos = document.getElementById("lbl_productos");
   let rowMats = document.getElementById('rowMats');
 
   document.querySelectorAll('[id^="edit_"]').forEach((item) => {
@@ -385,36 +400,47 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   const btnAddRow = document.getElementById("btnAddRow");
   const btnRemoveRow = document.getElementById("btnRemoveRow");
   const btnCloseMaterials = document.getElementById("btnCloseMaterials");
+  var i = 0;
 
   btnAddRow.addEventListener("click", function () {
+    i++;
     const newRow = `
-                <div class="mt-3">
-                    <input type="text" class="input mt-1 input-bordered input-primary" name="producto[]" placeholder="Nombre del producto">
-                    <input type="number" class="input mt-1 input-bordered input-primary" name="precio[]" placeholder="Precio del producto">
-                    <input type="text" class="input mt-1 input-bordered input-primary" name="cantidad[]" placeholder="Cantidad del producto">
-                </div>
-                <div class="mt-3">
-                      <select class="select select-bordered select-primary min-w-full max-w-xs" name="tipo[]">
-                          <option value="" selected disabled>Seleccione una opción</option>
-                          <option value="costal-kilos">Colstal</option>
-                          <option value="galon-galones">Galon</option>
-                          <option value="pieza-gramos">Pieza</option>
-                          <option value="caja-kilos">Caja</option>
-                          <option value="botella-litros">Botella</option>
-                          <option value="bolsa-gramos">Bolsa</option>
-                          <option value="paquete-kilos">Paquete</option>
-                          <option value="lata-litros">Lata</option>
-                          <option value="sobre-gramos">Sobre</option>
-                      </select>
-                </div>
+                  <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <label class="float-start -mt-3">Articulo ${i}</label>
+                        <div class="mt-3">
+                            {{ addProv("Nombre del producto", "Nombre del producto", "producto[]", "producto") }}
+                        </div>
+                        <div class="mt-3">
+                            {{ addProv("Precio por producto", "Precio del producto", "precio[]", "precio") }}
+                        </div>
+                        <div class="mt-3">
+                            {{ addProv("Cantidad por producto", "Cantidad del producto", "cantidad[]", "cantidad") }}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="mt-3">
+                            {{ addProv("Presentacion del producto", "Presentacion del producto", "presentacion[]", "presentacion") }}
+                        </div>
+                        <div class="mt-3">
+                            {{ addProv("Unidad de medida", "Unidad de medida", "medida[]", "medida") }}
+                        </div>
+                    </div>
+                </div>  
             `;
 
     rowsContainer.insertAdjacentHTML("beforeend", newRow);
+    lbl_productos.hidden = false;
   });
 
   btnRemoveRow.addEventListener("click", function () {
     if (rowsContainer.children.length > 0) {
-      rowsContainer.removeChild(rowsContainer.lastElementChild);
+      rowsContainer.removeChild(rowsContainer.lastElementChild); 
+    }
+
+    if (rowsContainer.children.length === 0) {
+      lbl_productos.hidden = true;
+      i = 0;
     }
   });
 
@@ -424,7 +450,7 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
 
   btnCloseProvider.addEventListener("click", () => {
     addProvider.close();
-
+    lbl_productos.hidden = true;
     rowsContainer.innerHTML = "";
   });
 
