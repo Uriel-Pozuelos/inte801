@@ -13,6 +13,8 @@ from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 ventas = Blueprint("ventas", __name__, template_folder="templates")
 
 @ventas.route("/ventas", methods=["GET", "POST"])
+@token_required
+@allowed_roles(roles=["admin", "ventas"])
 def index():
     
     token = decodeToken(request.cookies.get("token"))
@@ -60,6 +62,8 @@ def index():
 
 lista_ventas = []
 @ventas.route("/venta", methods=["GET", "POST"])
+@token_required
+@allowed_roles(roles=["admin", "ventas"])
 def detalle_venta():
 
     global lista_ventas
@@ -220,6 +224,8 @@ def detalle_venta():
     return render_template("pages/venta/index.html", form=form, form2=form2, lista_ventas=lista_ventas, total=total)
 
 @ventas.route("/createPdf", methods=["GET", "POST"])
+@token_required
+@allowed_roles(roles=["admin", "ventas"])
 def create_pdf():
     galletas = {
         1: 'Galleta de avena',
