@@ -40,7 +40,7 @@ def update_usuario_by_id(id,form,role):
 
 def add_usuario(form):
     try:
-        usuario = Usuario(nombre=form.nombre.data, apellido=form.apellido.data, email=form.email.data, password=hash_password(form.password.data), rol=form.rol.data,estado='activo')
+        usuario = Usuario(nombre=form.nombre.data, apellido=form.apellido.data, email=form.email.data, password=hash_password(form.password.data), rol=form.rol.data,estado=0)
         db.session.add(usuario)
         db.session.commit()
         return True
@@ -65,8 +65,11 @@ def index():
             delete_usuario_by_id(form.id.data)
             flash('Usuario eliminado correctamente')
         elif 'edit' in request.form:
+            #quitar validacion de password
+            form.password.validators = []
             
             if not form.validate():
+                
 
                 log.error('Error al editar el usuario')
                 flash('Error al editar el usuario', 'danger')
@@ -86,7 +89,7 @@ def index():
                 return render_template('pages/usuario/index.html', form=form, usuarios=get_usuarios(), showModal='false', Mode='edit', errors=None)
         elif 'add' in request.form:
             if not form.validate():
-                form.errors.pop('password')
+                # form.errors.pop('password')
 
                 log.error('Error al agregar el usuario')
 

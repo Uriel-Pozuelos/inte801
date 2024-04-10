@@ -27,25 +27,25 @@ def get_inventario_galletas():
         lote_data = lote.serialize()
         lote_data['nombreGalleta'] = galletas_dict.get(lote.idGalleta, 'Nombre no encontrado')
         registros_modificados.append(lote_data)
+    
     return registros_modificados
 
-#def get_InventarioGalletas():
- #   inventario_galletas = 
 
-def get_inventario_dict():
-    inventario = get_inventario_galletas()
-    inventario_dict = {lote.idLoteGalletas: lote.nombreGalleta for lote in inventario}
-    return inventario_dict
+
+def get_Galleta_nombre_por_idLote(idLoteGalletas):
+    inventario_item = Inventario_galletas.query.filter_by(idLoteGalletas=idLoteGalletas).first()
+    if inventario_item:
+        galletas_dict = get_Galletas_dict()
+        return galletas_dict.get(inventario_item.idGalleta, 'Nombre no encontrado')
+    return 'Lote no encontrado'
 
 def get_Solicitud_inventario():
     solicitudes = solicitud_produccion.query.all()
-    inventario_dict = get_Galletas_dict()  # Obtener el diccionario de galletas
-    # Modificar cada solicitud para reemplazar idGalleta con el nombre de la galleta
+    # No necesitas obtener el diccionario de galletas aquí si ajustas la lógica según lo sugerido
     solicitudes_modificadas = []
     for solicitud in solicitudes:
         solicitud_data = solicitud.serialize()
-        # Usar el diccionario para obtener el nombre de la galleta
-        solicitud_data['nombreGalleta'] = inventario_dict.get(solicitud.idLoteGalletas, 'Nombre no encontrado')
+        solicitud_data['nombreGalleta'] = get_Galleta_nombre_por_idLote(solicitud.idLoteGalletas)
         solicitudes_modificadas.append(solicitud_data)
     return solicitudes_modificadas
 
@@ -68,5 +68,6 @@ def index():
             db.session.commit()
 
     lotes = get_inventario_galletas()
+    print(f"Lotes: {lotes}")
     solicitudes = get_Solicitud_inventario()
     return render_template('pages/solicitud_produccion/index.html', form=form, solicitudes = solicitudes, lotes=lotes)

@@ -9,6 +9,9 @@ from models.Inventario_galletas import Inventario_galletas
 from datetime import datetime
 from db.db import db
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
+from lib.d import D
+
+log = D(debug=True)
 
 ventas = Blueprint("ventas", __name__, template_folder="templates")
 
@@ -17,11 +20,19 @@ ventas = Blueprint("ventas", __name__, template_folder="templates")
 @allowed_roles(roles=["admin", "ventas"])
 def index():
     
-    token = decodeToken(request.cookies.get("token"))
+    try:
+        token = decodeToken(request.cookies.get("token"))
+    except:
+        token = None
+
     if not token:
         return redirect("/login")
     
-    idUsuario = Usuario.query.filter_by(email=token["email"]).first().id 
+
+    
+    email = token["email"]
+    
+    idUsuario = Usuario.query.filter_by(email=email).first().id 
     form = VentaForm()
     form.idUsuario.data = str(idUsuario)
     print(idUsuario)
@@ -67,9 +78,14 @@ lista_ventas = []
 def detalle_venta():
 
     global lista_ventas
-    token = decodeToken(request.cookies.get("token"))
+    try:
+        token = decodeToken(request.cookies.get("token"))
+    except:
+        token = None
     if not token:
         return redirect("/login")
+    
+    log.info(f"Token: {token}")
     
     idUsuario = Usuario.query.filter_by(email=token["email"]).first().id 
     form = VentaForm()
@@ -151,6 +167,7 @@ def detalle_venta():
                         'cantidad_galletas': cantidad_galletas,
                     }
                     lista_ventas.append(venta_nueva)
+                    flash("Producto añadido correctamente", "success")
             else:  
                 
                 if cantidad_requerida > inventario_galletas:
@@ -164,6 +181,7 @@ def detalle_venta():
                             return redirect("/venta")
                         else:
                             venta['cantidad'] += cantidad_requerida
+                            flash("Producto añadido correctamente", "success")
                             break
                 else:  
                     venta_nueva = {
@@ -227,6 +245,23 @@ def detalle_venta():
 @token_required
 @allowed_roles(roles=["admin", "ventas"])
 def create_pdf():
+
+    #si no hay el cookie venta_id redirigir a ventas
+    if not request.cookies.get("venta_id"):
+        return redirect("/venta")
+
+    if request.method == "DELETE":
+        #limpiar lista cookie
+        lista_ventas.clear()
+        log.info(f"Lista de ventas: {lista_ventas}")
+        redire = redirect("/venta")
+        redire.set_cookie("venta_id", "", expires=0)
+        #cambiar el method a get
+        redire.method = "GET"
+
+        return redire
+
+
     galletas = {
         1: 'Galleta de avena',
         2: 'Galleta de chocolate',
@@ -240,9 +275,9 @@ def create_pdf():
         10: 'Galleta de Avena y Miel'
     }
     tipo_venta = {
-        1: 'Paquete 1kg',
-        2: 'Paquete 700g',
-        3: 'Unidad'
+        '1': 'Paquete 1kg',
+        '2': 'Paquete 700g',
+        '3': 'Unidad'
     }
     token = decodeToken(request.cookies.get("token"))
     if not token:
@@ -250,24 +285,34 @@ def create_pdf():
     
     venta_id = request.cookies.get("venta_id")
     venta = Venta.query.filter_by(id=venta_id).first()
+
     detalle_venta = DetalleVenta.query.filter_by(venta_id=venta_id).all()
+
+    detalle_venta = [detalle.serialize() for detalle in detalle_venta]
+
+    log.warning(detalle_venta)
+    log.warning(venta.serialize())
 
     # Modificar la estructura de detalle_venta
     detalles_venta = []
     total_venta = 0
     for detalle in detalle_venta:
+        log.info(f"Detalle: {detalle}")
+        log.warning(f"tipoVenta: {tipo_venta[detalle['tipoVenta']]}")
         detalle_modificado = {
-            'galleta': galletas[detalle.galleta_id],
-            'tipoVenta': tipo_venta[detalle.tipoVenta],
-            'cantidad': detalle.cantidad,
-            'precio_unitario': detalle.precio_unitario
+            'galleta': galletas[detalle['galleta_id']],
+            'tipoVenta': tipo_venta[detalle['tipoVenta']],
+            'cantidad': detalle['cantidad'],
+            'precio_unitario': detalle['precio_unitario']
         }
         detalles_venta.append(detalle_modificado)
     
-        subtotal_detalle = detalle.cantidad * detalle.precio_unitario
+        subtotal_detalle = float(detalle['cantidad']) * float(detalle['precio_unitario'])  # Asegurar que la cantidad y el precio sean flotantes para la multiplicación
         total_venta += subtotal_detalle
 
     usuario = Usuario.query.filter_by(id=venta.idUsuario).first()
 
     # Renderizar el template y pasar los datos al contexto
     return render_template("pages/venta/createPdf.html", venta=venta, detalles_venta=detalles_venta, usuario=usuario, total_venta=total_venta)
+
+

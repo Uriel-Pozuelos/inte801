@@ -1,6 +1,15 @@
 from flask_wtf import Form
 from wtforms import StringField, IntegerField, DateTimeField, PasswordField,SelectField,HiddenField
-from wtforms.validators import DataRequired, Length,Regexp,Optional
+from wtforms.validators import DataRequired, Length,Regexp,Optional,ValidationError
+import os
+
+def validar_contra_archivo(form, field):
+  password = field.data
+  if password is None:
+    raise ValidationError("La contraseña es obligatoria.")
+  with open("password.txt", "r") as f:
+    if password + "\n" in f.readlines():
+      raise ValidationError("Esta contraseña no es segura, por favor elige otra.")
 
 
 class UsuarioForm(Form):
@@ -21,8 +30,8 @@ class UsuarioForm(Form):
   ], render_kw={"class": "input input-bordered w-full max-w-xs text-black"})
 
   password = PasswordField('Password', validators=[
-    Optional(),
-         Regexp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+{}|:<>?]).+$',
+    validar_contra_archivo,
+    Regexp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+{}|:<>?]).+$',
                 message="La contraseña debe contener al menos una mayúscula, una minúscula, un número y un caracter especial.")
     ], render_kw={"class": "input input-bordered w-full max-w-xs text-black"})
 

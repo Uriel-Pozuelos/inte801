@@ -12,6 +12,9 @@ from db.db import db
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
+from lib.d import D
+
+log = D(debug=True)
 
 inventario_mp = Blueprint("inventario_mp", __name__, template_folder="templates")
 
@@ -25,6 +28,8 @@ def index():
     email = token["email"]
 
     inv_mat_prima = InventarioMP.query.all()
+    inv_mat_prima = [inv.serialize() for inv in inv_mat_prima]
+
     materias_primas = MateriaPrima.query.all()
     compras = Compra.query.all()
     all_mermas = MermaMateria.query.all()
@@ -51,6 +56,8 @@ def index():
             "material": mat.material
         })
 
+    
+
     for inv_mp in inv_mat_prima:
         for mat in materias_primas:
             if inv_mp.id_materia_prima == mat.id:
@@ -59,6 +66,8 @@ def index():
                 prov_mpp = MateriaPrimaProveedor.query.filter_by(
                     materiaprima_id=mat.id
                 ).first()
+                
+
                 prov = Proveedor.query.filter_by(id=prov_mpp.proveedor_id).first()
                 merma_inv = MermaMateria.query.filter_by(
                     idInventarioMaterias=inv_mp.id
