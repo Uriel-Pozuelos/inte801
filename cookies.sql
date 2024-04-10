@@ -749,3 +749,30 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2024-04-08 20:09:24
+
+# consulta para saber un determinado lote de galletas, saber que empreado la produjo
+
+SELECT inventariogalletas.idLoteGalletas, inventariogalletas.idGalleta, inventariogalletas.cantidad, inventariogalletas.fechaCaducidad, inventariogalletas.estatus, inventariogalletas.created_at, inventariogalletas.updated_at, inventariogalletas.deleted_at, usuario.nombre, usuario.apellido
+FROM inventariogalletas
+JOIN produccion ON produccion.idProduccion = inventariogalletas.idLoteGalletas
+JOIN usuario ON usuario.id = produccion.idUsuario
+WHERE inventariogalletas.idLoteGalletas = 1;
+
+# consulta para saber un determinado lote de galletas, saber que proveedor proporciono la materia prima
+
+SELECT inventariogalletas.idLoteGalletas, inventariogalletas.idGalleta, inventariogalletas.cantidad, inventariogalletas.fechaCaducidad, inventariogalletas.estatus, inventariogalletas.created_at, inventariogalletas.updated_at, inventariogalletas.deleted_at, proveedor.nombre_empresa
+FROM inventariogalletas
+JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = inventariogalletas.idGalleta
+JOIN proveedor ON proveedor.id = materia_prima_proveedor.proveedor_id
+WHERE inventariogalletas.idLoteGalletas = 22;
+
+#ver los imgredientes de una galleta
+
+SELECT galletas.id, galletas.nombre, galletas.precio, galletas.estatus, galletas.created_at, galletas.updated_at, galletas.deleted_at, materiaprima.material, materiaprima.tipo
+FROM galletas
+JOIN (
+    SELECT galletas.id, galletas.nombre, galletas.precio, galletas.estatus, galletas.created_at, galletas.updated_at, galletas.deleted_at, materia_prima_galleta.materiaprima_id
+    FROM galletas
+    JOIN materia_prima_galleta ON materia_prima_galleta.galleta_id = galletas.id
+    WHERE galletas.id = 1
+) AS galletas_materia_prima ON galletas_materia_prima.id = galletas.id

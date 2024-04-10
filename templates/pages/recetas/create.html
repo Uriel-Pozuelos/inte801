@@ -24,6 +24,7 @@ content %}
 	input[type='time'],
 	input[type='datetime-local'],
 	select,
+	textarea,
 	input[type='search'] {
 		background-color: white !important;
 	}
@@ -134,40 +135,22 @@ content %}
 					{% else %}
 							<!-- Mostrar como tabla y text area -->
               <div>
-                <label>
-                 Nombre
-                 <input type="text" name="nombre" class="input input-bordered w-full max-w-xs" value="">
-                </label>
+								{{ camposNuevos(form.nombre) }}
                </div>
+							 <div>
+								{{ camposNuevos(form.precio) }}
+							 </div>
               <div>
-                <div>
-                  <label>
-                   Precio
-                   <input type="text" name="precio" class="input input-bordered w-full max-w-xs" value="">
-                  </label>
-                 </div>
-               <label>
-                Peso
-                <input type="text" name="pesoGalleta" class="input input-bordered w-full max-w-xs" value="">
-               </label>
+							 {{ camposNuevos(form.pesoGalleta) }}
               </div>
               <div>
-                <label class="block">
-                 Porciones
-                 <input type="text" name="totalGalletas" class="input input-bordered w-full max-w-xs" value="">
-                </label>
+								{{ camposNuevos(form.totalGalletas) }}
                </div>
                <div>
-                <label>
-                 descripcion
-                 <input type="text" name="descripcion" class="input input-bordered w-full max-w-xs" value="">
-                </label>
+								{{ camposNuevos(form.descripcion) }}
                </div>
                <div>
-                <label>
-                 receta
-                 <textarea name="receta" id="receta" cols="30" rows="10"></textarea>
-                </label>
+								{{ camposNuevos(form.receta) }}
                </div>
 
                

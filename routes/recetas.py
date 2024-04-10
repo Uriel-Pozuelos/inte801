@@ -1,5 +1,6 @@
 from flask import Blueprint, request, render_template,jsonify, Response,flash, redirect
 from models.Recetas import Galletas,Ingredientes,MateriaPrima,db
+from forms.Galleta import GalletaForm
 from models.proveedor import Proveedor
 from lib.d import D
 from lib.jwt import allowed_roles, token_required
@@ -200,12 +201,12 @@ def show(id):
 
 
 def create_galleta(form):
-    receta = form['receta']
-    nombre = form['nombre']
-    precio = form['precio']
-    descripcion = form['descripcion']
-    totalGalletas = form['totalGalletas']
-    pesoGalleta = form['pesoGalleta']
+    receta = form.receta.data
+    nombre = form.nombre.data
+    precio = form.precio.data
+    descripcion = form.descripcion.data
+    totalGalletas = form.totalGalletas.data
+    pesoGalleta = form.pesoGalleta.data
     galleta = Galletas( nombre=nombre, precio=precio, descripcion=descripcion, totalGalletas=totalGalletas, pesoGalleta=pesoGalleta,receta=receta)
     db.session.add(galleta)
     db.session.commit()
@@ -226,17 +227,18 @@ def save_image(id, file):
 @token_required
 @allowed_roles(['admin','produccion','compras'])
 def create():
-    
+    form = GalletaForm(request.form)
     if request.method == 'POST':
-        print(request.form)
-        id = create_galleta(request.form)
-        save_image(id, request.files['file'])
-    if 'save' in request.form:
-        id = create_galleta(request.form)
-        save_image(id, request.files['file'])
-        flash('Receta creada con éxito', 'success')
-        return redirect(f"/recetas/{id}")
+        if 'save' in request.form and form.validate():
+            id = create_galleta(form)
+            #si no hay imagen, mandar un flash de error
+            if 'file' not in request.files:
+                flash('No se ha seleccionado un archivo', 'error')
+                return render_template('pages/recetas/create.html',receta="", ingredientes="", isEdit=True,form=form)
+            save_image(id, request.files['file'])
+            flash('Receta creada con éxito', 'success')
+            return redirect(f"/recetas/{id}")
         
     
-    return render_template('pages/recetas/create.html',receta="", ingredientes="", isEdit=True)
+    return render_template('pages/recetas/create.html',receta="", ingredientes="", isEdit=True,form=form)
 
