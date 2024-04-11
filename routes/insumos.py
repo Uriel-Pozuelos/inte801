@@ -9,6 +9,8 @@ from flask import (
     g,
 )
 from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
+from forms.InsumoForm import InsumoForm
+from forms.MateriaPrimaProveedorForm import MateriaPrimaProveedorForm
 from models.proveedor import Proveedor
 from models.usuario import Usuario
 from models.Recetas import MateriaPrima
@@ -26,6 +28,8 @@ insumos = Blueprint("insumos", __name__, template_folder="templates")
 def index():
     insumos = MateriaPrima.query.all()
     mpp = MateriaPrimaProveedor.query.all()
+    form = InsumoForm(request.form)
+    formMPP = MateriaPrimaProveedorForm(request.form)
 
     all_insumos = []
 
@@ -42,5 +46,7 @@ def index():
                     "presentacion": mp.tipo,
                 }
             )
+
+            errors = [form.errors[field][0] for field in form.errors]
             
-    return render_template("pages/insumos/index.html", insumos=all_insumos)
+    return render_template("pages/insumos/index.html", insumos=all_insumos, form=form, formMPP=formMPP, errors=errors)

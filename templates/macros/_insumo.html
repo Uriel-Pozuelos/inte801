@@ -1,16 +1,15 @@
 {% macro addIn(for="",type="", placeholder="", id="", name="") %}
 <div>
     <label class="text-gray-700" for="{{for}}">{{for}}</label>
-    <input class="input input-bordered input-primary min-w-full max-w-xs"
-        type="{{type}}" placeholder="{{placeholder}}" id="{{id}}"
-        name="{{name}}" required>
+    <input class="input input-bordered input-primary min-w-full max-w-xs" type="{{type}}" placeholder="{{placeholder}}"
+        id="{{id}}" name="{{name}}" required>
 </div>
 {% endmacro %}
 
-{% macro edin(for="", type="", id="", name="", value="") %}
+{% macro edin(for="", type="", id="", name="") %}
 <div class>
     <label for="{{for}}" class="text-gray-700">{{for}}</label>
-    <input class="input input-bordered input-primary min-w-full max-w-xs" type="{{type}}" id="{{id}}" name="{{name}}" value="{{value}}">
+    <input class="input input-bordered input-primary min-w-full max-w-xs" type="{{type}}" id="{{id}}" name="{{name}}">
 </div>
 {% endmacro %}
 
@@ -30,4 +29,27 @@
     <option value="sobre">Sobre</option>
     <option value="huevos">Huevos</option>
 </select>
+{% endmacro %}
+
+{% macro insumo_field(field) %}
+
+<td>{{field.label}}</td>
+<dd>{{field(**kwargs) | safe}}</dd>
+
+{% if field.errors %}
+
+<ul>
+    {% for error in field.errors %}
+    <li style="
+			color: red;
+			font-size: 12px;
+			font-weight: bold;
+			list-style: none;
+		">
+        {{error}}
+    </li>
+    {% endfor %}
+</ul>
+
+{% endif %}
 {% endmacro %}
