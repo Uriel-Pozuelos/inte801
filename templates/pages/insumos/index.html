@@ -1,0 +1,147 @@
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_insumo.html' import
+addIn, edin,slcMedida %} {%
+block title %}
+Insumos - Cookies and Dreams{% endblock %} {% block content %}
+<style>
+  .flash-messages {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 100%;
+    max-width: 600px;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  select,
+  input[type="search"] {
+    background-color: white !important;
+  }
+</style>
+<section class="w-full h-screen flex flex-col">
+    <!-- Flash meesage -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
+    </div>
+
+    <div class="md:contaner px-4">
+        <section class="mt-3">
+            <button class="btn btn-primary mt-5 float-end" id="btnAddInsumo">
+                Agregar insumo
+            </button>
+        </section>
+    </div>
+
+    <div class="md:container px-4">
+        <section class="mt-5">
+            <div class="relative overflow-x-auto">
+                <table
+                    class="w-full text-md text-left rtl:text-right text-black"
+                    id="tbl_insumos">
+                    <thead
+                        class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+                        <tr>
+                            <th class="px-6 py-3" scope="col">Insumo</th>
+                            <th class="px-6 py-3"
+                                scope="col">Presentaci&oacute;n</th>
+                            <th class="px-6 py-3" scope="col">Unidad de
+                                medida</th>
+                            <th class="px-6 py-3" scope="col">Precio de la
+                                presentaci&oacute;n</th>
+                            <th class="px-6 py-3" scope="col">Cantidad</th>
+                            <th class="px-6 py-3" scope="col">Acc</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for insumo in insumos %}
+                        <tr>
+                            <td class="border px-6 py-3">{{ insumo.material
+                                }}</td>
+                            <td class="border px-6 py-3">{{ insumo.presentacion
+                                }}</td>
+                            <td class="border px-6 py-3">{{ insumo.medida
+                                }}</td>
+                            <td class="border px-6 py-3">{{ insumo.precio
+                                }}</td>
+                            <td class="border px-6 py-3">{{ insumo.cantidad
+                                }}</td>
+                            <td class="border px-6 py-3">
+                                <button type="button" class="btn btn-primary"
+                                    id="edit_{{ insumo.id }}">
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+
+<!-- Dialog Add Insumo -->
+<form action novalidate method>
+    <div class="card">
+        <dialog class="dialog p-6 bg-white shadow-lg rounded-md"
+            id="addDlgInsumo">
+            <div class="dialog-title">
+                <h3 class="text-lg font-bold">Agregar insumo</h3>
+            </div>
+            <div class="dialog-content">
+                <input type="hidden" name="csrf_token"
+                    value="{{ csrf_token() }}" />
+                <div class="mt-3">
+                    {{ addIn("Nombre del insumo", "text", "nombre_insumo",
+                    "nombre_insumo[]")}}
+                </div>
+                <div class="mt-3">
+                    {{ addIn("Presentaci&oacute;n", "text", "presentacion",
+                    "presentacion[]") }}
+                </div>
+                <div class="mt-3">
+                    {{ slcMedida("Unidad de medida", "medida", "medida[]") }}
+                </div>
+                <div class="mt-3">
+                    {{ addIn("Precio unitario", "number", "precio_unitario",
+                    "precio_unitario[]") }}
+                </div>
+            </div>
+        </dialog>
+    </div>
+</form>
+
+<script>
+    const btnAddInsumo = document.getElementById('btnAddInsumo');
+    const addDlgInsumo = document.getElementById('addDlgInsumo');
+    const tblInsumos = document.getElementById('tbl_insumos');
+    const precio_unitario = document.getElementById('precio_unitario');
+
+    btnAddInsumo.addEventListener('click', () => {
+        addDlgInsumo.showModal();
+    });
+
+    addDlgInsumo.addEventListener('close', () => {
+        addDlgInsumo.querySelector('form').reset();
+    });
+
+    precio_unitario.addEventListener('input', () => {
+        precio_unitario.value = parseFloat(precio_unitario.value).toFixed(2);
+        precio_unitario.value = precio_unitario.value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+        precio_unitario.value = precio_unitario.value < 0 ? 0 : precio_unitario.value;
+    });
+</script>
+{% endblock %}
