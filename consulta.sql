@@ -11,6 +11,25 @@ JOIN galletas g ON g.id = ig.idGalleta
 GROUP BY g.nombre
 ORDER BY cantidad_merma DESC;
 
+#insertar mermas
+select * from inventariogalletas;
+INSERT INTO merma_galletas(idInventarioGalletas, cantidad, created_at, updated_at,justificaion)
+VALUES(1,5, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo');
+(2, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(23, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(24, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(25, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(26, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(27, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(28, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(29, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo'),
+(30, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo');
+
+
+
+
+
+
 # AUN NO ESTA BIEN
 # consulta para saber que galleta deberia producir para obtener la mayor utilidad usando row_number
 SELECT g.nombre, 
@@ -121,9 +140,20 @@ SELECT inventariogalletas.idLoteGalletas, inventariogalletas.idGalleta, inventar
 FROM inventariogalletas
 JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = inventariogalletas.idGalleta
 JOIN proveedor ON proveedor.id = materia_prima_proveedor.proveedor_id
-WHERE inventariogalletas.idLoteGalletas = 22;
+WHERE inventariogalletas.idLoteGalletas = 1;
 
 
 select concat(u.nombre, ' ', u.apellido) as nombre_empleado, ig.idLoteGalletas
 JOIN produccion p ON p.idSolicitud = ig.idSolicitud
 JOIN usuario u ON u.id = p.idUsuario;
+
+
+# consulta para saber el nombre y la cantidad de galletas que hay en inventario
+SELECT g.nombre, ig.cantidad
+FROM inventariogalletas ig
+JOIN galletas g ON g.id = ig.idGalleta;
+
+#consulta para saber el nombre y la cantidad de materias primas que hay en inventario
+SELECT mp.material, ig.cantidad
+FROM inventariomateriaprima ig
+JOIN materiaprima mp ON mp.id = ig.idMateriaPrima;

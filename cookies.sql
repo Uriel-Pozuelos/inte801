@@ -817,11 +817,13 @@ FROM
     (SELECT
         mp.material AS nombre_material,
         i.cantidad AS cantidad_utilizada,
-        AVG(ROUND((i.cantidad), 2) / 100) AS costo_material
+        AVG(ROUND((i.cantidad* mpp.precio), 2) / 100) AS costo_material
     FROM
         ingredientes i
     JOIN
         materiaprima mp ON i.material_id = mp.id
+    JOIN
+        materia_prima_proveedor mpp ON mp.id = mpp.materiaprima_id
     JOIN
         galletas g ON i.galleta_id = g.id
     WHERE
@@ -830,4 +832,16 @@ GROUP BY
     nombre_material) as p;
 
 # saber los materiales que se usaron en una galleta
-SELECT g.nombre, 
+SELECT g.nombre, mp.material, i.cantidad
+FROM galletas g
+JOIN ingredientes i ON g.id = i.galleta_id
+JOIN materiaprima mp ON i.material_id = mp.id
+WHERE g.id = 1;
+
+
+
+#pasar los productos de materia_prima_proveedor  a tipo convertido usando la tabla de conversiones
+
+SELECT mpp.id, mpp.materiaprima_id, mpp.proveedor_id, mpp.precio, mpp.cantidad, mpp.tipo, mpp.created_at, c.tipo_convertido
+FROM materia_prima_proveedor mpp
+JOIN conversiones c ON mpp.tipo = c.tipo_original;

@@ -5,7 +5,7 @@ from db.db import db
 from lib.d import D
 from models.Inventario_galletas import Inventario_galletas
 from models.Produccion import Produccion
-
+from lib.jwt import allowed_roles,token_required
 dashboard = Blueprint('dashboard', __name__)
 log = D(debug=True)
 
@@ -149,7 +149,7 @@ FROM (
         SELECT
             mp.material AS nombre_material,
             SUM(i.cantidad) AS cantidad_utilizada,
-            ROUND((SUM(mpp.cantidad) * AVG(mpp.precio)), 2) / 1000 AS precio_material,
+            ROUND((SUM(mpp.cantidad)/ 1000  * AVG(mpp.precio)), 2) AS precio_material,
             g.totalGalletas,
             g.nombre nombre
         FROM
@@ -202,7 +202,7 @@ def get_all_costos_produccion():
         costo['costoUnitario'] = round(float(costo['costoUnitario']), 2)
         costo['totalGalletas'] = int(costo['totalGalletas'])
         costo['costoTotal'] = round(float(costo['costoTotal']), 2)
-        
+
     return costos_produccion
 
 def get_ids_produccion():
@@ -229,6 +229,8 @@ def know_user_by_id(id):
 
 
 @dashboard.route('/dashboard', methods=['GET', 'POST'])
+@token_required
+@allowed_roles(['admin', 'ventas', 'produccion'])
 def index():
     ranking_cookies = get_ranking_cookies()
     json_ranking_cookies = json.dumps(ranking_cookies)

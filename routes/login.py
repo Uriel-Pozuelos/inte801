@@ -11,7 +11,11 @@ from lib.d import D
 from lib.jwt import allowed_roles,token_required,createToken,decodeToken,hash_password
 login = Blueprint('login', __name__, template_folder='templates')
 import os
+import smtplib
+from email.message import EmailMessage
+from models.verificacion import VerificationCode
 import requests
+from lib.security import safe
 load_dotenv('.env')
 print(os.getenv('RECAPTCHA_SECRET_KEY'))
 
@@ -125,16 +129,34 @@ def login_page():
             response.set_cookie('token', '', expires=0)
             return response
         return redirect('/')
+    
+    log.error(request.form)
+    if 'forgot' in request.form and request.form['forgot'] != '':
+        email = safe(request.form['forgot'])
+        #verificar si el correo existe
+        usuario = Usuario.query.filter_by(email=email).first()
+        log.info(usuario)
+        if not usuario:
+            flash('El correo no está registrado', 'danger')
+            return render_template('pages/login/index.html', form=form)
 
-    if request.method == 'POST' and form.validate():
+        #agreagar el correo a las cookies
+        response = redirect('/resetPassword')
+        response.set_cookie('correo', email)
+        flash('Se ha enviado un correo con el código de verificación', 'success')
+        return response
+
+
+    if request.method == 'POST':
         
         email = form.correo.data
         contraseña = hash_password(form.password.data)
-        print(contraseña)
-        print(email)
+        log.warning(f'Email: {email} - Contraseña: {contraseña}')
 
         # Consultar si el usuario existe
         usuario = Usuario.query.filter_by(email=email).first()
+        log.info(usuario)
+
         if usuario:
             # Verificar si el usuario está bloqueado
             if check_user_blocked(usuario):
@@ -184,20 +206,22 @@ def login_page():
         
     return render_template('pages/login/index.html', form=form)
 
-
-@login.route('/resetPassword', methods=['GET', 'POST'])
-def reset_password():
+@login.route('/reset', methods=['GET', 'POST'])
+def reset():
     form = ResetPasswordForm(request.form)
     try:
         token = request.cookies.get('token')
+        email = request.cookies.get('correo')
         if token:
             return redirect('/home')
+        if not email:
+            return redirect('/resetPassword')
 
-        email = form.correo.data
+        email = request.cookies.get('correo')
         password = hash_password(form.password.data)
         confirm_password = hash_password(form.confirm_password.data)
 
-        if request.method == 'POST':
+        if request.method == 'POST' and form.validate():
             usuario = Usuario.query.filter_by(email=email).first()
             if not usuario:
                 flash('Usuario no existe', 'danger')
@@ -214,9 +238,43 @@ def reset_password():
         
     except Exception as e:
         print(e)
-        flash('Error al enviar el email', 'danger')
+        
 
-    return render_template('pages/login/enviar_email.html', form=form)
+    return render_template('pages/login/reset.html', form=form)
+
+
+@login.route('/resetPassword', methods=['GET', 'POST'])
+def reset_password():
+    token = request.cookies.get('token')
+    email = request.cookies.get('correo')
+    if token:
+        return redirect('/home')
+    if not email:
+        return redirect('/login')
+
+    email = request.cookies.get('correo')
+    if request.method == 'POST':
+        codigo = request.form['codigo']
+        verificacion = VerificationCode.query.filter_by(email=email, code=codigo).first()
+        if verificacion:
+            role = Usuario.query.filter_by(email=email).first().rol
+            #eliminar el codigo de verificacion
+            db.session.delete(verificacion)
+            db.session.commit()
+            response = redirect('/reset')
+            #eliminar la cookie de correo
+            return response
+        
+        else:
+            flash('Codigo incorrecto', 'danger')
+    verification_code = os.urandom(5).hex()
+    verification = VerificationCode(code=verification_code, email=email)
+    db.session.add(verification)
+    db.session.commit()
+
+
+    envioEmail(email, 'Prueba', 'Bienvenido, su codigo de verificacion es: '+verification_code)
+    return render_template('pages/login/enviar_email.html')
 
 
 @login.route('/404')
@@ -232,3 +290,15 @@ def logout():
     response.set_cookie('token', '', expires=0)
     return response
 
+
+def envioEmail(destinatario, asunto, mensaje):
+    email = EmailMessage()
+    email['From'] = os.getenv('EMAIL')
+    email['To'] = destinatario
+    email['Subject'] = asunto
+    email.set_content(mensaje)
+
+    smtp = smtplib.SMTP_SSL('smtp.gmail.com')
+    smtp.login(os.getenv('EMAIL'), os.getenv('PASSWORD_EMAIL'))
+    smtp.send_message(email)
+    smtp.quit()

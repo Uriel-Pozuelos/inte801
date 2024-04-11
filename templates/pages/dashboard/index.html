@@ -42,6 +42,14 @@ block content %}
 				<p class="text-2xl font-bold" id="cookie_nameM"></p>
 			</div>
 		</div>
+		<div class="card w-96 bg-accent text-neutral-content">
+			<div class="card-body">
+				<h2 class="card-title text-4xl font-bold text-blue-700">
+					Galleta con utilidad más alta por ventas
+				</h2>
+				<p class="text-2xl font-bold" id="mayorUtilidad"></p>
+			</div>
+		</div>
 	</section>
 	<!-- Sección de gráficos -->
 	<section class="grid grid-cols-2 gap-4 w-full mt-4">
@@ -154,11 +162,58 @@ block content %}
 
 	const produccion_ids = JSON.parse('{{ produccion_ids | tojson }}');
 
-	document.getElementById('cookie_name').innerText =
-		rankingCookies.labels[0];
+	document.getElementById('cookie_name').innerText = (() => {
+		// Obtener el índice de la cookie con más mermas
+		const maxIndex = rankingCookies.datasets[0].data.reduce(
+			(prevIndex, currentValue, currentIndex, array) => {
+				return currentValue > array[prevIndex]
+					? currentIndex
+					: prevIndex;
+			},
+			0
+		);
 
-	document.getElementById('cookie_nameM').innerText =
-		ranking_mermas.labels[0];
+		// Obtener el nombre de la cookie con más mermas
+		const cookieName = rankingCookies.labels[maxIndex];
+
+		return cookieName;
+	})();
+
+	document.getElementById('mayorUtilidad').innerText = (() => {
+		// Obtener el índice de la cookie con más mermas
+		const maxIndex = rankingCookies.datasets[0].data.reduce(
+			(prevIndex, currentValue, currentIndex, array) => {
+				return currentValue > array[prevIndex]
+					? currentIndex
+					: prevIndex;
+			},
+			0
+		);
+
+		// Obtener el nombre de la cookie con más mermas
+		const cookieName = rankingCookies.labels[maxIndex];
+
+		return cookieName;
+	})();
+
+	document.getElementById('cookie_nameM').innerText = (() => {
+		// Obtener el índice de la cookie con más mermas
+		const maxIndex = ranking_mermas.datasets[0].data.reduce(
+			(prevIndex, currentValue, currentIndex, array) => {
+				return currentValue > array[prevIndex]
+					? currentIndex
+					: prevIndex;
+			},
+			0
+		);
+
+		// Obtener el nombre de la cookie con más mermas
+		const cookieName = ranking_mermas.labels[maxIndex];
+
+		return cookieName;
+	})();
+
+	console.log(ranking_mermas);
 
 	function cambiarEmpleado(id) {
 		console.log(`id: ${id}`);
