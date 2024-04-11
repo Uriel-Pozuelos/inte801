@@ -5,6 +5,8 @@ from models.proveedor import Proveedor
 from lib.d import D
 from lib.jwt import allowed_roles, token_required
 
+from models.Inventario_galletas import Inventario_galletas
+
 
 recetas = Blueprint('recetas', __name__, template_folder='templates')
 
@@ -210,6 +212,12 @@ def create_galleta(form):
     galleta = Galletas( nombre=nombre, precio=precio, descripcion=descripcion, totalGalletas=totalGalletas, pesoGalleta=pesoGalleta,receta=receta)
     db.session.add(galleta)
     db.session.commit()
+    newInventario = Inventario_galletas(idGalleta=galleta.id, cantidad=1, fechaCaducidad='2022-01-01',updated_at='2022-01-01')
+
+    db.session.add(newInventario)
+    db.session.commit()
+
+
     return galleta.id
 
 def create_ingredientes(form, id):

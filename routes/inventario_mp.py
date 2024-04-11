@@ -44,6 +44,9 @@ def index():
     for merma in all_mermas:
         prov = Proveedor.query.filter_by(id=merma.id_proveedor).first()
         mat = MateriaPrima.query.filter_by(id=merma.idInventarioMaterias).first()
+
+        if merma is None or mat is None:
+            continue
         
         all_merm.append({
             "id": merma.id,
@@ -136,28 +139,33 @@ def new_merma():
     email = token["email"]
     
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+    log.warning(request.form)
     try:
         if request.method == "POST":
             id_inv_mat = request.form.get("id_inv_mat")
             merma_tipo = request.form.get("slcMerma")
             fecha_merma = request.form.get("fecha_merma")
             cantidad_merma = request.form.get("cantidad_merma")
+
+            log.info(f"cantidad_mermas: {cantidad_merma}")
             justificacion_merma = request.form.get("justificacion_merma")
             id_proovedor = None
             id_produccion = None
             
             imp = InventarioMP.query.filter_by(id=id_inv_mat).first()
+            imp = imp.serialize()
             
             if merma_tipo == "Proveedor":
-                compra = Compra.query.filter_by(id=imp.idCompra).first()
-                prov = compra.id_proveedor
+                compra = Compra.query.filter_by(id=imp['idCompra']).first()
+                compra = compra.serialize()
+                prov = compra['id_proveedor']
                 id_proovedor = prov
                 
             if merma_tipo == "Produccion":
                 user_production = Usuario.query.filter_by(email=email).first()
-                if user_production.rol == "produccion":
-                    prod = user_production.id
+                user_production = user_production.serialize()
+                if user_production['rol'] == "produccion":
+                    prod = user_production['id']
                     id_produccion = prod
             
             merma = MermaMateria(
@@ -173,9 +181,10 @@ def new_merma():
             
             db.session.add(merma)
             db.session.commit()
-            
+            log.info(imp)
+            log.warning(cantidad_merma)
             if imp:
-                imp.cantidad = (int(imp.cantidad) - int(cantidad_merma))
+                imp['cantidad'] = imp['cantidad'] - int(cantidad_merma)
                 db.session.add(merma)
                 db.session.commit()
 
@@ -183,5 +192,5 @@ def new_merma():
             return redirect("/inventario_mp")
     except Exception as e:
         flash("Ocurrio un error al registrar la merma", "danger")
-        print(e)
+        log.error(e)
         return redirect("/inventario_mp")
