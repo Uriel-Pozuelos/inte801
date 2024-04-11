@@ -221,6 +221,8 @@ def reset():
         password = hash_password(form.password.data)
         confirm_password = hash_password(form.confirm_password.data)
 
+        log.info(f'Email: {email} - Contraseña: {password} - Confirmar contraseña: {confirm_password}')
+
         if request.method == 'POST' and form.validate():
             usuario = Usuario.query.filter_by(email=email).first()
             if not usuario:
@@ -233,6 +235,10 @@ def reset():
                     flash('La contraseña ya ha sido utilizada anteriormente', 'danger')
                 else:
                     usuario.password = password
+                    db.session.commit()
+                    #agrergar la contraseña a la tabla de historial
+                    password_history = PasswordHistories(user_id=usuario.id, password=password)
+                    db.session.add(password_history)
                     db.session.commit()
                     return redirect('/login')
         
