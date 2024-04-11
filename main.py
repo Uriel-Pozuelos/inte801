@@ -18,10 +18,11 @@ from lib.jwt import token_required, allowed_roles
 from routes.inventario_mp import inventario_mp
 from routes.inventario_galletas import inventario_galletas
 from lib.jwt import get_role
+from models.usuario import Usuario
 from db import seeder
 import json
 from db.db import db,create_db
-from lib.jwt import token_required,allowed_roles
+from lib.jwt import token_required,allowed_roles,decodeToken,get_email
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -51,6 +52,9 @@ app.register_blueprint(dashboard)
 def before_request():
     rol = get_role()
     g.rol = rol if rol else 'invitado'
+    email = get_email()
+    if email:
+        g.nombre = Usuario.query.filter_by(email=get_email()).first().nombre
     
 
     allowed_routes = [
@@ -174,9 +178,12 @@ def a():
     print(usuarios)
     return 'ok'
 
+# manerjar rutas que no existen
 @app.errorhandler(404)
 def page_not_found(e):
-    redirect('/404')
+    if g.rol == 'invitado':
+        return redirect('/')
+    return render_template('pages/404/404log.html'), 404
 
 def task():
     print("Hola mundo")

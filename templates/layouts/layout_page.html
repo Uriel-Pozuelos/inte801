@@ -45,28 +45,33 @@
 							>
 								<a
 									href="/logout"
-									class="flex hover:bg-accent/60 text-sm text-white rounded-md px-3 py-2 font-medium"
+									class="flex hover:bg-accent/60 text-sm text-white rounded-md px-3 py-2 font-medium me-2"
 									aria-current="page"
 								>
 									Logout
 								</a>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									class="lucide lucide-user-round-x mt-2 mx-2"
-								>
-									<path d="M2 21a8 8 0 0 1 11.873-7" />
-									<circle cx="10" cy="8" r="5" />
-									<path d="m17 17 5 5" />
-									<path d="m22 17-5 5" />
-								</svg>
+								<section class="flex flex-row items-center">
+									<span class="text-white font-bold text-2xl"
+										>{{g.nombre}}</span
+									>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="white"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-user-round-x mt-2 mx-2"
+									>
+										<path d="M2 21a8 8 0 0 1 11.873-7" />
+										<circle cx="10" cy="8" r="5" />
+										<path d="m17 17 5 5" />
+										<path d="m22 17-5 5" />
+									</svg>
+								</section>
 							</div>
 						</div>
 					</div>

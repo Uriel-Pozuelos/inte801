@@ -141,7 +141,7 @@ content %}
 									{{ receta.pesoGalleta }} gramos
 								</span>
 								<span class="text-pretty text-lg">
-									Porciones: {{ receta.totalGalletas }} galletas
+									Porciones: {{ form.totalGalletas.data }} galletas
 								</span>
 	
 							</div>
@@ -162,6 +162,9 @@ content %}
 							
 					{% else %}
 							<!-- Mostrar como tabla y text area -->
+							<section>
+								{{ camposNuevos(form.totalGalletas) }}
+							</section>
 							<table class="table">
 									<thead class="text-black">
 											<tr>
@@ -226,6 +229,8 @@ content %}
     const closeDialog2 = document.getElementById('closeDialog2');
     const img = document.getElementById('img');
     const fileInput = document.getElementById('file'); // Cambiado a fileInput para evitar la duplicación de nombres
+		
+		const $totalGalletas = document.getElementById('totalGalletas').value = Number('{{ receta.totalGalletas | safe }}')
 
     openDialog.addEventListener('click', () => {
         dialog.showModal();

@@ -776,3 +776,58 @@ JOIN (
     JOIN materia_prima_galleta ON materia_prima_galleta.galleta_id = galletas.id
     WHERE galletas.id = 1
 ) AS galletas_materia_prima ON galletas_materia_prima.id = galletas.id
+
+
+# sacar el precio promedio por materia prima
+SELECT materiaprima.id, materiaprima.material, materiaprima.tipo, AVG(materia_prima_proveedor.precio) AS precio_promedio
+FROM materiaprima
+JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = materiaprima.id
+GROUP BY materiaprima.id;
+
+#usando la QUERY anterior, sacar el precio promedio por materia prima, por gallleta
+
+SELECT galletas.id, galletas.nombre, galletas.precio AVG(materia_prima_proveedor.precio) AS precio_promedio
+FROM galletas
+JOIN materia_prima_galleta ON materia_prima_galleta.galleta_id = galletas.id
+JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = materia_prima_galleta.materiaprima_id
+GROUP BY galletas.id;
+
+SELECT
+    mp.id AS id_material,
+    mp.material AS nombre_material,
+    AVG(ROUND((i.cantidad * g.precio), 2) / 100) AS costo_promedio_material
+FROM
+    ingredientes i
+JOIN
+    materiaprima mp ON i.material_id = mp.id
+JOIN
+    galletas g ON i.galleta_id = g.id
+WHERE
+    g.id = 4
+GROUP BY
+    mp.id, mp.material;
+    
+    
+    select sum(costo_produccion) costo from(
+SELECT 
+    nombre_material,
+    sum(costo_material) as costo_produccion,
+    cantidad_utilizada
+FROM
+    (SELECT
+        mp.material AS nombre_material,
+        i.cantidad AS cantidad_utilizada,
+        AVG(ROUND((i.cantidad), 2) / 100) AS costo_material
+    FROM
+        ingredientes i
+    JOIN
+        materiaprima mp ON i.material_id = mp.id
+    JOIN
+        galletas g ON i.galleta_id = g.id
+    WHERE
+        g.id = 7) AS materiales
+GROUP BY
+    nombre_material) as p;
+
+# saber los materiales que se usaron en una galleta
+SELECT g.nombre, 

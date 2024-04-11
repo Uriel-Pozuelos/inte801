@@ -20,50 +20,118 @@ block content %}
 <script src="/static/js/chart.js"></script>
 
 <section class="w-full h-screen flex flex-col">
+	<!-- Sección de mensajes flash -->
 	<div class="flash-messages"></div>
-	<section class="mt-8 w-full flex justify-between">
+
+	<!-- Sección de las dos tarjetas principales -->
+	<section class="mt-8 flex justify-between">
 		<div class="card w-96 bg-accent text-neutral-content">
 			<div class="card-body">
-				<h2 className="card-title text-4xl font-bold text-blue-400">
-					Galleta mas vendida
+				<h2 class="card-title text-4xl font-bold text-blue-700">
+					Galleta más vendida
 				</h2>
-
 				<p class="text-2xl font-bold" id="cookie_name"></p>
 			</div>
 		</div>
+
 		<div class="card w-96 bg-accent text-neutral-content">
 			<div class="card-body">
-				<h2 className="card-title text-4xl font-bold text-blue-400">
-					Galleta con mas mermas
+				<h2 class="card-title text-4xl font-bold text-blue-700">
+					Galleta con más mermas
 				</h2>
-
 				<p class="text-2xl font-bold" id="cookie_nameM"></p>
 			</div>
 		</div>
 	</section>
-	<section>
-		<div>
-			<select
-				name="idProd"
-				id="idProd"
-				class="select select-bordered"
-			>
-				{% for prod in produccion_ids %}
-				<option value="{{ prod }}">{{ prod }}</option>
-				{% endfor %}
-			</select>
-			<span>
-				El empreso que realizo la produccion es:
-				<span id="empreado"></span>
-			</span>
+	<!-- Sección de gráficos -->
+	<section class="grid grid-cols-2 gap-4 w-full mt-4">
+		<div class="card w-full bg-neutral text-primary">
+			<div class="card-body">
+				<h2 class="text-xl font-bold">Ranking de galletas</h2>
+				<canvas id="ranking_cookies" width="400"></canvas>
+			</div>
+		</div>
+
+		<div class="card w-full bg-neutral text-primary">
+			<div class="card-body">
+				<h2 class="text-xl font-bold">Ranking de mermas</h2>
+				<canvas id="ranking_mermas" width="400"></canvas>
+			</div>
+		</div>
+
+		<div class="card w-full bg-neutral text-primary">
+			<div class="card-body">
+				<h2 class="text-xl font-bold">Galletas en inventario</h2>
+				<canvas id="galletas_en_inventario" width="400"></canvas>
+			</div>
 		</div>
 	</section>
-	<section class="grid grid-cols-2 gap-4 w-full h-full p-4">
-		<div>
-			<canvas id="ranking_cookies" width="400"></canvas>
+
+	<!-- Sección de tabla de costo de producción por receta -->
+	<section class="mt-8">
+		<div class="card w-full bg-primary text-neutral-content">
+			<div class="card-body">
+				<h2 class="text-xl font-bold">
+					Costo de producción por receta
+				</h2>
+				<table class="table mt-4">
+					<thead>
+						<tr class="bg-primary-700 text-neutral-content">
+							<th>Receta</th>
+							<th>Costo unitario</th>
+							<th>Costo total</th>
+							<th>Porciones</th>
+							<th>Ver receta</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for receta in info_produccion %}
+						<tr>
+							<td>{{ receta.nombre }}</td>
+							<td>$ {{ receta.costoUnitario }}</td>
+							<td>
+								${{ (receta.costoUnitario) * receta.totalGalletas }}
+							</td>
+							<td>{{ receta.totalGalletas }} unidades</td>
+							<td>
+								<a
+									href="/recetas/{{ receta.id }}"
+									class="btn btn-accent"
+									target="_blank"
+								>
+									Ver receta
+								</a>
+							</td>
+						</tr>
+
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
 		</div>
-		<div>
-			<canvas id="ranking_mermas" width="400"></canvas>
+	</section>
+
+	<!-- Sección de información de producción -->
+	<section class="mt-8">
+		<div class="card w-full bg-neutral text-primary">
+			<div class="card-body">
+				<h2 class="text-xl font-bold card-title">
+					Información de Lotes de Producción
+				</h2>
+				<select
+					name="idProd"
+					id="idProd"
+					class="select select-bordered w-96"
+				>
+					{% for prod in produccion_ids %}
+					<option value="{{ prod.id }}">Lote-{{ prod.id }}</option>
+					{% endfor %}
+				</select>
+				<span class="ml-4">
+					El empleado que realizó la producción es:
+					<span id="empreado"></span>
+				</span>
+			</div>
 		</div>
 	</section>
 </section>
@@ -74,6 +142,17 @@ block content %}
 	const empleado_produccion = JSON.parse(
 		'{{ lista_nombres_empleados | tojson }}'
 	);
+	const galletasInventario = JSON.parse(
+		'{{ galletas_en_inventario | safe }}'
+	);
+
+	const info_produccion = JSON.parse(
+		'{{ info_produccion | tojson }}'
+	);
+
+	console.log(info_produccion);
+
+	const produccion_ids = JSON.parse('{{ produccion_ids | tojson }}');
 
 	document.getElementById('cookie_name').innerText =
 		rankingCookies.labels[0];
@@ -82,11 +161,13 @@ block content %}
 		ranking_mermas.labels[0];
 
 	function cambiarEmpleado(id) {
+		console.log(`id: ${id}`);
 		const empleado = empleado_produccion.find(
 			empleado => empleado.id === parseInt(id)
 		);
+
 		document.getElementById('empreado').innerText =
-			empleado.nombre ?? 'El empleado no existe';
+			empleado.nombre_empleado ?? 'El empleado no existe';
 	}
 	cambiarEmpleado(document.getElementById('idProd').value);
 
@@ -98,7 +179,7 @@ block content %}
 		);
 
 		document.getElementById('empreado').innerText =
-			empleado.nombre ?? 'El empleado no existe';
+			empleado.nombre_empleado ?? 'El empleado no existe';
 	});
 
 	const ctx = document
@@ -129,6 +210,25 @@ block content %}
 		data: {
 			labels: ranking_mermas.labels,
 			datasets: ranking_mermas.datasets
+		},
+		options: {
+			scales: {
+				y: {
+					beginAtZero: true
+				}
+			}
+		}
+	});
+
+	const ctx3 = document
+		.getElementById('galletas_en_inventario')
+		.getContext('2d');
+
+	new Chart(ctx3, {
+		type: 'bar',
+		data: {
+			labels: galletasInventario.labels,
+			datasets: galletasInventario.datasets
 		},
 		options: {
 			scales: {

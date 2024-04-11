@@ -10,7 +10,10 @@ from sqlalchemy import text
 from lib.d import D
 from lib.jwt import allowed_roles,token_required,createToken,decodeToken,hash_password
 login = Blueprint('login', __name__, template_folder='templates')
-load_dotenv()
+import os
+import requests
+load_dotenv('.env')
+print(os.getenv('RECAPTCHA_SECRET_KEY'))
 
 log = D(debug=True)
 
@@ -124,6 +127,7 @@ def login_page():
         return redirect('/')
 
     if request.method == 'POST' and form.validate():
+        
         email = form.correo.data
         contraseña = hash_password(form.password.data)
         print(contraseña)
@@ -215,15 +219,11 @@ def reset_password():
     return render_template('pages/login/enviar_email.html', form=form)
 
 
-
-
-
 @login.route('/404')
 def not_found():
     if g.rol == 'invitado':
         return render_template('pages/404/404.html'), 404
     return render_template('pages/404/404log.html'), 404
-
 
 
 @login.route('/logout')
