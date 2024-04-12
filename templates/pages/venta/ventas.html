@@ -49,7 +49,17 @@
     <div class="flex flex-col items-center text-black mt-5">
         <form action="" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <table class="table-md table-auto w-1/2" id="venta">
+            
+            <div class="flex border border-red-500">
+                <div class="me-4">
+                    <label for="fecha" class="label">Fecha</label>
+                    <input type="date" name="fecha" id="fecha" class="me-2 rounded-md border border-gray-800 p-3 w-full">
+                </div>
+                <input type="submit" value="Filtrar" name="btn" class="btn btn-primary rounded-md ml-4">
+                
+            </div>
+
+            <table class="table-md table-auto w-1/2 hidden" id="venta">
                 <thead>
                     <tr>
                         <th class="px-4 py-2">Id</th>
@@ -92,7 +102,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Haz que cargue unicamente las ventas asociadas a el boton que presiono -->
+                
                 {% for detalle in detalle_venta %}
                     <tr>
                         <td class="border px-4 py-2">{{ detalle.venta_id }}</td>
@@ -110,6 +120,26 @@
             </tbody>
             
         </table>
+
+        
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Galleta</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for galleta in galleta %}
+                    <tr>
+                        <td>{{ galleta.nombre }}</td>
+                        <td>{{ galleta.precio }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 </section>
 
 
@@ -121,10 +151,6 @@
         element.addEventListener('click', function() {
             document.getElementById('venta').classList.toggle('hidden');
             document.getElementById('detalle_venta').classList.toggle('hidden');
-            /*venta_id = document.getElementById('venta_id').value;
-            venta_id = document.querySelectorAll('#venta_id')[index].value;
-            console.log(venta_id);*/
-            
         });
     });
 

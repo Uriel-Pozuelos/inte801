@@ -118,7 +118,6 @@ def controller_updates(form):
                 'id': id,
                 'cantidad': form['cantidad_'+id],
                 'material': getIDbyName(form['material_'+id])
-              
             })
 
     update_receta(form['id'], form['receta'])
