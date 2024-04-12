@@ -25,7 +25,7 @@ block content %}
 
 	<!-- Sección de las dos tarjetas principales -->
 	<section class="mt-8 flex justify-between">
-		<div class="card w-96 bg-accent text-neutral-content">
+		<div class="card w-96 bg-neutral text-neutral-content">
 			<div class="card-body">
 				<h2 class="card-title text-4xl font-bold text-blue-700">
 					Galleta más vendida
@@ -34,7 +34,7 @@ block content %}
 			</div>
 		</div>
 
-		<div class="card w-96 bg-accent text-neutral-content">
+		<div class="card w-96 bg-neutral text-neutral-content">
 			<div class="card-body">
 				<h2 class="card-title text-4xl font-bold text-blue-700">
 					Galleta con más mermas
@@ -42,7 +42,7 @@ block content %}
 				<p class="text-2xl font-bold" id="cookie_nameM"></p>
 			</div>
 		</div>
-		<div class="card w-96 bg-accent text-neutral-content">
+		<div class="card w-96 bg-neutral text-neutral-content">
 			<div class="card-body">
 				<h2 class="card-title text-4xl font-bold text-blue-700">
 					Galleta con utilidad más alta por ventas
@@ -77,9 +77,9 @@ block content %}
 
 	<!-- Sección de tabla de costo de producción por receta -->
 	<section class="mt-8">
-		<div class="card w-full bg-primary text-neutral-content">
+		<div class="card w-full bg-neutral text-neutral-content">
 			<div class="card-body">
-				<h2 class="text-xl font-bold">
+				<h2 class="text-xl font-bold card-title text-primary">
 					Costo de producción por receta
 				</h2>
 				<table class="table mt-4">
@@ -126,19 +126,29 @@ block content %}
 				<h2 class="text-xl font-bold card-title">
 					Información de Lotes de Producción
 				</h2>
+				<label for="idProd" class="text-white">
+					Selecciona un lote para ver su información
+				</label>
 				<select
 					name="idProd"
 					id="idProd"
-					class="select select-bordered w-96"
+					class="select select-bordered w-full text-black"
 				>
 					{% for prod in produccion_ids %}
 					<option value="{{ prod.id }}">Lote-{{ prod.id }}</option>
 					{% endfor %}
 				</select>
-				<span class="ml-4">
-					El empleado que realizó la producción es:
-					<span id="empreado"></span>
-				</span>
+				<hr />
+
+				<div class="w-full text-center">
+					<span class="ml-4 mt-8 text-xl text-white">
+						El empleado encargado de la producción fue :
+						<span
+							id="empreado"
+							class="text-2xl font-bold text-yellow-400"
+						></span>
+					</span>
+				</div>
 			</div>
 		</div>
 	</section>

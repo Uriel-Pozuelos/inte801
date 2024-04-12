@@ -37,12 +37,12 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 
-  <section class="grid grid-cols-1 md:grid-cols-2  overflow-y-auto overflow-x-hidden px-8 place-content-between mt-4">
+  <section class="grid grid-cols-1 md:grid-cols-2 px-8 place-content-between mt-4">
 		
 
 		<!-- imagen -->
 		<div class="flex justify-center">
-			
+
 
 				<figure>
 						{% if id %}
@@ -52,10 +52,12 @@ content %}
 									
 								/>
 								{% if isEdit %}
-								<button class="btn btn-primary" type="button" id="openDialog2" align="center">
-									Cambiar imagen
-
-									</button>
+								<div class="w-full flex justify-center">
+									<button class="btn btn-primary self-center" type="button" id="openDialog2" align="center">
+										Cambiar imagen
+	
+										</button>
+								</div>
 								{% endif %}
 						{% else %}
 								<p>No se encontró ninguna imagen.</p>

@@ -180,23 +180,28 @@ def show(id):
             receta = get_galleta_by_id(id)
             return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
         elif 'add' in request.form:
-            material = request.form['ingrediente']
-            cantidad = request.form['cantidad']
+            material = safe(request.form['ingrediente'])
+            cantidad = safe(request.form['cantidad'])
+            
+            update_receta(request.form['id'], request.form['receta'], request.form['totalGalletas'])
+        
 
             addIngrediente(id, getIDbyName(material), cantidad)
             # Después de agregar, obtén la lista actualizada de ingredientes
             ingredientes = get_ingrediente(id)
             receta = get_galleta_by_id(id)
             form.totalGalletas.data = receta['totalGalletas']
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True,form=form)
         elif 'save' in request.form:
             receta = safe(request.form['receta'])
             
             id = safe(request.form['id'])
             log.info(f"ID: {id}")
             
-            
-            controller_updates(request.form)
+            try:
+                controller_updates(request.form)
+            except Exception as e:
+                log.error(e)
             
             receta = get_galleta_by_id(id)
             form.totalGalletas.data = receta['totalGalletas']

@@ -70,6 +70,11 @@ def before_request():
                 'ruta': 'inventario_mp.index',
                 'name': 'Inventarios',
                 'icon': None
+            },
+            {
+                'ruta': 'dashboard.index',
+                'name': 'Dashboard',
+                'icon': None
             }
             ]
             
@@ -94,11 +99,6 @@ def before_request():
                 {
                 'ruta': 'recetas.index',
                 'name': 'Recetas',
-                'icon': None
-                },
-                {
-                'ruta': 'inventario_mp.index',
-                'name': 'Inventario MP',
                 'icon': None
                 },
                 {

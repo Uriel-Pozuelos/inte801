@@ -55,7 +55,8 @@ def get_inventario_galletas():
     query = text("""
                  SELECT g.nombre, ig.cantidad
                 FROM inventariogalletas ig
-                JOIN galletas g ON g.id = ig.idGalleta;
+                JOIN galletas g ON g.id = ig.idGalleta
+                 where g.enable =1;
     """)
 
     results = db.session.execute(query)
@@ -149,7 +150,7 @@ FROM (
         SELECT
             mp.material AS nombre_material,
             SUM(i.cantidad) AS cantidad_utilizada,
-            ROUND((SUM(mpp.cantidad)/ 1000  * AVG(mpp.precio)), 2) AS precio_material,
+            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 1000 AS precio_material,
             g.totalGalletas,
             g.nombre nombre
         FROM

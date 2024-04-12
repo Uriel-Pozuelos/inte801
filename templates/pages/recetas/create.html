@@ -38,7 +38,7 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 
-  <section class="grid grid-cols-1 md:grid-cols-2  overflow-y-auto overflow-x-hidden px-8 place-content-between mt-4">
+  <section class="grid grid-cols-1 md:grid-cols-2 overflow-x-hidden px-8 place-content-between mt-4">
 		
 
 		<!-- imagen -->
@@ -145,9 +145,7 @@ content %}
 							<div class="flex justify-between my-4">
 								<input type="submit" name="save" value="Guardar" class="btn btn-primary">
 							<input type="submit" name="regret" value="Cancelar" class="btn btn-error">
-							<button id="openDialog" class="btn btn-primary" type="button">
-								Agregar ingrediente
-							</button>
+							
 							</div>
 						
 					{% endif %}
@@ -159,7 +157,6 @@ content %}
 	<script>
     const dialog = document.getElementById('addIngrediente');
     const dialog2 = document.getElementById('changeImage');
-    const openDialog = document.getElementById('openDialog');
     const openDialog2 = document.getElementById('openDialog2');
     const closeDialog2 = document.getElementById('closeDialog2');
     const img = document.getElementById('img');
@@ -167,10 +164,7 @@ content %}
     const fileInput = document.getElementById('file'); // Cambiado a fileInput para evitar la duplicación de nombres
 
     
-    openDialog2.addEventListener('click', () => {
-        dialog2.showModal();
-    });
-
+   
     closeDialog2.addEventListener('click', () => {
         dialog2.close();
         // Limpiar el input file

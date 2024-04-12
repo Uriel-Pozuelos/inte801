@@ -700,6 +700,8 @@ CREATE TABLE `usuario` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+
 --
 -- Dumping data for table `usuario`
 --
@@ -747,6 +749,18 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+
+# consulta para saber las materias primas que tienen menos materiales en inventario
+
+SELECT *
+FROM materiaprima
+JOIN inventario_mp ON inventario_mp.idMateriaPrima = materiaprima.id
+WHERE inventario_mp.cantidad < 10
+LIMIT 10
+;
+
+
 
 -- Dump completed on 2024-04-08 20:09:24
 
