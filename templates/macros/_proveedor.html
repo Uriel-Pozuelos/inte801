@@ -1,20 +1,45 @@
 {% macro addProv (for="", placeholder="", id="", name="") %}
 <div class="">
-    <label for="{{for}}" class="text-gray-700">{{for}}</label>
-    <input class="input input-bordered input-primary min-w-full max-w-xs" type="text" name="{{name}}" id="{{id}}" placeholder="{{placeholder}}" required>
+	<label for="{{for}}" class="text-gray-700">{{for}}</label>
+	<input
+		class="input input-bordered input-primary min-w-full max-w-xs"
+		type="text"
+		name="{{name}}"
+		id="{{id}}"
+		placeholder="{{placeholder}}"
+		required
+	/>
 </div>
-{% endmacro %}
-
-{% macro edProv (for="", placeholder="", id="", name="") %}
+{% endmacro %} {% macro edProv (for="", placeholder="", id="",
+name="") %}
 <div class="">
-    <label for="{{for}}" class="text-gray-700">{{for}}</label>
-    <input class="input input-bordered input-primary min-w-full max-w-xs" type="text" name="{{name}}" id="{{id}}" placeholder="{{placeholder}}">
+	<label for="{{for}}" class="text-gray-700">{{for}}</label>
+	<input
+		class="input input-bordered input-primary min-w-full max-w-xs"
+		type="text"
+		name="{{name}}"
+		id="{{id}}"
+		placeholder="{{placeholder}}"
+	/>
 </div>
-{% endmacro %}
-
-{% macro delProv(for="", id="", name="") %}
+{% endmacro %} {% macro delProv(for="", id="", name="") %}
 <div class="">
-    <label for="{{for}}" class="text-gray-700">{{for}}</label>
-    <input class="input input-bordered input-primary min-w-full max-w-xs" type="text" name="{{name}}" id="{{id}}" readonly>
+	<label for="{{for}}" class="text-gray-700">{{for}}</label>
+	<input
+		class="input input-bordered input-primary min-w-full max-w-xs"
+		type="text"
+		name="{{name}}"
+		id="{{id}}"
+		readonly
+	/>
 </div>
+{% endmacro %} {% macro edMat(for="", id="", name="", value="") %}
+<label for="{{for}}">{{for}}</label>
+<input
+	type="text"
+	class="input input-bordered input-primary min-w-full max-w-xs"
+	name="{{name}}"
+	id="{{id}}"
+	value="{{value}}"
+/>
 {% endmacro %}

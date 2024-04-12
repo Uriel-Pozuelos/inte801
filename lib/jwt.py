@@ -120,4 +120,17 @@ def get_role():
         return None
     except jwt.InvalidTokenError:
         return None
-    
+
+
+"""
+obtener el rol del token
+"""
+def get_email():
+    try:
+        token = request.cookies.get('token')
+        data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
+        return data['email']
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None

@@ -1,9 +1,12 @@
 from flask import Blueprint, request, render_template,jsonify, Response,flash, redirect
 from models.Recetas import Galletas,Ingredientes,MateriaPrima,db
-from forms.Galleta import GalletaForm
+from forms.Galleta import GalletaForm,Galleta2
 from models.proveedor import Proveedor
 from lib.d import D
 from lib.jwt import allowed_roles, token_required
+from lib.security import safe
+
+from models.Inventario_galletas import Inventario_galletas
 
 
 recetas = Blueprint('recetas', __name__, template_folder='templates')
@@ -64,6 +67,8 @@ def get_galleta_by_id(id):
     galleta = Galletas.query.get(id)
     return galleta.serialize()
 
+
+
 def get_tipo_material():
     material = MateriaPrima.query.with_entities(MateriaPrima.tipo).distinct().all()
     return [material[0] for material in material]
@@ -100,15 +105,16 @@ def delete_galleta(id):
 
 
 
-def update_receta(id,receta):
+def update_receta(id,receta,totalGalletas):
     galleta = Galletas.query.get(id)
     galleta.receta = receta
+    galleta.totalGalletas = totalGalletas
     db.session.commit()
 
 def controller_updates(form):
+    log.warning(form)
     # form regresa ImmutableMultiDict([('csrf_token', 'IjZjOTRjOGUyMTlhNTdkYzAzOGZmODJkNDlkNTRiNDFmYTdiZjU4M2Yi.ZgNnGA.-KwbwaZvAj06QHd7N-Wibb8QCFk'), ('tipo_5', 'gramos'), ('cantidad_5', '500.00'), ('material_5', 'avena'), ('tipo_6', 'mililitros'), ('cantidad_6', '50.00'), ('material_6', 'esencia de vainilla'), ('tipo_7', 'gramos'), ('cantidad_7', '5.00'), ('material_7', 'bicarbonato de sodio'), ('tipo_8', 'gramos'), ('cantidad_8', '100.00'), ('material_8', 'cacao en polvo'), ('receta', 'Galleta de chocolate con chips'), ('id', '2'), ('save', 'Guardar')])
     ingredientes = []
-    log.info(form)
     for key in form:
         if 'cantidad_' in key:
             #id es el id del ingrediente
@@ -120,7 +126,7 @@ def controller_updates(form):
                 'material': getIDbyName(form['material_'+id])
             })
 
-    update_receta(form['id'], form['receta'])
+    update_receta(form['id'], form['receta'], form['totalGalletas'])
     update_ingredientes(ingredientes)
 
     log.info(ingredientes)
@@ -145,14 +151,16 @@ def index():
 @token_required
 @allowed_roles(['admin','produccion','compras'])
 def show(id):
+    form = Galleta2(request.form)
 
     ingredientes = get_ingrediente(id)
     receta = get_galleta_by_id(id)
     receta = {key: receta[key] for key in ['id', 'receta', 'nombre', 'precio', 'descripcion', 'totalGalletas', 'pesoGalleta']}
     material_option = get_names_materials()
     tipo = get_tipo_material()
-
-    log.info(receta)
+    form.totalGalletas.data = str(receta['totalGalletas'])
+    print(f"ID: {id}")
+    print(request.form)
     
     if request.method == 'POST':
         if 'delete' in request.form:
@@ -160,55 +168,65 @@ def show(id):
             flash('Receta eliminada con éxito', 'success')
             return redirect('/recetas')
         if 'edit' in request.form:
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True, material_options=material_option, tipos=tipo)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True, material_options=material_option, tipos=tipo, form=form)
         elif 'regret' in request.form:
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
         elif any([True for key in request.form if 'delete_' in key]):
             id_to_delete = [key.split('_')[1] for key in request.form if 'delete_' in key][0]
             delete_ingredientes(id_to_delete)
             # Después de eliminar, obtén la lista actualizada de ingredientes
             ingredientes = get_ingrediente(id)
             receta = get_galleta_by_id(id)
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
         elif 'add' in request.form:
-            material = request.form['ingrediente']
-            cantidad = request.form['cantidad']
+            material = safe(request.form['ingrediente'])
+            cantidad = safe(request.form['cantidad'])
+            
+            update_receta(request.form['id'], request.form['receta'], request.form['totalGalletas'])
+        
+
             addIngrediente(id, getIDbyName(material), cantidad)
             # Después de agregar, obtén la lista actualizada de ingredientes
             ingredientes = get_ingrediente(id)
             receta = get_galleta_by_id(id)
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
+            form.totalGalletas.data = receta['totalGalletas']
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True,form=form)
         elif 'save' in request.form:
-            receta = request.form['receta']
-            id = request.form['id']
+            receta = safe(request.form['receta'])
             
-            controller_updates(request.form)
+            id = safe(request.form['id'])
+            log.info(f"ID: {id}")
+            
+            try:
+                controller_updates(request.form)
+            except Exception as e:
+                log.error(e)
             
             receta = get_galleta_by_id(id)
+            form.totalGalletas.data = receta['totalGalletas']
             ingredientes = get_ingrediente(id)
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
         elif 'change' in request.form:
             filename = f"static/img/{id}.webp"
             file = request.files['file']
             file.save(filename)
-
-        
-
-
-
-    return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
+    return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
 
 
 def create_galleta(form):
-    receta = form.receta.data
-    nombre = form.nombre.data
-    precio = form.precio.data
-    descripcion = form.descripcion.data
-    totalGalletas = form.totalGalletas.data
-    pesoGalleta = form.pesoGalleta.data
-    galleta = Galletas( nombre=nombre, precio=precio, descripcion=descripcion, totalGalletas=totalGalletas, pesoGalleta=pesoGalleta,receta=receta)
+    nombre = safe(form.nombre.data)
+    descripcion = safe(form.descripcion.data)
+    pesoGalleta = safe(form.pesoGalleta.data)
+    galleta = Galletas( nombre=nombre, precio=0, descripcion=descripcion, totalGalletas=0, pesoGalleta=pesoGalleta,receta='')
     db.session.add(galleta)
     db.session.commit()
+    newInventario = Inventario_galletas(idGalleta=galleta.id, cantidad=1, fechaCaducidad='2022-01-01',updated_at='2022-01-01')
+
+    db.session.add(newInventario)
+    db.session.commit()
+
+
     return galleta.id
 
 def create_ingredientes(form, id):

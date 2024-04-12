@@ -17,7 +17,7 @@ class MateriaPrimaProveedor(db.Model):
         return {
             "id": self.id,
             "materiaprima": self.materiaprima.serialize(),
-            "proveedor": self.proveedor.nombre,
+            "proveedor": self.proveedor.id,
             "precio": float("%.2f" % self.precio),
             "cantidad": self.cantidad,
             "tipo": self.tipo,

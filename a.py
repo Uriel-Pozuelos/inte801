@@ -1,6 +1,6 @@
 # from lib import d
 # from lib.jwt import hash_password
-# from lib.security import safe
+from lib.security import safe
 import os
 
 # d = d.D()
@@ -20,21 +20,21 @@ import os
 # # d.log("Este es un mensaje con color personalizado", color='\033[95m')
 
 
-# text = "<script>alert('hola')</script> Como estas?"
-# text2 = "Holña"
-# sql = "SELECT * FROM users WHERE id = 1"
+text = "<script>alert('hola')</script> Como estas?"
+text2 = "Holña"
+sql = "SELECT * FROM users WHERE id = 1"
 
-# print(safe(text))
-# print(safe(text2))
-# print(safe(sql))
+print(safe(text))
+print(safe(text2))
+print(safe(sql))
 
 
-password = "rush2112"
-with open("password.txt", "r") as f:
-    if password + "\n" in f.readlines():
-        print("La contraseña está en el archivo")
-    else:
-        print("La contraseña no está en el archivo")
+# password = "rush2112"
+# with open("password.txt", "r") as f:
+#     if password + "\n" in f.readlines():
+#         print("La contraseña está en el archivo")
+#     else:
+#         print("La contraseña no está en el archivo")
 
 
 
