@@ -149,6 +149,13 @@ block content %}
 						></span>
 					</span>
 				</div>
+				<div>
+					<h4>Proveedores que participaron en la producción:</h4>
+					<article
+						id="proveedores"
+						class="text-slate-950 grid grid-cols-2 gap-4 mt-4 place-content-around w-full"
+					></article>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -168,7 +175,8 @@ block content %}
 		'{{ info_produccion | tojson }}'
 	);
 
-	console.log(info_produccion);
+	const info_proveedores = JSON.parse('{{ proveedores | tojson }}');
+	console.log(info_proveedores);
 
 	const produccion_ids = JSON.parse('{{ produccion_ids | tojson }}');
 
@@ -236,12 +244,52 @@ block content %}
 	}
 	cambiarEmpleado(document.getElementById('idProd').value);
 
+	function mostrarProveedoresById(id) {
+		const proveedores = info_proveedores.filter(proveedor => {
+			console.log({ proveedor: proveedor.id, id });
+			console.log(proveedor.id == parseInt(id));
+
+			proveedor.id == parseInt(id);
+			return proveedor.id == parseInt(id);
+		});
+
+		console.log({ proveedores });
+
+		const proveedoresHTML = proveedores.map(
+			proveedor => `
+			<div class="card w-96 bg-accent">
+				<div class="card-body">
+					<h2 class="text-xl font-bold card-title">
+						${proveedor.proveedor.nombre_empresa}
+					</h2>
+					<p class="text-lg">Teléfono: ${proveedor.proveedor.telefono_empresa}</p>
+					<p class="text-lg">Nombre del contacto: ${proveedor.proveedor.nombre_encargado}</p>
+					<p class="text-lg">dirección: ${proveedor.proveedor.direccion_empresa}</p>
+				</div>
+			</div>
+		`
+		);
+
+		if (proveedoresHTML.length === 0) {
+			proveedoresHTML.push(
+				'<p class="text-white">No hay proveedores</p>'
+			);
+		}
+
+		document.getElementById('proveedores').innerHTML =
+			proveedoresHTML.join('');
+	}
+
+	mostrarProveedoresById(document.getElementById('idProd').value);
+
 	document.getElementById('idProd').addEventListener('change', e => {
 		const idProd = e.target.value;
 		console.log(idProd);
 		const empleado = empleado_produccion.find(
 			empleado => empleado.id === parseInt(idProd)
 		);
+
+		mostrarProveedoresById(idProd);
 
 		document.getElementById('empreado').innerText =
 			empleado.nombre_empleado ?? 'El empleado no existe';

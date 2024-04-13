@@ -757,8 +757,12 @@ SELECT *
 FROM materiaprima
 JOIN inventario_mp ON inventario_mp.idMateriaPrima = materiaprima.id
 WHERE inventario_mp.cantidad < 10
+LIMIT 10;
+
+ SELECT * FROM materiaprima JOIN inventario_mp ON inventario_mp.id_materia_prima = materiaprima.id
+ WHERE inventario_mp.cantidad < 100
 LIMIT 10
-;
+ ;
 
 
 
