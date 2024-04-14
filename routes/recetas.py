@@ -150,8 +150,9 @@ def controller_updates(form):
             # Agregar el material a la lista de ingredientes y al conjunto de materiales agregados
             ingredientes.append({
                 'id': id,
-                'cantidad': cantidad,
-                'material': material_id
+                'cantidad': form['cantidad_'+id],
+                'material': getIDbyName(form['material_'+id])
+
             })
             materiales_agregados.add(material_id)  # Registrar el material en el conjunto
 
