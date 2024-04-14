@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, redirect, flash
 from models.Recetas import Galletas
 from models.solicitud_produccion import solicitud_produccion
 from models.Inventario_galletas import Inventario_galletas
@@ -45,27 +45,57 @@ def get_Solicitud_inventario():
         solicitud_data = solicitud.serialize()
         solicitud_data['nombreGalleta'] = get_Galleta_nombre_por_idLote(solicitud.idLoteGalletas)
         solicitudes_modificadas.append(solicitud_data)
+    solicitudes_modificadas.reverse()
     return solicitudes_modificadas
 
 @solicitud.route('/solicitud', methods=['GET', 'POST'] )
 def index():
-    form = SolicitudForm(request.form)
     if request.method == 'POST':
-        # Crear una nueva instancia del modelo solicitud_produccion con los datos del formulario
-        nueva_solicitud = solicitud_produccion(
-            idLoteGalletas=form.idLoteGalletas.data,
-            cantidad=form.cantidad.data
-        )
-        db.session.add(nueva_solicitud)
-        db.session.commit()
-
-        inventario = Inventario_galletas.query.get(form.idLoteGalletas.data)
-        if inventario:  # Verificar que el registro exista
-            inventario.estatus = 0
-            inventario.updated_at = datetime.now()
+        if request.form['action'] == 'enviar':
+            # Crear una nueva instancia del modelo solicitud_produccion con los datos del formulario
+            cantidad = request.form.get('cantidad')
+            idLoteGalleta = request.form.get('idLoteGalletas')
+            if cantidad =="" or idLoteGalleta == "":
+                flash("Completa todos los campos")
+                return redirect("/solicitud")
+            cantidad = int(cantidad)
+            if cantidad >= 2147483647:
+                flash('Por favor, ingresa un número válido.')
+                return(redirect('/solicitud'))
+                
+            nueva_solicitud = solicitud_produccion(
+                idLoteGalletas=idLoteGalleta,
+                cantidad=cantidad
+            )
+            db.session.add(nueva_solicitud)
             db.session.commit()
 
+            inventario = Inventario_galletas.query.get(idLoteGalleta)
+            if inventario:  # Verificar que el registro exista
+                inventario.estatus = 0
+                inventario.updated_at = datetime.now()
+                db.session.commit()
+                return redirect('/solicitud')
+        elif request.form['action'] == 'cancelar':
+            idSolicitud = request.form.get('idSolicitudCancel')
+            if idSolicitud == "":
+                flash("Seleccione un tipo de galleta")
+                return redirect("/solicitud")
+            solicitud_filter =  solicitud_produccion.query.get(idSolicitud)
+            solicitud_filter.estatus = 'Cancelada'
+            solicitud_filter.updated_at = datetime.now()
+            db.session.commit()
+
+            inventario = Inventario_galletas.query.get(solicitud_filter.idLoteGalletas)
+            inventario.estatus = 1
+            inventario.updated_at = datetime.now()
+            db.session.commit()
+            flash('Solcitud cancelada correctamente')
+            return redirect('/solicitud')
     lotes = get_inventario_galletas()
-    print(f"Lotes: {lotes}")
     solicitudes = get_Solicitud_inventario()
-    return render_template('pages/solicitud_produccion/index.html', form=form, solicitudes = solicitudes, lotes=lotes)
+    solicitudes_pendientes = []
+    for solicitud in solicitudes:
+        if solicitud['estatus'] == 'Pendiente':
+            solicitudes_pendientes.append(solicitud)
+    return render_template('pages/solicitud_produccion/index.html', solicitudes = solicitudes, lotes=lotes, pendientes = solicitudes_pendientes)

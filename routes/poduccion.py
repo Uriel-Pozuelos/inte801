@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for
+from flask import Blueprint, request, render_template, redirect, url_for, flash
 from models.Produccion import Produccion
 from models.Recetas import Galletas, MateriaPrima, Ingredientes
 from models.solicitud_produccion import solicitud_produccion
@@ -9,7 +9,7 @@ from db.db import db
 from forms.Produccion import ProduccionForm
 from datetime import datetime, timedelta
 from sqlalchemy import cast, Date
-
+   
 
 produccion = Blueprint('produccion', __name__, template_folder='templates')
 log = D(debug=True)
@@ -94,7 +94,6 @@ def get_inventario():
 #    en_produccion = Produccion.query.filter(Produccion.estatus != 'Terminado').all()
 #    return [produccion.serialize() for produccion in en_produccion]
 
-
 @produccion.route('/produccion', methods=['GET', 'POST'] )
 def index():
     form = ProduccionForm(request.form)
@@ -112,46 +111,112 @@ def index():
 
     if request.method == 'POST':
         if 'add_galleta' in request.form:
-            print("Entró")
             nombre_galleta = request.form.get('tipo_galleta')
             cantidad_prod = request.form.get('cantidad_prod')
+            produccion_id = request.form.get('id_produccion')
             fecha_hoy = datetime.now()
             fecha_caducidad = fecha_hoy + timedelta(days=20)
             fecha_caducidad_date = fecha_caducidad.date()
-            galleta = Galletas.query.filter_by(nombre = nombre_galleta).all()
+            galleta = Galletas.query.filter_by(nombre = nombre_galleta).first()
+            produccion_filter = Produccion.query.get(produccion_id)
+            solicitud_filter = solicitud_produccion.query.get(produccion_filter.idSolicitud)
+
+            #-------------------- Verificar no exceder la cantidad en la solicitud
+
+            simulacion_cantidad = int(cantidad_prod) + produccion_filter.produccionActual
+            if simulacion_cantidad > solicitud_filter.cantidad:
+                flash("Cantidad excede la produccion solicitada")
+                return redirect('/produccion')
+
+            # ------------------- Verificar inventario --------------------
+
+            total = 0
+            ingredientes = Ingredientes.query.filter_by(galleta_id = galleta.id).all()
+            cantidad_restante = solicitud_filter.cantidad - produccion_filter.produccionActual
+            for ingrediente in ingredientes:
+                cantidad_requerida = ingrediente.cantidad * cantidad_restante
+                lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).all()
+                if lotes_materia:
+                    for lote_materia in lotes_materia:
+                        total += int(lote_materia.cantidad)
+                    if total < cantidad_requerida:
+                        more_mp = MateriaPrima.query.get(ingrediente.material_id)
+                        flash(str("No hay suficientes insumos de " + more_mp.material))
+                        return redirect('/produccion')
+                else:
+                    not_found_mp = MateriaPrima.query.get(ingrediente.material_id)
+                    flash(str(not_found_mp.material + " no se encuentra en inventario"))
+                    return redirect('/produccion')
+                
+            # -------------------- Agregar galleta ------------------
+
             inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
             if inventario_activo:
                 total = inventario_activo.cantidad + int(cantidad_prod)
                 inventario_activo.cantidad = total
                 inventario_activo.updated_at = datetime.now()
+                db.session.commit()
             else:
-                Inventario_galletas(
+                inventario_insert = Inventario_galletas(
                     idGalleta = galleta.id,
                     cantidad = cantidad_prod,
                     estatus = 1,
                     fechaCaducidad = fecha_caducidad
                 )
-            
-            
-            '''produccion_id = request.form.get('id_produccion')
-            cantidad_prod = request.form.get('cantidad_prod')   
-            nombre_galleta = request.form.get('tipo_galleta')
-            galleta = Galletas.query.get(nombre = nombre_galleta)
-            ingredientes = Ingredientes.query.filter(galleta_id = galleta.id).all()
-            for ingrediente in ingredientes:
-                lote_materia = Inventario_galletas.query.filter(id_materia_prima = ingredientes.material_id).all()
-                inventario_restante = int((ingrediente.cantidad * cantidad_prod))
-            galleta_bro = Produccion.query.get(idProduccion = produccion_id)
-            produccion_filter = Produccion.query.get(idProduccion = produccion_id)
-            total = int(produccion_filter.produccionActual + cantidad_prod)
-            produccion_filter.produccionActual = total
+                db.session.add(inventario_insert)
+                db.session.commit()
+
+            # -------------------- Produccion -----------------------------------------
+            if simulacion_cantidad == solicitud_filter.cantidad:
+                produccion_filter.estatus = 1
+            produccion_filter.produccionActual = simulacion_cantidad
             produccion_filter.updated_at = datetime.now()
-            db.session.commit()'''
+            db.session.commit()
 
+            # --------------------- Descontar inventario ----------------------------- 
+            for ingrediente in ingredientes:
+                cantidad_requerida = ingrediente.cantidad * int(cantidad_prod)
+                lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).order_by(InventarioMP.caducidad.asc()).all()
+                for lote in lotes_materia:
+                    if lote.cantidad < cantidad_requerida:
+                        cantidad_requerida = cantidad_requerida - lote.cantidad
+                        lote.cantidad = 0
+                        lote.updated_at = datetime.now()
+                        db.session.commit()
+                    else:
+                        materia_restante = lote.cantidad - cantidad_requerida
+                        lote.cantidad = materia_restante
+                        lote.updated_at = datetime.now()
+                        db.session.commit()
+                        break
 
-    
+            
+            flash("Galletas agregadas correctamente")
+            return("/produccion")
+
     return render_template('pages/produccion/index.html', solicitud=solicitud, form=form, produccion = produccion_filtro, inventario = inventario_update)
         
+def calcular_materia_prima_restante(nombre):
+    producciones_activas = Produccion.query.filter_by(estatus=0).all()
+    materia_prima_necesaria = {}
+
+    for produccion in producciones_activas:
+        solicitud = solicitud_produccion.query.get(produccion.idSolicitud)
+        galletas_restantes = solicitud.cantidad - produccion.produccionActual
+        galleta = Galletas.query.filter_by(nombre = nombre).first()
+        ingredientes = Ingredientes.query.filter_by(galleta_id=galleta.id).all()
+
+        for ingrediente in ingredientes:
+            cantidad_requerida_total = galletas_restantes * ingrediente.cantidad
+
+            if ingrediente.material_id in materia_prima_necesaria:
+                materia_prima_necesaria[ingrediente.material_id] += cantidad_requerida_total
+            else:
+                materia_prima_necesaria[ingrediente.material_id] = cantidad_requerida_total
+
+    return materia_prima_necesaria
+                
+
 @produccion.route('/revisar_solicitudes', methods=['GET', 'POST'])
 def revisar_solicitudes():
     solicitudes = get_Solicitud_inventario()
@@ -164,10 +229,31 @@ def revisar_solicitudes():
     if request.method == 'POST':
         if 'aceptada' in request.form:
             solicitud_id = request.form.get('solicitud_id')
-            print(solicitud_id)
-            solicitud = solicitud_produccion.query.get(solicitud_id)
-            solicitud.estatus = 'Aceptada'
-            solicitud.updated_at = datetime.now()
+            nombre_galleta = request.form.get('nombreGalleta')
+            mp_requerida_prod = calcular_materia_prima_restante(nombre_galleta)
+            total = 0
+            galleta = Galletas.query.filter_by(nombre = nombre_galleta).first()
+            ingredientes = Ingredientes.query.filter_by(galleta_id = galleta.id).all()
+            solicitud_filter = solicitud_produccion.query.get(solicitud_id)
+            for ingrediente in ingredientes:
+                cantidad_requerida = ingrediente.cantidad * int(solicitud_filter.cantidad)
+                material_prod = mp_requerida_prod[ingrediente.material_id]
+                if material_prod:
+                    cantidad_requerida = cantidad_requerida + material_prod
+                lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).all()
+                if lotes_materia:
+                    for lote_materia in lotes_materia:
+                        total += int(lote_materia.cantidad)
+                    if total < cantidad_requerida:
+                        more_mp = MateriaPrima.query.get(ingrediente.material_id)
+                        flash(str("No hay suficientes insumos de " + more_mp.material))
+                        return redirect(url_for('produccion.revisar_solicitudes'))
+                else:
+                    not_found_mp = MateriaPrima.query.get(ingrediente.material_id)
+                    flash(str(not_found_mp.material + " no se encuentra en inventario"))
+                    return redirect('/revisar_solicitudes')
+            solicitud_filter.estatus = 'Aceptada'
+            solicitud_filter.updated_at = datetime.now()
             db.session.commit()
             produccion = Produccion(
                 idSolicitud = solicitud_id,
@@ -175,10 +261,14 @@ def revisar_solicitudes():
             )
             db.session.add(produccion)
             db.session.commit()
-
-            return redirect(url_for('produccion.revisar_solicitudes'))
+            flash("Solicitud aceptada")
+            return redirect('/revisar_solicitudes')
+            #return redirect(url_for('produccion.revisar_solicitudes'))
         elif 'rechazada' in request.form:
             justificacion_text = request.form['justificacion']  # Extraer el texto de justificación del formulario
+            if justificacion_text == "":
+                flash("Por favor, agrega una justificación")
+                return redirect('/revisar_solicitudes')
             solicitud_id = request.form.get('reject_solicitud_id')
             solicitud = solicitud_produccion.query.get(solicitud_id)
             print(solicitud.idLoteGalletas)
@@ -193,6 +283,5 @@ def revisar_solicitudes():
                 inventario.estatus = 1
                 inventario.updated_at = datetime.now()
                 db.session.commit()
-                
-    print(solicitudes)
+            return redirect('/revisar_solicitudes')
     return render_template('pages/produccion/show.html', solicitud=solicitues_filtro, galletas = galletas)

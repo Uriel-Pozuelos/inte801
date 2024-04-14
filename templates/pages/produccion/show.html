@@ -1,5 +1,43 @@
 {% extends 'layouts/layout_page.html' %}
 {% block content %}
+
+<style>
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	select,
+	textarea,
+	input[type='search'] {
+		background-color: white !important;
+	}
+</style>
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{message}}</div>
+            {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
 <div class="flex flex-col items-center justify-center">
     <h1 class="text-4xl font-bold text-primary mt-5 mb-2 text-center">Solicitud de producción</h1>
     <div class="w-full flex justify-start ms-5 mb-5">
@@ -29,6 +67,7 @@
                             <td>{{ sol.cantidad }}</td>
                             <td>{{ sol.estatus }}</td>
                             <td>
+                                <input type="hidden" name="nombreGalleta" value="{{ sol.nombreGalleta }}">
                                 <input type="hidden" data-id="{{ sol.idSolicitud }}" name="solicitud_id" value="{{ sol.idSolicitud }}">
                                 <button type="submit" name="aceptada" class="btn btn-primary" data-id="{{ sol.idSolicitud }}">Aceptar</button>
                             </td>
@@ -67,6 +106,13 @@
         const justificationCard = document.querySelector('.justification-card');
         const tableContainer = document.querySelector('.table-container');
 
+        const flashMessages = document.querySelector('.flash-messages');
+        if (flashMessages) {
+            setTimeout(() => {
+                flashMessages.remove();
+            }, 5000);
+        }
+
         rejectButtons.forEach(button => {
             button.addEventListener('click', function() {
                 justificationCard.classList.remove('hidden');
@@ -94,6 +140,7 @@
                 // No es necesario llamar a form.submit() aquí ya que el clic del botón ya está intentando enviar el formulario
             });
         });
+
     });
 </script>
 

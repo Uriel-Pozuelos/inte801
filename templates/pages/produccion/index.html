@@ -1,5 +1,41 @@
 {% extends 'layouts/layout_page.html' %}
 {% block content %}  
+<style>
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	select,
+	textarea,
+	input[type='search'] {
+		background-color: white !important;
+	}
+</style>
+
+<div class="flash-messages">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+          {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{message}}</div>
+          {% endfor %}
+  {% endif %}
+  {% endwith %}
+</div>
 
   <div class="flex flex-col items-center justify-center">
     <h1 class="text-4xl font-bold text-primary mt-5 mb-4 text-center">Producción</h1>
@@ -55,7 +91,8 @@
         <h3 class="card-title font-bold">Agregar</h3>
       </div>
       <div class="card-body">
-        <form class="flex flex-col items-center gap-5">
+        <form class="flex flex-col items-center gap-5" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <!-- Input oculto para el ID de producción -->
           <input type="hidden" id="produccionId" name="id_produccion">
           
@@ -94,6 +131,16 @@
 </div>
 
 <script>
+  document.addEventListener('DOMContentLoaded', (event) => {
+    const flashMessages = document.querySelector('.flash-messages');
+        if (flashMessages) {
+            setTimeout(() => {
+                flashMessages.remove();
+            }, 5000);
+        }
+  })
+  
+
   document.querySelectorAll('.agregar-btn').forEach(button => {
     button.addEventListener('click', function() {
         const prodId = this.getAttribute('data-id');
