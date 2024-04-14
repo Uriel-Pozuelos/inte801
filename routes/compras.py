@@ -147,6 +147,13 @@ def purchase():
 
                             db.session.add(det_compra)
                             db.session.commit()
+
+                            #agregar a la tabla de MateriaPrimaProveedor
+
+                            mpp = MateriaPrimaProveedor(precio=pl,cantidad = cant, tipo = presentacion, created_at = created_at, materiaprima_id = mat_id, proveedor_id = prov_id)
+
+                            db.session.add(mpp)
+                            db.session.commit()
                             
                             cant_mpp = MateriaPrimaProveedor.query.filter_by(materiaprima_id=mat_id).first()
                             
