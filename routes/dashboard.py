@@ -138,9 +138,9 @@ def get_ranking_mermas():
 
 def get_precio_produccion_by_id(id):
     query = text("""
-       SELECT COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoUnitario, min(totalGalletas) ,
-min(totalGalletas) * COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoTotal, min(nombre) as nombre
-FROM (
+    SELECT COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoUnitario, min(totalGalletas) ,
+        min(totalGalletas) * COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoTotal, min(nombre) as nombre
+        FROM (
     SELECT
         nombre_material,
         SUM(cantidad_utilizada * precio_material) AS costo_produccion,
@@ -150,7 +150,7 @@ FROM (
         SELECT
             mp.material AS nombre_material,
             SUM(i.cantidad) AS cantidad_utilizada,
-            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 1000 AS precio_material,
+            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 10000 AS precio_material,
             g.totalGalletas,
             g.nombre nombre
         FROM
@@ -168,7 +168,7 @@ FROM (
     ) AS materiales
     GROUP BY
         nombre_material, nombre
-) AS p;
+    ) AS materiales;
     """)
     result = db.session.execute(query, {'id': id}).fetchone()
     
@@ -178,6 +178,7 @@ FROM (
         'totalGalletas': str(result[1]) if result is not None else 0,
         'costoTotal': str(result[2]) if result is not None else 0
     }
+
 
 
 def get_id_galleta():
@@ -214,7 +215,18 @@ def get_ids_produccion():
         lista_ids_produccion.append({'id': id[0], 'idUsuario': id[1]})
     return lista_ids_produccion
 
+def get_proveedor_by_produccion(id):
+    query = text("""
+        SELECT inventariogalletas.idLoteGalletas, proveedor.nombre_empresa, proveedor.nombre_encargado, proveedor.telefono_empresa, proveedor.direccion_empresa
+        FROM inventariogalletas
+        JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = inventariogalletas.idGalleta
+        JOIN proveedor ON proveedor.id = materia_prima_proveedor.proveedor_id
+        WHERE inventariogalletas.idLoteGalletas = :id AND proveedor.estatus = 1
+        GROUP BY proveedor.nombre_empresa, proveedor.nombre_encargado, proveedor.telefono_empresa, proveedor.direccion_empresa;
+        """)
+    result = db.session.execute(query, {'id': id}).all()
 
+    return result
 
 def know_user_by_id(id):
     query = text("""
@@ -238,18 +250,43 @@ def index():
     json_mermas = json.dumps(get_ranking_mermas())
     galletas_en_inventario = json.dumps(get_inventario_galletas())
     costo_produccion_galletas = get_all_costos_produccion()
-    log.json(costo_produccion_galletas)
+    
 
     lista_ids_produccion = get_ids_produccion()
     lista_nombres_empleados = []
     lista_ids_produccion_reales = []
+    lista_proveedores = []
+
     for id in lista_ids_produccion:
         nombre_empleado = know_user_by_id(id['idUsuario'])
-       
-        if nombre_empleado is not None:
-          lista_ids_produccion_reales.append(id)
-          lista_nombres_empleados.append({'id': id['id'], 'nombre_empleado': nombre_empleado[0]})
+        proveedores = get_proveedor_by_produccion(id['id'])
+        
+        log.warning(id['id'])
+        log.error(proveedores)
+
+        # Manejar múltiples proveedores para un mismo ID de producción
+        if proveedores:
+            for proveedor in proveedores:
+                lista_proveedores.append({
+                    'id': id['id'], 
+                    'proveedor': {
+                        'nombre_empresa': proveedor[1],
+                        'nombre_encargado': proveedor[2],
+                        'telefono_empresa': proveedor[3],
+                        'direccion_empresa': proveedor[4]
+                    }
+                })
+
+        if nombre_empleado:
+            lista_ids_produccion_reales.append(id)
+            lista_nombres_empleados.append({'id': id['id'], 'nombre_empleado': nombre_empleado[0]})
+
+
+
+    log.info(lista_proveedores)
+
     log.info(lista_nombres_empleados)
+    
     #hacer que ranking_cookies sea un string para que pueda ser renderizado en el template    
     return render_template('pages/dashboard/index.html',
                             galletas_en_inventario=galletas_en_inventario,
@@ -257,6 +294,7 @@ def index():
                             ranking_mermas=json_mermas,
                             produccion_ids=lista_ids_produccion_reales,
                             lista_nombres_empleados=lista_nombres_empleados,
-                            info_produccion=costo_produccion_galletas
+                            info_produccion=costo_produccion_galletas,
+                            proveedores=lista_proveedores
                             )
 
