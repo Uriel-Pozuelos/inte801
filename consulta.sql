@@ -26,7 +26,13 @@ VALUES(1,5, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo');
 (30, 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(),'Se cayo al suelo');
 
 
+#en base al id del lote, el id del proveedor saber que materia prima se utilizo para producir una galleta
 
+SELECT mp.material, mpp.precio, mpp.cantidad, mpp.tipo
+FROM inventariogalletas ig
+JOIN materia_prima_proveedor mpp ON mpp.materiaprima_id = ig.idGalleta
+JOIN materiaprima mp ON mp.id = mpp.materiaprima_id
+WHERE ig.idLoteGalletas = 1 AND mpp.proveedor_id = 1;
 
 
 
@@ -134,6 +140,8 @@ FROM inventariogalletas
 JOIN produccion ON produccion.idProduccion = inventariogalletas.idLoteGalletas
 JOIN usuario ON usuario.id = produccion.idUsuario
 WHERE inventariogalletas.idLoteGalletas = 22;
+
+update inventariogalletas set idLotegalletas = 3 where idLoteGalletas = 23;
 
 # consulta para saber un determinado lote de galletas, saber que proveedor proporciono la materia prima
 SELECT inventariogalletas.idLoteGalletas, inventariogalletas.idGalleta, inventariogalletas.cantidad, inventariogalletas.fechaCaducidad, inventariogalletas.estatus, inventariogalletas.created_at, inventariogalletas.updated_at, inventariogalletas.deleted_at, proveedor.nombre_empresa

