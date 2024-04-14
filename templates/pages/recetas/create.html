@@ -38,7 +38,7 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 
-  <section class="grid grid-cols-1 md:grid-cols-2  overflow-y-auto overflow-x-hidden px-8 place-content-between mt-4">
+  <section class="grid grid-cols-1 md:grid-cols-2 overflow-x-hidden px-8 place-content-between mt-4">
 		
 
 		<!-- imagen -->
@@ -50,15 +50,10 @@ content %}
 								<img src=""
 										 alt="galleta"
                      id="img2"
-										 
-									
 								/>
 								
 						
-								<p
-                class="text-pretty text-2xl font-bold text-center"
-                >No se encontró ninguna imagen aun.</p>
-
+							
                 <!-- boton para cambiar imagen -->
                 <button class="btn btn-primary" type="button" id="openDialog2" align="center">
                   Cambiar imagen
@@ -137,33 +132,20 @@ content %}
               <div>
 								{{ camposNuevos(form.nombre) }}
                </div>
-							 <div>
-								{{ camposNuevos(form.precio) }}
-							 </div>
+							 
               <div>
 							 {{ camposNuevos(form.pesoGalleta) }}
               </div>
-              <div>
-								{{ camposNuevos(form.totalGalletas) }}
-               </div>
+
                <div>
 								{{ camposNuevos(form.descripcion) }}
                </div>
-               <div>
-								{{ camposNuevos(form.receta) }}
-               </div>
-
-               
-
-						
-						
+               					
 	
 							<div class="flex justify-between my-4">
 								<input type="submit" name="save" value="Guardar" class="btn btn-primary">
 							<input type="submit" name="regret" value="Cancelar" class="btn btn-error">
-							<button id="openDialog" class="btn btn-primary" type="button">
-								Agregar ingrediente
-							</button>
+							
 							</div>
 						
 					{% endif %}
@@ -175,7 +157,6 @@ content %}
 	<script>
     const dialog = document.getElementById('addIngrediente');
     const dialog2 = document.getElementById('changeImage');
-    const openDialog = document.getElementById('openDialog');
     const openDialog2 = document.getElementById('openDialog2');
     const closeDialog2 = document.getElementById('closeDialog2');
     const img = document.getElementById('img');
@@ -183,10 +164,7 @@ content %}
     const fileInput = document.getElementById('file'); // Cambiado a fileInput para evitar la duplicación de nombres
 
     
-    openDialog2.addEventListener('click', () => {
-        dialog2.showModal();
-    });
-
+   
     closeDialog2.addEventListener('click', () => {
         dialog2.close();
         // Limpiar el input file

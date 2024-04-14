@@ -1,441 +1,633 @@
-{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html' import
-Button %} {% from 'macros/_proveedor.html' import addProv,edProv,delProv %} {%
-block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
+{% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
+import Button %} {% from 'macros/_proveedor.html' import
+addProv,edProv,delProv,edMat %} {% block title %} Login - Cookies and
+Dreams{% endblock %} {% block content %}
 <style>
-  .flash-messages {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    width: 100%;
-    max-width: 600px;
-    padding: 10px;
-    color: #fff;
-    text-align: center;
-  }
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
 
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="date"],
-  input[type="time"],
-  input[type="datetime-local"],
-  select,
-  input[type="search"] {
-    background-color: white !important;
-  }
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	select,
+	input[type='search'] {
+		background-color: white !important;
+	}
 </style>
 <section class="w-full h-screen flex flex-col">
-  <!-- Flash meesage -->
-  <div class="flash-messages">
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %} {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %} {% endif %} {% endwith %}
-  </div>
+	<!-- Flash meesage -->
+	<div class="flash-messages">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %} {% for category, message in messages %}
+		<div class="alert alert-{{ category }}">{{ message }}</div>
+		{% endfor %} {% endif %} {% endwith %}
+	</div>
 
-  <div class="md:contaner px-4">
-    <section class="mt-3">
-      <button class="btn btn-primary mt-5 float-end" id="btnAddProvider">
-        Agregar Proveedor
-      </button>
-    </section>
-  </div>
+	<div class="md:contaner px-4">
+		<section class="mt-3">
+			<button
+				class="btn btn-primary mt-5 float-end"
+				id="btnAddProvider"
+			>
+				Agregar Proveedor
+			</button>
+		</section>
+	</div>
 
-  <!-- Table -->
-  <div class="md:contaner px-4">
-    <section class="mt-5">
-      <div class="relative overflow-x-auto">
-        <table class="w-full text-md text-left rtl:text-right text-black" id="tbl_prov">
-          <thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
-            <tr>
-              <th scope="col" class="px-6 py-3">Nombre de empresa</th>
-              <th scope="col" class="px-6 py-3">Dirección de empresa</th>
-              <th scope="col" class="px-6 py-3">Teléfono de empresa</th>
-              <th scope="col" class="px-6 py-3">Persona atendió</th>
-              <th scope="col" class="px-6 py-3">Acciones</th>
-              <!-- <th hidden>materiaprima_id</th>
+	<!-- Table -->
+	<div class="md:contaner px-4">
+		<section class="mt-5">
+			<div class="relative overflow-x-auto">
+				<table
+					class="w-full text-md text-left rtl:text-right text-black"
+					id="tbl_prov"
+				>
+					<thead
+						class="text-md uppercase bg-transparent text-center border-b-2 border-b-black"
+					>
+						<tr>
+							<th scope="col" class="px-6 py-3">Nombre de empresa</th>
+							<th scope="col" class="px-6 py-3">
+								Dirección de empresa
+							</th>
+							<th scope="col" class="px-6 py-3">
+								Teléfono de empresa
+							</th>
+							<th scope="col" class="px-6 py-3">Persona atendió</th>
+							<th scope="col" class="px-6 py-3">Acciones</th>
+							<!-- <th hidden>materiaprima_id</th>
               <th hidden>material</th>
               <th hidden>precio</th>
               <th hidden>cantidad</th>
               <th hidden>tipo</th>
               <th hidden>material_tipo</th> -->
-            </tr>
-          </thead>
-          <tbody class="bg-transparent border-b text-center">
-            {% for provider in tbl_prov %}
-            <tr id="proveedor_{{provider.id}}">
-              <td class="border px-6 py-3">{{ provider.nombre_empresa }}</td>
-              <td class="border px-6 py-3">{{ provider.direccion_empresa }}</td>
-              <td class="border px-6 py-3">{{ provider.telefono_empresa }}</td>
-              <td class="border px-6 py-3">{{ provider.nombre_encargado }}</td>
-              <td class="border px-6 py-3">
-                <button id="edit_{{provider.id}}" class="btn btn-secondary">
-                  Editar proveedor
-                </button>
-                <button id="del_{{provider.id}}" class="btn btn-danger">
-                  Eliminar proveedor
-                </button>
-                <button id="viewmats_{{provider.id}}" class="btn btn-primary">Ver Materiales</button>
-              </td>
-              {% for materia in provider.mats_list %}
-              {% if materia.proveedor_id == provider.id %}
-            <tr id="mat_{{materia.id}}">
-              <td hidden>{{ materia.id }}</td>
-              <td hidden>{{ materia.proveedor_id }}</td>
-              <td hidden>{{ materia.material }}</td>
-              <td hidden>{{ materia.precio }}</td>
-              <td hidden>{{ materia.cantidad }}</td>
-              <td hidden>{{ materia.tipo }}</td>
-              <td hidden>{{ materia.material_tipo }}</td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </div>
+						</tr>
+					</thead>
+					<tbody class="bg-transparent border-b text-center">
+						{% for provider in tbl_prov %}
+						<tr id="proveedor_{{provider.id}}">
+							<td class="border px-6 py-3">
+								{{ provider.nombre_empresa }}
+							</td>
+							<td class="border px-6 py-3">
+								{{ provider.direccion_empresa }}
+							</td>
+							<td class="border px-6 py-3">
+								{{ provider.telefono_empresa }}
+							</td>
+							<td class="border px-6 py-3">
+								{{ provider.nombre_encargado }}
+							</td>
+							<td class="border px-6 py-3">
+								<button
+									id="edit_{{provider.id}}"
+									class="btn btn-secondary"
+								>
+									Editar proveedor
+								</button>
+								<button
+									id="del_{{provider.id}}"
+									class="btn btn-danger"
+								>
+									Eliminar proveedor
+								</button>
+								<button
+									id="viewmats_{{provider.id}}"
+									class="btn btn-primary"
+								>
+									Ver Materiales
+								</button>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</div>
 
-  <!-- Form Add -->
-  <form novalidate action="{{ url_for('proveedores.new_provider') }}" method="POST">
-    <div class="card">
-      <dialog id="addProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
-        <div class="dialog-title">
-          <h3 class="text-lg font-semibold">Agregar Proveedor</h3>
-        </div>
-        <div class="dialog-content">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <div class="mt-3">
-            {{ addProv("Nombre de empresa", "",
-            "nombre_empresa","nombre_empresa") }}
-          </div>
-          <div class="mt-3">
-            {{ addProv("Dirección de empresa", "",
-            "direccion_empresa","direccion_empresa") }}
-          </div>
-          <div class="mt-3">
-            {{ addProv("Teléfono de empresa", "", "telefono_empresa",
-            "telefono_empresa") }}
-          </div>
-          <div class="mt-3">
-            {{ addProv("Persona atendió", "", "nombre_encargado",
-            "nombre_encargado") }}
-          </div>
-          <div class="flex justify-between mt-4">
-            <button type="button" class="btn btn-primary w-auto" id="btnAddRow">
-              Agregar Fila
-            </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnRemoveRow">
-              Eliminar Fila
-            </button>
-          </div>
-          <div class="mt-3 text-center">
-            <label class="text-gray-700">Productos</label>
-          </div>
-          <div id="rows-container"></div>
-          <div class="flex justify-between mt-4">
-            <button type="submit" class="btn btn-primary w-auto">
-              Guardar
-            </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProvider">
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </dialog>
-    </div>
-  </form>
+	<!-- Form Add -->
+	<form
+		novalidate
+		action="{{ url_for('proveedores.new_provider') }}"
+		method="POST"
+	>
+		<div class="card">
+			<dialog
+				id="addProvider"
+				class="dialog p-6 bg-white shadow-lg rounded-md"
+			>
+				<div class="dialog-title">
+					<h3 class="text-lg font-semibold">Agregar Proveedor</h3>
+				</div>
+				<div class="dialog-content">
+					<input
+						type="hidden"
+						name="csrf_token"
+						value="{{ csrf_token() }}"
+					/>
+					<div class="mt-3">
+						{{ addProv("Nombre de empresa", "",
+						"nombre_empresa","nombre_empresa") }}
+					</div>
+					<div class="mt-3">
+						{{ addProv("Dirección de empresa", "",
+						"direccion_empresa","direccion_empresa") }}
+					</div>
+					<div class="mt-3">
+						{{ addProv("Teléfono de empresa", "", "telefono_empresa",
+						"telefono_empresa") }}
+					</div>
+					<div class="mt-3">
+						{{ addProv("Persona atendió", "", "nombre_encargado",
+						"nombre_encargado") }}
+					</div>
+					<div class="flex justify-between mt-4">
+						<button
+							type="button"
+							class="btn btn-primary w-auto"
+							id="btnAddRow"
+						>
+							Agregar Fila
+						</button>
+						<button
+							type="button"
+							class="btn btn-danger w-auto"
+							id="btnRemoveRow"
+						>
+							Eliminar Fila
+						</button>
+					</div>
+					<div class="mt-3 text-center" id="lbl_productos" hidden>
+						<label class="text-gray-700">Productos</label>
+					</div>
+					<div id="rows-container"></div>
+					<div class="flex justify-between mt-4">
+						<button type="submit" class="btn btn-primary w-auto">
+							Guardar
+						</button>
+						<button
+							type="button"
+							class="btn btn-danger w-auto"
+							id="btnCloseProvider"
+						>
+							Cerrar
+						</button>
+					</div>
+				</div>
+			</dialog>
+		</div>
+	</form>
 
-  <!-- Dialog Edit -->
-  <form novalidate action="{{ url_for('proveedores.ed_provider') }}" method="POST">
-    <div class="card">
-      <dialog id="editProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
-        <div class="dialog-title">
-          <h3 class="text-lg font-semibold">Editar Proveedor</h3>
-        </div>
-        <div class="dialog-content">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" name="id" id="id" />
-          <div class="mt-3">
-            {{ edProv("Nombre de empresa", "", "nombre_empresa_edit",
-            "nombre_empresa_edit") }}
-          </div>
-          <div class="mt-3">
-            {{ edProv("Dirección de empresa", "", "direccion_empresa_edit",
-            "direccion_empresa_edit") }}
-          </div>
-          <div class="mt-3">
-            {{ edProv("Teléfono empresa", "", "telefono_empresa_edit",
-            "telefono_empresa_edit") }}
-          </div>
-          <div class="mt-3">
-            {{ edProv("Nombre encargado", "", "nombre_encargado_edit",
-            "nombre_encargado_edit") }}
-          </div>
-          <div class="mt-3 text-center" hidden id="title_productos">
-            <label class="text-gray-700">Productos</label>
-          </div>
-          <div class="mt-3" id="rowMatsEdit"></div>
-          <div class="flex justify-between mt-4">
-            <button type="submit" class="btn btn-primary w-auto">
-              Actualizar
-            </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProviderEdit">
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </dialog>
-    </div>
-  </form>
+	<!-- Dialog Edit -->
+	<form
+		novalidate
+		action="{{ url_for('proveedores.ed_provider') }}"
+		method="POST"
+	>
+		<div class="card">
+			<dialog
+				id="editProvider"
+				class="dialog p-6 bg-white shadow-lg rounded-md"
+			>
+				<div class="dialog-title">
+					<h3 class="text-lg font-semibold">Editar Proveedor</h3>
+				</div>
+				<div class="dialog-content">
+					<input
+						type="hidden"
+						name="csrf_token"
+						value="{{ csrf_token() }}"
+					/>
+					<input type="hidden" name="id" id="id" />
+					<div class="mt-3">
+						{{ edProv("Nombre de empresa", "", "nombre_empresa_edit",
+						"nombre_empresa_edit") }}
+					</div>
+					<div class="mt-3">
+						{{ edProv("Dirección de empresa", "",
+						"direccion_empresa_edit", "direccion_empresa_edit") }}
+					</div>
+					<div class="mt-3">
+						{{ edProv("Teléfono empresa", "", "telefono_empresa_edit",
+						"telefono_empresa_edit") }}
+					</div>
+					<div class="mt-3">
+						{{ edProv("Nombre encargado", "", "nombre_encargado_edit",
+						"nombre_encargado_edit") }}
+					</div>
+					<div class="mt-3" id="rowMatsEdit"></div>
+					<div class="flex justify-between mt-4">
+						<button type="submit" class="btn btn-primary w-auto">
+							Actualizar
+						</button>
+						<button
+							type="button"
+							class="btn btn-danger w-auto"
+							id="btnCloseProviderEdit"
+						>
+							Cerrar
+						</button>
+					</div>
+				</div>
+			</dialog>
+		</div>
+	</form>
 
-  <!-- Dialog Mats -->
-  <form action="{{url_for('proveedores.ed_mats')}}" novalidate method="POST">
-    <div class="card">
-      <dialog id="manageMaterialsDialog" class="dialog p-6 bg-white shadow-lg rounded-md">
-        <div class="dialog-title">
-          <h3 class="text-lg font-semibold">Administrar Materiales</h3>
-        </div>
-        <div class="dialog-content">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" id="providerId" name="providerId"/>
-          <div id="materialsList"></div>
-          <!-- <div class="mt-3">
+	<!-- Dialog Mats -->
+	<form
+		action="{{url_for('proveedores.ed_mats')}}"
+		novalidate
+		method="POST"
+	>
+		<div class="card">
+			<dialog
+				id="manageMaterialsDialog"
+				class="dialog p-6 bg-white shadow-lg rounded-md"
+			>
+				<div class="dialog-title">
+					<h3 class="text-lg font-semibold">
+						Administrar Materiales
+					</h3>
+				</div>
+				<div class="dialog-content">
+					<input
+						type="hidden"
+						name="csrf_token"
+						value="{{ csrf_token() }}"
+					/>
+					<input type="hidden" id="providerId" name="providerId" />
+					<div id="materialsList"></div>
+					<!-- <div class="mt-3">
             <button id="btnAddMaterial" class="btn btn-primary">Agregar Material</button>
           </div> -->
-          <div class="flex justify-between mt-4">
-            <button type="submit" id="btnSaveMaterials" class="btn btn-primary">Guardar</button>
-            <button type="button" id="btnCloseMaterials" class="btn btn-secondary">Cerrar</button>
-          </div>
-        </div>
-      </dialog>
-    </div>
-  </form>
+					<div class="flex justify-between mt-4">
+						<button
+							type="submit"
+							id="btnSaveMaterials"
+							class="btn btn-primary"
+						>
+							Guardar
+						</button>
+						<button
+							type="button"
+							id="btnCloseMaterials"
+							class="btn btn-secondary"
+						>
+							Cerrar
+						</button>
+					</div>
+				</div>
+			</dialog>
+		</div>
+	</form>
 
-  <!-- Dialog Delete -->
-  <form novalidate action="{{ url_for('proveedores.del_provider') }}" method="POST">
-    <div class="card">
-      <dialog id="delProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
-        <div class="dialog-title">
-          <h3 class="text-lg font-semibold">Eliminar Proveedor</h3>
-        </div>
-        <div class="dialog-content">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" name="id_del" id="id_del" />
-          <div class="form-group mt-3">
-            {{ delProv("Nombre de empresa", "nombre_empresa_del",
-            "nombre_empresa_del") }}
-          </div>
-          <div class="form-group mt-3">
-            {{ delProv("Dirección de empresa", "direccion_empresa_del",
-            "direccion_empresa_del") }}
-          </div>
-          <div class="form-group mt-3">
-            {{ delProv("Teléfono de empresa", "telefono_empresa_del",
-            "telefono_empresa_del") }}
-          </div>
-          <div class="form-group mt-3">
-            {{ delProv("Nombre de encargado", "nombre_encargado_del",
-            "nombre_encargado_del") }}
-          </div>
-          <div class="flex justify-between mt-4">
-            <button type="submit" class="btn btn-primary w-auto">
-              Eliminar
-            </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProviderDel">
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </dialog>
-    </div>
-  </form>
+	<!-- Dialog Delete -->
+	<form
+		novalidate
+		action="{{ url_for('proveedores.del_provider') }}"
+		method="POST"
+	>
+		<div class="card">
+			<dialog
+				id="delProvider"
+				class="dialog p-6 bg-white shadow-lg rounded-md"
+			>
+				<div class="dialog-title">
+					<h3 class="text-lg font-semibold">Eliminar Proveedor</h3>
+				</div>
+				<div class="dialog-content">
+					<input
+						type="hidden"
+						name="csrf_token"
+						value="{{ csrf_token() }}"
+					/>
+					<input type="hidden" name="id_del" id="id_del" />
+					<div class="form-group mt-3">
+						{{ delProv("Nombre de empresa", "nombre_empresa_del",
+						"nombre_empresa_del") }}
+					</div>
+					<div class="form-group mt-3">
+						{{ delProv("Dirección de empresa",
+						"direccion_empresa_del", "direccion_empresa_del") }}
+					</div>
+					<div class="form-group mt-3">
+						{{ delProv("Teléfono de empresa", "telefono_empresa_del",
+						"telefono_empresa_del") }}
+					</div>
+					<div class="form-group mt-3">
+						{{ delProv("Nombre de encargado", "nombre_encargado_del",
+						"nombre_encargado_del") }}
+					</div>
+					<div class="flex justify-between mt-4">
+						<button type="submit" class="btn btn-primary w-auto">
+							Eliminar
+						</button>
+						<button
+							type="button"
+							class="btn btn-danger w-auto"
+							id="btnCloseProviderDel"
+						>
+							Cerrar
+						</button>
+					</div>
+				</div>
+			</dialog>
+		</div>
+	</form>
+
+	<!-- Dialog Delete -->
+	<form novalidate action="">
+		<div class="card">
+			<dialog
+				id="delMat"
+				class="dialog p-6 bg-white shadow-lg rounded-md"
+			>
+				<div class="dialog-title">
+					<h3 class="text-lg font-semibold">
+						Eliminar Materia prima
+					</h3>
+				</div>
+				<div class="dialog-content">
+					<input
+						type="hidden"
+						name="csrf_token"
+						value="{{ csrf_token() }}"
+					/>
+					<input type="hidden" name="id_mat_del" id="id_mat_del" />
+					<div class="flex justify-between mt-4">
+						<button type="button" class="btn btn-primary w-auto">
+							Eliminar
+						</button>
+						<button
+							type="button"
+							class="btn btn-danger w-auto"
+							id="btnCloseDelMat"
+						>
+							Cerrar
+						</button>
+					</div>
+				</div>
+			</dialog>
+		</div>
+	</form>
 </section>
 
 <!-- Javascript -->
 <script>
-  var tbl_prov = {{ tbl_prov | tojson }};
+	var tbl_prov = {{ tbl_prov | tojson }};
+	var mats_list = {{ mats_list | tojson }}
 </script>
 
 <script>
-  const flashMessage = document.querySelector(".flash-messages");
-  if (flashMessage) {
-    setTimeout(() => {
-      flashMessage.remove();
-    }, 5000);
-  }
+	const flashMessage = document.querySelector('.flash-messages');
+	if (flashMessage) {
+		setTimeout(() => {
+			flashMessage.remove();
+		}, 5000);
+	}
 
-  const addProvider = document.getElementById("addProvider");
-  const editProvider = document.getElementById("editProvider");
-  const delProvider = document.getElementById("delProvider");
-  const btnAddProvider = document.getElementById("btnAddProvider");
-  const btnCloseProvider = document.getElementById("btnCloseProvider");
-  const btnCloseProviderEdit = document.getElementById("btnCloseProviderEdit");
-  const btnCloseProviderDel = document.getElementById("btnCloseProviderDel");
-  const rowMatsEdit = document.getElementById("rowMatsEdit");
-  const title_productos = document.getElementById("title_productos");
-  const editMats = document.getElementById("editMats");
-  let rowMats = document.getElementById('rowMats');
+	const addProvider = document.getElementById('addProvider');
+	const editProvider = document.getElementById('editProvider');
+	const delProvider = document.getElementById('delProvider');
+	const rowMatsEdit = document.getElementById('rowMatsEdit');
+	const editMats = document.getElementById('editMats');
+	const lbl_productos = document.getElementById('lbl_productos');
+	const rowsContainer = document.getElementById('rows-container');
+	const delMat = document.getElementById('delMat');
 
-  document.querySelectorAll('[id^="edit_"]').forEach((item) => {
-    item.addEventListener("click", (event) => {
-      const id = item.id.split("_")[1];
-      const nombre_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(1)`
-      ).innerText;
-      const direccion_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(2)`
-      ).innerText;
-      const telefono_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(3)`
-      ).innerText;
-      const nombre_encargado = document.querySelector(
-        `#proveedor_${id} td:nth-child(4)`
-      ).innerText;
+	const btnCloseProvider = document.getElementById(
+		'btnCloseProvider'
+	);
+	const btnCloseProviderEdit = document.getElementById(
+		'btnCloseProviderEdit'
+	);
+	const btnCloseProviderDel = document.getElementById(
+		'btnCloseProviderDel'
+	);
+	const btnAddRow = document.getElementById('btnAddRow');
+	const btnRemoveRow = document.getElementById('btnRemoveRow');
+	const btnCloseMaterials = document.getElementById(
+		'btnCloseMaterials'
+	);
+	const btnAddProvider = document.getElementById('btnAddProvider');
+	const btnCloseDelMat = document.getElementById('btnCloseDelMat');
 
-      document.querySelector("#nombre_empresa_edit").value = nombre_empresa;
-      document.querySelector("#direccion_empresa_edit").value =
-        direccion_empresa;
-      document.querySelector("#telefono_empresa_edit").value = telefono_empresa;
-      document.querySelector("#nombre_encargado_edit").value = nombre_encargado;
-      document.querySelector("#id").value = id;
+	var i = 0;
+	var ii = 0;
+	let rowMats = document.getElementById('rowMats');
 
-      document.querySelector("#editProvider").showModal();
-    });
-  });
+	document.querySelectorAll('[id^="edit_"]').forEach(item => {
+		item.addEventListener('click', event => {
+			const id = item.id.split('_')[1];
+			const nombre_empresa = document.querySelector(
+				`#proveedor_${id} td:nth-child(1)`
+			).innerText;
+			const direccion_empresa = document.querySelector(
+				`#proveedor_${id} td:nth-child(2)`
+			).innerText;
+			const telefono_empresa = document.querySelector(
+				`#proveedor_${id} td:nth-child(3)`
+			).innerText;
+			const nombre_encargado = document.querySelector(
+				`#proveedor_${id} td:nth-child(4)`
+			).innerText;
 
-  document.querySelectorAll('[id^="viewmats_"]').forEach(button => {
-    button.addEventListener('click', function () {
-      const providerId = this.id.split('_')[1];
-      const provider = tbl_prov.find(provider => provider.id == providerId);
-      var tipo = "";
+			document.querySelector('#nombre_empresa_edit').value =
+				nombre_empresa;
+			document.querySelector('#direccion_empresa_edit').value =
+				direccion_empresa;
+			document.querySelector('#telefono_empresa_edit').value =
+				telefono_empresa;
+			document.querySelector('#nombre_encargado_edit').value =
+				nombre_encargado;
+			document.querySelector('#id').value = id;
 
-      if (provider) {
-        document.getElementById('providerId').value = provider.id;
-        document.getElementById('materialsList').innerHTML = '';
+			document.querySelector('#editProvider').showModal();
+		});
+	});
 
-        provider.mats_list.forEach(materia => {
-          tipo = ""
-          let matRow = document.createElement('div');
-          tipo = `${materia.tipo}-${materia.material_tipo}`.toString();
-          console.log(tipo);
-          matRow.innerHTML = `
-                              <div class="mt-3">
-                                <input hidden type="text" value="${materia.id}" name="matids[]">
-                                <input type="text" class="input mt-1 input-bordered input-primary" name="producto_edit[]" value="${materia.material}" placeholder="Nombre del producto">
-                                <input type="number" class="input mt-1 input-bordered input-primary" name="precio_edit[]" value="${materia.precio}" placeholder="Precio del producto">
-                                <input type="text" class="input mt-1 input-bordered input-primary" name="cantidad_edit[]" value="${materia.cantidad}" placeholder="Cantidad del producto">
-                            </div>
-                            <div class="mt-3">
-                                <select class="select select-bordered select-primary min-w-full max-w-xs" name="tipo_edit[]">
-                                    <option value="" selected disabled>Seleccione una opción</option>
-                                    <option value="costal-kilos" ${tipo === "costal-kilos" ? "selected" : ""}>Colstal</option>
-                                    <option value="galon-galones" ${tipo === "galon-galones" ? "selected" : ""}>Galon</option>
-                                    <option value="pieza-gramos" ${tipo === "pieza-gramos" ? "selected" : ""}>Pieza</option>
-                                    <option value="caja-kilos" ${tipo === "caja-kilos" ? "selected" : ""}>Caja</option>
-                                    <option value="botella-litros" ${tipo === "botella-litros" ? "selected" : ""}>Botella</option>
-                                    <option value="bolsa-gramos" ${tipo === "bolsa-gramos" ? "selected" : ""}>Bolsa</option>
-                                    <option value="paquete-kilos" ${tipo === "paquete-kilos" ? "selected" : ""}>Paquete</option>
-                                    <option value="lata-litros" ${tipo === "lata-litros" ? "selected" : ""}>Lata</option>
-                                    <option value="sobre-gramos" ${tipo === "sobre-gramos" ? "selected" : ""}>Sobre</option>
-                                </select>
-                            </div>  
+	document.querySelectorAll('[id^="viewmats_"]').forEach(button => {
+		button.addEventListener('click', function () {
+			var providerId = this.id.split('_')[1];
+
+			document.getElementById('providerId').value = providerId;
+			document.getElementById('materialsList').innerHTML = '';
+
+			mats_list.forEach(materia => {
+				if (providerId == materia.proveedor_id) {
+					ii++;
+					let matRow = document.createElement('div');
+
+					matRow.innerHTML = `
+                            <div class="grid grid-cols-2 gap-4 mb-3 mt-3">
+                              <div>
+                                <label class="float-start -mt-3">Producto ${ii}</label>
+                                <input hidden type="text" value="${materia.id}"/>
+                                  <div class="mt-3">
+                                      {{ edMat("Nombre del producto", "producto", "producto[]", "${materia.material}") }}
+                                  </div>
+                                  <div class="mt-3">
+                                      {{ edMat("Precio del producto", "precio", "precio[]", "${materia.precio}") }}
+                                  </div>
+                                  <div class="mt-3">
+                                      {{ edMat("Cantidad por producto", "cantidad", "cantidad[]", "${materia.cantidad}") }}
+                                  </div>
+                              </div>
+                              <div class="mb-2">
+                                  <div class="mt-3">
+                                      {{ edMat("Presentación del producto", "presentacion", "presentacion[]", "${materia.tipo}") }}
+                                  </div>
+                                  <div class="mt-3">
+                                      {{ edMat("Unidad de medida", "medida", "medida[]", "${materia.material_tipo}") }}
+                                  </div>
+                              </div>
+                              <div class="">
+                                <button class="btn btn-danger" type="button" onclick="delMats(${materia.id})">Eliminar</button>
+                              </div>
+                          </div> 
           `;
-          document.getElementById('materialsList').appendChild(matRow);
-        });
-        document.getElementById('manageMaterialsDialog').showModal();
-      }
-    });
-  });
+					document
+						.getElementById('materialsList')
+						.appendChild(matRow);
+				}
+			});
+			document.getElementById('manageMaterialsDialog').showModal();
+		});
+	});
 
+	document.querySelectorAll('[id^="del_"]').forEach(item => {
+		item.addEventListener('click', event => {
+			const id = item.id.split('_')[1];
+			const nombre_empresa = document.querySelector(
+				`#proveedor_${id} td:nth-child(1)`
+			).innerText;
+			const direccion_empresa = document.querySelector(
+				`#proveedor_${id} td:nth-child(2)`
+			).innerText;
+			const telefono_empresa = document.querySelector(
+				`#proveedor_${id} td:nth-child(3)`
+			).innerText;
+			const nombre_encargado = document.querySelector(
+				`#proveedor_${id} td:nth-child(4)`
+			).innerText;
 
-  document.querySelectorAll('[id^="del_"]').forEach((item) => {
-    item.addEventListener("click", (event) => {
-      const id = item.id.split("_")[1];
-      const nombre_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(1)`
-      ).innerText;
-      const direccion_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(2)`
-      ).innerText;
-      const telefono_empresa = document.querySelector(
-        `#proveedor_${id} td:nth-child(3)`
-      ).innerText;
-      const nombre_encargado = document.querySelector(
-        `#proveedor_${id} td:nth-child(4)`
-      ).innerText;
+			document.querySelector('#nombre_empresa_del').value =
+				nombre_empresa;
+			document.querySelector('#direccion_empresa_del').value =
+				direccion_empresa;
+			document.querySelector('#telefono_empresa_del').value =
+				telefono_empresa;
+			document.querySelector('#nombre_encargado_del').value =
+				nombre_encargado;
+			document.querySelector('#id_del').value = id;
 
-      document.querySelector("#nombre_empresa_del").value = nombre_empresa;
-      document.querySelector("#direccion_empresa_del").value =
-        direccion_empresa;
-      document.querySelector("#telefono_empresa_del").value = telefono_empresa;
-      document.querySelector("#nombre_encargado_del").value = nombre_encargado;
-      document.querySelector("#id_del").value = id;
+			document.querySelector('#delProvider').showModal();
+		});
+	});
 
-      document.querySelector("#delProvider").showModal();
-    });
-  });
-
-  const rowsContainer = document.getElementById("rows-container");
-  const btnAddRow = document.getElementById("btnAddRow");
-  const btnRemoveRow = document.getElementById("btnRemoveRow");
-  const btnCloseMaterials = document.getElementById("btnCloseMaterials");
-
-  btnAddRow.addEventListener("click", function () {
-    const newRow = `
-                <div class="mt-3">
-                    <input type="text" class="input mt-1 input-bordered input-primary" name="producto[]" placeholder="Nombre del producto">
-                    <input type="number" class="input mt-1 input-bordered input-primary" name="precio[]" placeholder="Precio del producto">
-                    <input type="text" class="input mt-1 input-bordered input-primary" name="cantidad[]" placeholder="Cantidad del producto">
-                </div>
-                <div class="mt-3">
-                      <select class="select select-bordered select-primary min-w-full max-w-xs" name="tipo[]">
-                          <option value="" selected disabled>Seleccione una opción</option>
-                          <option value="costal-kilos">Colstal</option>
-                          <option value="galon-galones">Galon</option>
-                          <option value="pieza-gramos">Pieza</option>
-                          <option value="caja-kilos">Caja</option>
-                          <option value="botella-litros">Botella</option>
-                          <option value="bolsa-gramos">Bolsa</option>
-                          <option value="paquete-kilos">Paquete</option>
-                          <option value="lata-litros">Lata</option>
-                          <option value="sobre-gramos">Sobre</option>
-                      </select>
-                </div>
+	btnAddRow.addEventListener('click', function () {
+		i++;
+		const newRow = `
+                  <div class="grid grid-cols-2 gap-4 mb-3 mt-3">
+                    <div>
+                      <label class="float-start -mt-3">Producto ${i}</label>
+                        <div class="mt-3">
+                            {{ addProv("Nombre del producto", "Harina, azúcar, etc.", "producto", "producto[]") }}
+                        </div>
+                        <div class="mt-3">
+                            {{ addProv("Precio por producto", "Precio del producto", "precio", "precio[]") }}
+                        </div>
+                        <div class="mt-3">
+                            {{ addProv("Cantidad por producto", "Cantidad por producto", "cantidad", "cantidad[]") }}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="mt-3">
+                            {{ addProv("Presentacion del producto", "Caja, bolsa, etc.", "presentacion", "presentacion[]") }}
+                        </div>
+                        <div class="mt-3">
+                            {{ addProv("Unidad de medida", "Gramos, mililitros, etc.", "medida", "medida[]") }}
+                        </div>
+                    </div>
+                </div>  
             `;
 
-    rowsContainer.insertAdjacentHTML("beforeend", newRow);
-  });
+		rowsContainer.insertAdjacentHTML('beforeend', newRow);
+	});
 
-  btnRemoveRow.addEventListener("click", function () {
-    if (rowsContainer.children.length > 0) {
-      rowsContainer.removeChild(rowsContainer.lastElementChild);
-    }
-  });
+	btnRemoveRow.addEventListener('click', function () {
+		if (rowsContainer.children.length > 0) {
+			rowsContainer.removeChild(rowsContainer.lastElementChild);
+		}
 
-  btnAddProvider.addEventListener("click", () => {
-    addProvider.showModal();
-  });
+		if (rowsContainer.children.length === 0) {
+			lbl_productos.hidden = true;
+			i = 0;
+		}
+	});
 
-  btnCloseProvider.addEventListener("click", () => {
-    addProvider.close();
+	btnAddProvider.addEventListener('click', () => {
+		addProvider.showModal();
+	});
 
-    rowsContainer.innerHTML = "";
-  });
+	btnCloseProvider.addEventListener('click', () => {
+		addProvider.close();
+		lbl_productos.hidden = true;
+		rowsContainer.innerHTML = '';
+	});
 
-  btnCloseProviderEdit.addEventListener("click", () => {
-    editProvider.close();
-  });
+	btnCloseProviderEdit.addEventListener('click', () => {
+		editProvider.close();
+	});
 
-  btnCloseProviderDel.addEventListener("click", () => {
-    delProvider.close();
-  });
+	btnCloseProviderDel.addEventListener('click', () => {
+		delProvider.close();
+	});
 
-  btnCloseMaterials.addEventListener("click", () => manageMaterialsDialog.close());
+	btnCloseMaterials.addEventListener('click', () => {
+		manageMaterialsDialog.close();
+		ii = 0;
+	});
+
+	btnCloseDelMat.addEventListener('click', () => {
+		delMat.close();
+	});
+
+	function regex(event) {
+		if (
+			!(
+				(event.keyCode >= 65 && event.keyCode <= 90) ||
+				(event.keyCode == 97 && event.keyCode <= 122) ||
+				(event.keyCode >= 48 && event.keyCode <= 57)
+			)
+		) {
+			event.returnValue = false;
+			return;
+		}
+
+		event.returnValue = true;
+	}
+
+	function delMats(id) {
+		id_mat_del = document.getElementById('id_mat_del');
+		id_mat_del.value = id;
+
+		delMat.showModal();
+	}
 </script>
 {% endblock %}

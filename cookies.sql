@@ -700,6 +700,8 @@ CREATE TABLE `usuario` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+
 --
 -- Dumping data for table `usuario`
 --
@@ -748,6 +750,25 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+INSERT into materia_prima_proveedor (materiaprima_id, proveedor_id, precio, cantidad, tipo, created_at) values (13 5, 100, '20', 'costal', '2024-04-03 18:05:22');
+
+SELECT * from inventariogalletas;
+
+# consulta para saber las materias primas que tienen menos materiales en inventario
+
+SELECT *
+FROM materiaprima
+JOIN inventario_mp ON inventario_mp.idMateriaPrima = materiaprima.id
+WHERE inventario_mp.cantidad < 10
+LIMIT 10;
+
+ SELECT * FROM materiaprima JOIN inventario_mp ON inventario_mp.id_materia_prima = materiaprima.id
+ WHERE inventario_mp.cantidad < 100
+LIMIT 10
+ ;
+
+
+
 -- Dump completed on 2024-04-08 20:09:24
 
 # consulta para saber un determinado lote de galletas, saber que empreado la produjo
@@ -776,3 +797,102 @@ JOIN (
     JOIN materia_prima_galleta ON materia_prima_galleta.galleta_id = galletas.id
     WHERE galletas.id = 1
 ) AS galletas_materia_prima ON galletas_materia_prima.id = galletas.id
+
+
+# sacar el precio promedio por materia prima
+SELECT materiaprima.id, materiaprima.material, materiaprima.tipo, AVG(materia_prima_proveedor.precio) AS precio_promedio
+FROM materiaprima
+JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = materiaprima.id
+GROUP BY materiaprima.id;
+
+#usando la QUERY anterior, sacar el precio promedio por materia prima, por gallleta
+
+SELECT galletas.id, galletas.nombre, galletas.precio AVG(materia_prima_proveedor.precio) AS precio_promedio
+FROM galletas
+JOIN materia_prima_galleta ON materia_prima_galleta.galleta_id = galletas.id
+JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = materia_prima_galleta.materiaprima_id
+GROUP BY galletas.id;
+
+SELECT
+    mp.id AS id_material,
+    mp.material AS nombre_material,
+    AVG(ROUND((i.cantidad * g.precio), 2) / 100) AS costo_promedio_material
+FROM
+    ingredientes i
+JOIN
+    materiaprima mp ON i.material_id = mp.id
+JOIN
+    galletas g ON i.galleta_id = g.id
+WHERE
+    g.id = 4
+GROUP BY
+    mp.id, mp.material;
+    
+    
+    select sum(costo_produccion) costo from(
+SELECT 
+    nombre_material,
+    sum(costo_material) as costo_produccion,
+    cantidad_utilizada
+FROM
+    (SELECT
+        mp.material AS nombre_material,
+        i.cantidad AS cantidad_utilizada,
+        AVG(ROUND((i.cantidad* mpp.precio), 2) / 100) AS costo_material
+    FROM
+        ingredientes i
+    JOIN
+        materiaprima mp ON i.material_id = mp.id
+    JOIN
+        materia_prima_proveedor mpp ON mp.id = mpp.materiaprima_id
+    JOIN
+        galletas g ON i.galleta_id = g.id
+    WHERE
+        g.id = 7) AS materiales
+GROUP BY
+    nombre_material) as p;
+
+# saber los materiales que se usaron en una galleta
+SELECT g.nombre, mp.material, i.cantidad
+FROM galletas g
+JOIN ingredientes i ON g.id = i.galleta_id
+JOIN materiaprima mp ON i.material_id = mp.id
+WHERE g.id = 1;
+
+
+
+#pasar los productos de materia_prima_proveedor  a tipo convertido usando la tabla de conversiones
+
+SELECT mpp.id, mpp.materiaprima_id, mpp.proveedor_id, mpp.precio, mpp.cantidad, mpp.tipo, mpp.created_at, c.tipo_convertido
+FROM materia_prima_proveedor mpp
+JOIN conversiones c ON mpp.tipo = c.tipo_original;
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_ingredient_insert
+AFTER INSERT ON ingredientes
+FOR EACH ROW
+BEGIN
+    -- Variable para almacenar el nuevo costo de producción
+    DECLARE new_cost DECIMAL(10,2);
+
+    -- Calcular el costo total de producción actualizado
+    SELECT SUM(cantidad * precio_material) INTO new_cost
+    FROM (
+        SELECT i.galleta_id, i.material_id, i.cantidad, (mpp.precio / 10000) AS precio_material
+        FROM ingredientes i
+        JOIN materia_prima_proveedor mpp ON i.material_id = mpp.materiaprima_id
+        WHERE i.galleta_id = NEW.galleta_id
+    ) AS updated_costs;
+
+    -- Calcular el nuevo precio de la galleta: costo de producción + 50%
+    SET new_cost = CEIL(new_cost * 1.5);
+
+    -- Actualizar el precio en la tabla de galletas
+    UPDATE galletas
+    SET precio = new_cost
+    WHERE id = NEW.galleta_id;
+END$$
+
+DELIMITER ;

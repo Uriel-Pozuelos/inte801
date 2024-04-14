@@ -37,12 +37,12 @@ content %}
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
 
-  <section class="grid grid-cols-1 md:grid-cols-2  overflow-y-auto overflow-x-hidden px-8 place-content-between mt-4">
+  <section class="grid grid-cols-1 md:grid-cols-2 px-8 place-content-between mt-4">
 		
 
 		<!-- imagen -->
 		<div class="flex justify-center">
-			
+
 
 				<figure>
 						{% if id %}
@@ -52,10 +52,12 @@ content %}
 									
 								/>
 								{% if isEdit %}
-								<button class="btn btn-primary" type="button" id="openDialog2" align="center">
-									Cambiar imagen
-
-									</button>
+								<div class="w-full flex justify-center">
+									<button class="btn btn-primary self-center" type="button" id="openDialog2" align="center">
+										Cambiar imagen
+	
+										</button>
+								</div>
 								{% endif %}
 						{% else %}
 								<p>No se encontró ninguna imagen.</p>
@@ -106,7 +108,7 @@ content %}
 							Ingrediente
 						</label>
 						<select name="ingrediente" id="ingrediente" required class="select select-bordered w-full max-w-xs bg-white">
-							{% for material_option in material_options %}
+							{% for material_option in unused_materials %}
 								<option value="{{ material_option }}">{{ material_option }}</option>
 					</div>
 						{% endfor %}
@@ -141,7 +143,7 @@ content %}
 									{{ receta.pesoGalleta }} gramos
 								</span>
 								<span class="text-pretty text-lg">
-									Porciones: {{ receta.totalGalletas }} galletas
+									Porciones: {{ form.totalGalletas.data }} galletas
 								</span>
 	
 							</div>
@@ -162,6 +164,9 @@ content %}
 							
 					{% else %}
 							<!-- Mostrar como tabla y text area -->
+							<section>
+								{{ camposNuevos(form.totalGalletas) }}
+							</section>
 							<table class="table">
 									<thead class="text-black">
 											<tr>
@@ -226,6 +231,8 @@ content %}
     const closeDialog2 = document.getElementById('closeDialog2');
     const img = document.getElementById('img');
     const fileInput = document.getElementById('file'); // Cambiado a fileInput para evitar la duplicación de nombres
+		
+		const $totalGalletas = document.getElementById('totalGalletas').value = Number('{{ receta.totalGalletas | safe }}')
 
     openDialog.addEventListener('click', () => {
         dialog.showModal();
