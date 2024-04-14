@@ -750,6 +750,9 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+INSERT into materia_prima_proveedor (materiaprima_id, proveedor_id, precio, cantidad, tipo, created_at) values (13 5, 100, '20', 'costal', '2024-04-03 18:05:22');
+
+SELECT * from inventariogalletas;
 
 # consulta para saber las materias primas que tienen menos materiales en inventario
 
@@ -863,3 +866,33 @@ WHERE g.id = 1;
 SELECT mpp.id, mpp.materiaprima_id, mpp.proveedor_id, mpp.precio, mpp.cantidad, mpp.tipo, mpp.created_at, c.tipo_convertido
 FROM materia_prima_proveedor mpp
 JOIN conversiones c ON mpp.tipo = c.tipo_original;
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_ingredient_insert
+AFTER INSERT ON ingredientes
+FOR EACH ROW
+BEGIN
+    -- Variable para almacenar el nuevo costo de producción
+    DECLARE new_cost DECIMAL(10,2);
+
+    -- Calcular el costo total de producción actualizado
+    SELECT SUM(cantidad * precio_material) INTO new_cost
+    FROM (
+        SELECT i.galleta_id, i.material_id, i.cantidad, (mpp.precio / 10000) AS precio_material
+        FROM ingredientes i
+        JOIN materia_prima_proveedor mpp ON i.material_id = mpp.materiaprima_id
+        WHERE i.galleta_id = NEW.galleta_id
+    ) AS updated_costs;
+
+    -- Calcular el nuevo precio de la galleta: costo de producción + 50%
+    SET new_cost = CEIL(new_cost * 1.5);
+
+    -- Actualizar el precio en la tabla de galletas
+    UPDATE galletas
+    SET precio = new_cost
+    WHERE id = NEW.galleta_id;
+END$$
+
+DELIMITER ;
