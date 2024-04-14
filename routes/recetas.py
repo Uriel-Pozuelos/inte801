@@ -24,9 +24,27 @@ def get_Galletas():
     galletas = Galletas.query.filter_by(enable=1).all()
     return [galleta.serialize() for galleta in galletas]
 
-def get_names_materials():
-    #obtener los nombres de los materiales
+def unused_materials(id):
+    # Obtener todos los materiales con sus IDs
+    all_materials = MateriaPrima.query.with_entities(MateriaPrima.material, MateriaPrima.id).all()
+
+    # Obtener los IDs de los materiales que ya están en la receta
+    used_materials = Ingredientes.query.filter_by(galleta_id=id).with_entities(Ingredientes.material_id).all()
+
+    # Convertir los materiales utilizados en una lista de IDs
+    used_material_ids = [material[0] for material in used_materials]
+
+    # Filtrar los materiales que no están en la lista de usados
+    unused_materials = [(material[0], material[1]) for material in all_materials if material[1] not in used_material_ids]
+
+    # Retornar los nombres de los materiales no utilizados
+    return [material[0] for material in unused_materials]
+
+
+def get_names_materials(id):
+
     materiales = MateriaPrima.query.with_entities(MateriaPrima.material).all()
+
 
     return [material[0] for material in materiales]
 
@@ -115,16 +133,31 @@ def controller_updates(form):
     log.warning(form)
     # form regresa ImmutableMultiDict([('csrf_token', 'IjZjOTRjOGUyMTlhNTdkYzAzOGZmODJkNDlkNTRiNDFmYTdiZjU4M2Yi.ZgNnGA.-KwbwaZvAj06QHd7N-Wibb8QCFk'), ('tipo_5', 'gramos'), ('cantidad_5', '500.00'), ('material_5', 'avena'), ('tipo_6', 'mililitros'), ('cantidad_6', '50.00'), ('material_6', 'esencia de vainilla'), ('tipo_7', 'gramos'), ('cantidad_7', '5.00'), ('material_7', 'bicarbonato de sodio'), ('tipo_8', 'gramos'), ('cantidad_8', '100.00'), ('material_8', 'cacao en polvo'), ('receta', 'Galleta de chocolate con chips'), ('id', '2'), ('save', 'Guardar')])
     ingredientes = []
+    materiales_agregados = set()  # Conjunto para mantener un registro de los materiales ya agregados
+
     for key in form:
         if 'cantidad_' in key:
-            #id es el id del ingrediente
             id = key.split('_')[1]
-            log.warning(key.split('_'))
+            material_nombre = form['material_'+id]
+            cantidad = form['cantidad_'+id]
+            material_id = getIDbyName(material_nombre)
+            
+            # Verificar si el material ya está en la lista de ingredientes
+            if material_id in materiales_agregados:
+                flash(f"No se puede agregar dos veces el material '{material_nombre}'.", 'warning')
+                return False  # Retorna False si el material está duplicado
+            
+            # Agregar el material a la lista de ingredientes y al conjunto de materiales agregados
             ingredientes.append({
                 'id': id,
                 'cantidad': form['cantidad_'+id],
                 'material': getIDbyName(form['material_'+id])
+
             })
+            materiales_agregados.add(material_id)  # Registrar el material en el conjunto
+
+    log.warning(ingredientes)
+    return ingredientes
 
     update_receta(form['id'], form['receta'], form['totalGalletas'])
     update_ingredientes(ingredientes)
@@ -156,7 +189,7 @@ def show(id):
     ingredientes = get_ingrediente(id)
     receta = get_galleta_by_id(id)
     receta = {key: receta[key] for key in ['id', 'receta', 'nombre', 'precio', 'descripcion', 'totalGalletas', 'pesoGalleta']}
-    material_option = get_names_materials()
+    material_option = get_names_materials(id)
     tipo = get_tipo_material()
     form.totalGalletas.data = str(receta['totalGalletas'])
     print(f"ID: {id}")
@@ -168,7 +201,7 @@ def show(id):
             flash('Receta eliminada con éxito', 'success')
             return redirect('/recetas')
         if 'edit' in request.form:
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True, material_options=material_option, tipos=tipo, form=form)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True, material_options=material_option, tipos=tipo, form=form,unused_materials=unused_materials(id))
         elif 'regret' in request.form:
             return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
         elif any([True for key in request.form if 'delete_' in key]):
@@ -177,7 +210,7 @@ def show(id):
             # Después de eliminar, obtén la lista actualizada de ingredientes
             ingredientes = get_ingrediente(id)
             receta = get_galleta_by_id(id)
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True,form=form, material_options=material_option, tipos=tipo,unused_materials=unused_materials(id))
         elif 'add' in request.form:
             material = safe(request.form['ingrediente'])
             cantidad = safe(request.form['cantidad'])
@@ -190,7 +223,7 @@ def show(id):
             ingredientes = get_ingrediente(id)
             receta = get_galleta_by_id(id)
             form.totalGalletas.data = receta['totalGalletas']
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True,form=form)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=True,form=form, material_options=material_option, tipos=tipo,unused_materials=unused_materials(id))
         elif 'save' in request.form:
             receta = safe(request.form['receta'])
             
@@ -205,12 +238,12 @@ def show(id):
             receta = get_galleta_by_id(id)
             form.totalGalletas.data = receta['totalGalletas']
             ingredientes = get_ingrediente(id)
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form, material_options=material_option, tipos=tipo)
         elif 'change' in request.form:
             filename = f"static/img/{id}.webp"
             file = request.files['file']
             file.save(filename)
-            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
+            return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form, material_options=material_option, tipos=tipo)
     return render_template('pages/recetas/show.html', ingredientes=ingredientes, id=id, receta=receta, isEdit=False,form=form)
 
 
