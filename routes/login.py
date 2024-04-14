@@ -14,7 +14,6 @@ import os
 import smtplib
 from email.message import EmailMessage
 from models.verificacion import VerificationCode
-import requests
 from lib.security import safe
 load_dotenv('.env')
 print(os.getenv('RECAPTCHA_SECRET_KEY'))

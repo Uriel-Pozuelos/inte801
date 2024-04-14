@@ -52,7 +52,12 @@
                 <div>
                     
                     <div class="">
-                        {{camposNuevos(form2.galleta, id="selectG", style='padding: 0.5rem')}}
+                        <label for="selectG" class="label">Galleta</label>
+                        <select name="galleta_id" id="selectG" class="w-full p-2 rounded-md border border-gray-800">
+                            {% for galleta in galletas %}
+                                <option value="{{ galleta.id }}">{{ galleta.nombre }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="mt-2">
                         {{ camposNuevos(form2.tipoVenta)}}
@@ -132,7 +137,6 @@
     </section>
 
     <script>
-        console.log(document.getElementById('eliminar'));
 
         let modal = document.getElementById('listaVentas');
         let btn = document.getElementById('lista');
