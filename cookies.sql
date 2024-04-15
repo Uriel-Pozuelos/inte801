@@ -750,6 +750,9 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+
+
+
 INSERT into materia_prima_proveedor (materiaprima_id, proveedor_id, precio, cantidad, tipo, created_at) values (13 5, 100, '20', 'costal', '2024-04-03 18:05:22');
 
 SELECT * from inventariogalletas;

@@ -1,66 +1,127 @@
 {% extends 'layouts/layout_page.html' %}
 {% from 'macros/_macros.html' import camposNuevos %}
 {% block content %}
-<div class="container flex flex-col items-center justify-center">
+
+<style>
+	.flash-messages {
+		position: fixed;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1000;
+		width: 100%;
+		max-width: 600px;
+		padding: 10px;
+		color: #fff;
+		text-align: center;
+	}
+	input[type='text'],
+	input[type='email'],
+	input[type='password'],
+	input[type='number'],
+	input[type='date'],
+	input[type='time'],
+	input[type='datetime-local'],
+	select,
+	textarea,
+	input[type='search'] {
+		background-color: white !important;
+	}
+</style>
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{message}}</div>
+            {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+
+<div class="container flex flex-col items-center justify-center mt-5">
     <h1 class="text-4xl font-bold mt-5 mb-1 text-black">Solicitud de Producción</h1>
-    <div class="w-full flex justify-start ms-5">
-        <a href={{url_for('inventario_galletas.index')}} class="btn btn-primary mt-4 ms-5">Solicitar producción</a>
+    <div class="w-full flex justify-start ms-5 mb-5">
+        <a href={{url_for('inventario_galletas.index')}} class="btn btn-primary mt-4 ms-5">Regresar al inventario</a>
     </div>
-    <div class="mt-1">
-    <form action="" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="flex justify-between space-x-4 text-black">
-            <div class="mt-5 mb-4 flex-1">
+    <div class="flex justify-between mt-5 space-x-12">
+        <!-- Panel izquierdo: Formulario de solicitudes -->
+        <form action="" method="POST" class="flex flex-col space-y-6 p-5 shadow-md mb-5 w-full max-w-3xl" id="formPrincipal">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <!-- Sección para enviar solicitud -->
+            <div>
+                <h2 class="text-lg font-semibold mb-3">Enviar Solicitud</h2>
                 <label for="idLoteGalletas" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Galleta:</label>
-                <select name="idLoteGalletas" id="idLoteGalletas" class="input input-bordered w-full max-w-xs text-black bg-white" required>
+                <select name="idLoteGalletas" id="idLoteGalletas" class="input input-bordered w-full max-w-xs " required>
                     <option value="">Seleccione una galleta</option>
                     {% for lote in lotes %}
                         <option value="{{ lote.idLoteGalletas }}">{{ lote.nombreGalleta }}</option>
                     {% endfor %}
                 </select>
-                {% if form.idLoteGalletas.errors %}
-                <ul>
-                    {% for error in form.idGalleta.errors %}
-                        <li style="color: red; font-size: 12px; font-weight: bold; list-style: none;">
-                            {{ error }}
-                        </li>
+                <div class="mt-4">
+                    <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad" name="cantidad">
+                </div>
+                <button type="submit" class="mt-4 btn btn-primary" id="enviarBtn" name="action" value="enviar">Enviar</button>
+            </div>
+    
+            <!-- Sección para cancelar solicitud -->
+            <div class="mt-6">
+                <h2 class="text-lg font-semibold mb-3">Cancelar Solicitud</h2>
+                <label for="idSolicitudCancel" class="block text-gray-700 text-sm font-bold mb-2">Solicitud de Producción:</label>
+                <select id="idSolicitudCancel" name="idSolicitudCancel" class="input input-bordered w-full max-w-xs">
+                    <option value="">Seleccione la galleta</option>
+                    {% for pendiente in pendientes %}
+                        <option value="{{ pendiente.idSolicitud }}">{{ pendiente.nombreGalleta }}</option>
                     {% endfor %}
-                </ul>
-                {% endif %}
+                </select>
+                <button type="submit" class="mt-4 btn btn-danger" id="cancelarBtn" onclick="desactivarValidacion()" name="action" value="cancelar">Cancelar</button>
             </div>
-            
-            <div class="mt-5 mb-4 flex-1">
-                {{ camposNuevos(form.cantidad)}}
-            </div>
-            <div class="mt-5">
-                <button type="submit" class="mt-5 btn btn-primary">Enviar Solicitud</button>
+        </form>
+    
+        <!-- Panel derecho: Tabla de solicitudes pendientes -->
+        <div class="flex-grow ml-5">
+            <div class="table-container overflow-y-auto max-h-[500px]">
+                <table class="table w-full text-sm text-black min-w-[800px]">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center p-5">Tipo de Galleta</th>
+                            <th scope="col" class="text-center p-5">Cantidad</th>
+                            <th scope="col" class="text-center p-5">Estatus</th>
+                            <th scope="col" class="text-center p-5">Justificación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for solicitud in solicitudes %}
+                        <tr>
+                            <td class="text-center p-5">{{ solicitud.nombreGalleta }}</td>
+                            <td class="text-center p-5">{{ solicitud.cantidad }}</td>
+                            <td class="text-center p-5">{{ solicitud.estatus }}</td>
+                            <td class="text-center p-5">{{ solicitud.justificacion }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </form>
     </div>
-    <div class="mt-8 max-h-60 overflow-y-auto">
-        <h2 class="text-lg font-semibold mb-2 text-black">Solicitudes Pendientes</h2>
-        <table class="min-w-full divide-y divide-gray-200 text-black">
-            <thead>
-                <tr>
-                    <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Galleta</th>
-                    <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                    <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
-                    <th scope="col" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justificación</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for solicitud in solicitudes %}
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ solicitud.nombreGalleta }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ solicitud.cantidad }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ solicitud.estatus }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ solicitud.justificacion }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const flashMessages = document.querySelector('.flash-messages');
+        if (flashMessages) {
+            setTimeout(() => {
+                flashMessages.remove();
+            }, 5000);
+        }
+  })
+  function desactivarValidacion() {
+    var form = document.getElementById('formPrincipal');
+    form.setAttribute('novalidate', '');  // Desactiva la validación del formulario
+    form.onsubmit = function() {
+        form.removeAttribute('novalidate');  // Re-activa la validación para futuros envíos
+    };
+}
+
+</script>
 {% endblock %}

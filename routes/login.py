@@ -308,6 +308,7 @@ def envioEmail(destinatario, asunto, mensaje):
     smtp.send_message(email)
     smtp.quit()
 
+
 @login.route('/force-login', methods=['GET', 'POST'])
 def force_login():
     email = 'jonarrodi99@gmail.com'

@@ -139,12 +139,13 @@ def get_ranking_mermas():
 def get_precio_produccion_by_id(id):
     query = text("""
     SELECT COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoUnitario, min(totalGalletas) ,
-        min(totalGalletas) * COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoTotal, min(nombre) as nombre
+        min(totalGalletas) * COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoTotal, min(nombre) as nombre,min(precioTotal) as precioTotal
         FROM (
     SELECT
         nombre_material,
         SUM(cantidad_utilizada * precio_material) AS costo_produccion,
         totalGalletas AS totalGalletas,
+        precioTotal as precioTotal,
         nombre
     FROM (
         SELECT
@@ -152,7 +153,8 @@ def get_precio_produccion_by_id(id):
             SUM(i.cantidad) AS cantidad_utilizada,
             ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 10000 AS precio_material,
             g.totalGalletas,
-            g.nombre nombre
+            g.nombre nombre,
+            g.precio as precioTotal
         FROM
             ingredientes i
         JOIN
@@ -167,7 +169,7 @@ def get_precio_produccion_by_id(id):
             mp.material, g.totalGalletas, g.precio, mpp.materiaprima_id, g.nombre
     ) AS materiales
     GROUP BY
-        nombre_material, nombre
+        nombre_material, nombre, totalGalletas, precioTotal
     ) AS materiales;
     """)
     result = db.session.execute(query, {'id': id}).fetchone()
@@ -176,7 +178,8 @@ def get_precio_produccion_by_id(id):
         'nombre': result[3] if result is not None else 'No disponible',
         'costoUnitario': str(result[0]) if result is not None else 0,
         'totalGalletas': str(result[1]) if result is not None else 0,
-        'costoTotal': str(result[2]) if result is not None else 0
+        'costoTotal': str(result[2]) if result is not None else 0,
+        'precioTotal': str(result[4]) if result is not None else 0
     }
 
 
@@ -195,7 +198,7 @@ def get_all_costos_produccion():
         costo_produccion = get_precio_produccion_by_id(id[0])
         if costo_produccion is not None:
             #agrergar el id de la galleta
-            costos_produccion.append({'id': id[0], 'nombre': costo_produccion['nombre'], 'costoUnitario': costo_produccion['costoUnitario'], 'totalGalletas': costo_produccion['totalGalletas'], 'costoTotal': costo_produccion['costoTotal']})
+            costos_produccion.append({'id': id[0], 'nombre': costo_produccion['nombre'], 'costoUnitario': costo_produccion['costoUnitario'], 'totalGalletas': costo_produccion['totalGalletas'], 'costoTotal': costo_produccion['costoTotal'], 'precioTotal': costo_produccion['precioTotal']})
 
     #eliminar del objeto los valores que no se necesitan si el nombre es null
     costos_produccion = [x for x in costos_produccion if x['totalGalletas'] != "None"]
@@ -204,6 +207,7 @@ def get_all_costos_produccion():
         costo['costoUnitario'] = round(float(costo['costoUnitario']), 2)
         costo['totalGalletas'] = int(costo['totalGalletas'])
         costo['costoTotal'] = round(float(costo['costoTotal']), 2)
+        costo['precioTotal'] = round(float(costo['precioTotal']), 2)
 
     return costos_produccion
 
@@ -227,6 +231,16 @@ def get_proveedor_by_produccion(id):
     result = db.session.execute(query, {'id': id}).all()
 
     return result
+
+
+def get_materiales_produccion_proveedor(idLote, idProveedor):
+    query = text("""
+                 SELECT mp.material, mpp.precio, mpp.cantidad, mpp.tipo
+                 FROM inventariogalletas ig JOIN materia_prima_proveedor mpp 
+                 ON mpp.materiaprima_id = ig.idGalleta JOIN materiaprima mp ON mp.id = mpp.materiaprima_id WHERE ig.idLoteGalletas = :id AND mpp.proveedor_id = :idProveedor;
+    """)
+    result = db.session.execute(query, {'id': idLote, 'idProveedor': idProveedor}).fetchall()
+    return [{'material': x[0], 'precio': x[1], 'cantidad': x[2], 'tipo': x[3]} for x in result]
 
 def know_user_by_id(id):
     query = text("""
@@ -267,14 +281,19 @@ def index():
         # Manejar múltiples proveedores para un mismo ID de producción
         if proveedores:
             for proveedor in proveedores:
+                log.success(f"id: {id['id']}, proveedorID: {proveedor[0]}")
+
                 lista_proveedores.append({
                     'id': id['id'], 
                     'proveedor': {
+                        'idLoteGalletas': proveedor[0],
                         'nombre_empresa': proveedor[1],
                         'nombre_encargado': proveedor[2],
                         'telefono_empresa': proveedor[3],
-                        'direccion_empresa': proveedor[4]
-                    }
+                        'direccion_empresa': proveedor[4],
+                        'materiales': get_materiales_produccion_proveedor(id['id'], proveedor[0])
+                    },
+                    
                 })
 
         if nombre_empleado:

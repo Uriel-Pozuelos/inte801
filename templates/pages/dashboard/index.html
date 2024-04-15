@@ -89,6 +89,7 @@ block content %}
 							<th>Costo unitario</th>
 							<th>Costo total</th>
 							<th>Porciones</th>
+							<th>Precio final</th>
 							<th>Ver receta</th>
 						</tr>
 					</thead>
@@ -100,7 +101,9 @@ block content %}
 							<td>
 								${{ (receta.costoUnitario) * receta.totalGalletas }}
 							</td>
+
 							<td>{{ receta.totalGalletas }} unidades</td>
+							<td>$ {{ receta.precioTotal }}</td>
 							<td>
 								<a
 									href="/recetas/{{ receta.id }}"
@@ -262,9 +265,27 @@ block content %}
 					<h2 class="text-xl font-bold card-title">
 						${proveedor.proveedor.nombre_empresa}
 					</h2>
-					<p class="text-lg">Teléfono: ${proveedor.proveedor.telefono_empresa}</p>
-					<p class="text-lg">Nombre del contacto: ${proveedor.proveedor.nombre_encargado}</p>
-					<p class="text-lg">dirección: ${proveedor.proveedor.direccion_empresa}</p>
+					<p class="text-lg">Teléfono: ${
+						proveedor.proveedor.telefono_empresa
+					}</p>
+					<p class="text-lg">Nombre del contacto: ${
+						proveedor.proveedor.nombre_encargado
+					}</p>
+					<p class="text-lg">dirección: ${
+						proveedor.proveedor.direccion_empresa
+					}</p>
+					<h2 class="text-xl font-bold card-title">
+						Productos suministrados
+					</h2>
+					<ul>
+						${proveedor.proveedor.materiales
+							.map(
+								producto =>
+									`<li>${producto.material} de tipo ${producto.tipo} - ${producto.cantidad} unidades</li>`
+							)
+							.join('')}
+				</ul>
+				
 				</div>
 			</div>
 		`

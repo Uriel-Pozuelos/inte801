@@ -130,7 +130,7 @@ def update_receta(id,receta,totalGalletas):
     db.session.commit()
 
 def controller_updates(form):
-    log.warning(form)
+  
     # form regresa ImmutableMultiDict([('csrf_token', 'IjZjOTRjOGUyMTlhNTdkYzAzOGZmODJkNDlkNTRiNDFmYTdiZjU4M2Yi.ZgNnGA.-KwbwaZvAj06QHd7N-Wibb8QCFk'), ('tipo_5', 'gramos'), ('cantidad_5', '500.00'), ('material_5', 'avena'), ('tipo_6', 'mililitros'), ('cantidad_6', '50.00'), ('material_6', 'esencia de vainilla'), ('tipo_7', 'gramos'), ('cantidad_7', '5.00'), ('material_7', 'bicarbonato de sodio'), ('tipo_8', 'gramos'), ('cantidad_8', '100.00'), ('material_8', 'cacao en polvo'), ('receta', 'Galleta de chocolate con chips'), ('id', '2'), ('save', 'Guardar')])
     ingredientes = []
     materiales_agregados = set()  # Conjunto para mantener un registro de los materiales ya agregados
@@ -146,18 +146,21 @@ def controller_updates(form):
             if material_id in materiales_agregados:
                 flash(f"No se puede agregar dos veces el material '{material_nombre}'.", 'warning')
                 return False  # Retorna False si el material está duplicado
+            #si la cantidad incluye letras, o es menor a 0, mandar un flash de error
+            if not cantidad.replace('.','',1).isdigit() or float(cantidad) < 0:
+                flash(f"La cantidad del material '{material_nombre}' no es válida.", 'warning')
+                return False
             
             # Agregar el material a la lista de ingredientes y al conjunto de materiales agregados
             ingredientes.append({
                 'id': id,
-                'cantidad': form['cantidad_'+id],
+                'cantidad': cantidad,
                 'material': getIDbyName(form['material_'+id])
 
             })
             materiales_agregados.add(material_id)  # Registrar el material en el conjunto
 
     log.warning(ingredientes)
-    return ingredientes
 
     update_receta(form['id'], form['receta'], form['totalGalletas'])
     update_ingredientes(ingredientes)
