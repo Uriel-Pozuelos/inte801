@@ -1,33 +1,63 @@
 {% macro addIn(for="",type="", placeholder="", id="", name="") %}
 <div>
     <label class="text-gray-700" for="{{for}}">{{for}}</label>
-    <input class="input input-bordered input-primary min-w-full max-w-xs" type="{{type}}" placeholder="{{placeholder}}"
+    <input class="input input-bordered input-primary min-w-full max-w-xs"
+        type="{{type}}" placeholder="{{placeholder}}"
         id="{{id}}" name="{{name}}" required>
 </div>
 {% endmacro %}
 
-{% macro edin(for="", type="", id="", name="") %}
+{% macro edin(for="", type="", id="", name="", value="") %}
 <div class>
     <label for="{{for}}" class="text-gray-700">{{for}}</label>
-    <input class="input input-bordered input-primary min-w-full max-w-xs" type="{{type}}" id="{{id}}" name="{{name}}">
+    <input class="input input-bordered input-primary min-w-full max-w-xs"
+        type="{{type}}" id="{{id}}" name="{{name}}" value="{{value}}">
 </div>
+{% endmacro %}
+
+{% macro slcPres(for="", id="", name="") %}
+<label for="{{for}}">{{for}}</label>
+<select name="{{name}}" id="{{id}}"
+    class="select select-bordered select-primary min-w-full max-w-xs" required="False">
+    <option value selected disabled>Seleccionar</option>
+    <option value="Bolsa 100g">Bolsa 100g</option>
+    <option value="Bolsa 250g">Bolsa 250g</option>
+    <option value="Bolsa 500g">Bolsa 500g</option>
+    <option value="Bolsas 1kg">Bolsas 1kg</option>
+    <option value="Bolsas 5kg">Bolsas 5kg</option>
+    <option value="Bolsas 25kg">Bolsas 25kg</option>
+    <option value="Costal grande 50kg">Costal grande 50kg</option>
+    <option value="Paquete 500g">Paquete 500g</option>
+    <option value="Paquete 1kg">Paquete 1kg</option>
+    <option value="Paquete 250g">Paquete 250g</option>
+    <option value="Barra 100g">Barra 100g</option>
+    <option value="Barra 250g">Barra 250g</option>
+    <option value="Barra 500g">Barra 500g</option>
+    <option value="Docena">Docena</option>
+    <option value="Carton 18 huevos">Carton 18 huevos</option>
+    <option value="Carton 30 huevos">Carton 30 huevos</option>
+    <option value="Carton 60 huevos">Carton 60 huevos</option>
+    <option value="Frasco 50ml">Frasco 50ml</option>
+    <option value="Frascos 100ml">Frascos 100ml</option>
+    <option value="Frasco 250ml">Frasco 250ml</option>
+    <option value="Frasco 500ml">Frasco 500ml</option>
+    <option value="Botella 250ml">Botella 250ml</option>
+    <option value="Botella 500ml">Botella 500ml</option>
+    <option value="Botella 1lt">Botella 1lt</option>
+    <option value="Sobre 10g">Sobre 10g</option>
+</select>
 {% endmacro %}
 
 {% macro slcMedida(for="", id="", name="") %}
 <label for="{{for}}">{{for}}</label>
-<select name="{{name}}" id="{{id}}" class="select select-bordered select-primary min-w-full max-w-xs">
+<select name="{{name}}" id="{{id}}"
+    class="select select-bordered select-primary min-w-full max-w-xs">
     <option value="" selected disabled>Seleccionar</option>
-    <option value="kilos">Kilos</option>
     <option value="litros">Litros</option>
+    <option value="kilos">Kilos</option>
     <option value="gramos">Gramos</option>
     <option value="mililitros">Mililitros</option>
-    <option value="piezas">Piezas</option>
-    <option value="galones">Galones</option>
-    <option value="caja">Caja</option>
-    <option value="bolsa">Bolsa</option>
-    <option value="paquete">Paquete</option>
-    <option value="sobre">Sobre</option>
-    <option value="huevos">Huevos</option>
+    <option value="unidad">Unidad</option>
 </select>
 {% endmacro %}
 

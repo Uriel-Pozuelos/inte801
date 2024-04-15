@@ -1,18 +1,18 @@
 from flask import (
     Blueprint,
     render_template,
-    request,    
+    request,
     flash,
     redirect,
     Response,
     jsonify,
     g,
 )
-from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
 from models.proveedor import Proveedor
 from models.usuario import Usuario
 from models.Recetas import MateriaPrima
 from models.materia_prima_proveedor import MateriaPrimaProveedor
+from forms.ProveedorForm import ProveedorForm
 from datetime import datetime
 from db.db import db
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
@@ -29,33 +29,11 @@ def index():
     email = token["email"]
 
     form = ProveedorForm()
-    formE = ProveedorEditForm()
-
     proveedores = Proveedor.query.filter_by(estatus=1).all()
-    current_user = Usuario.query.filter_by(email=email).first()
-    mat_prim_prov = MateriaPrimaProveedor.query.all()
-    materiap = MateriaPrima.query.all()
-
-    tbl_prov = []
-    mats_list = []
+    provs = []
 
     for prov in proveedores:
-        for mat in mat_prim_prov:
-            if mat.proveedor_id == prov.id:
-                for mp in materiap:
-                    if mp.id == mat.materiaprima_id:
-                        mats_list.append(
-                            {
-                                "id": mat.materiaprima_id,
-                                "material": mp.material,
-                                "precio": mat.precio,
-                                "cantidad": mat.cantidad,
-                                "tipo": mat.tipo,
-                                "proveedor_id": mat.proveedor_id,
-                                "material_tipo": mp.tipo,
-                            }
-                        )
-        tbl_prov.append(
+        provs.append(
             {
                 "id": prov.id,
                 "nombre_empresa": prov.nombre_empresa,
@@ -67,111 +45,51 @@ def index():
                 "updated_at": prov.updated_at,
                 "deleted_at": prov.deleted_at,
                 "id_usuario": prov.id_usuario,
-                "mats_list": mats_list,
             }
         )
 
-    if request.method == "POST":
-        pass
-
     return render_template(
         "pages/provider/index.html",
-        proveedores=proveedores,
+        proveedores=provs,
         form=form,
-        current_user=current_user.id,
-        tbl_prov=tbl_prov,
-        mats_list=mats_list,
     )
 
 
-@proveedores.route("/add_provider", methods=["GET", "POST"])
+@proveedores.route("/add_provider", methods=["POST"])
 @token_required
 @allowed_roles(roles=["admin", "compras"])
 def new_provider():
     try:
         fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        form = ProveedorForm()
+        form = ProveedorForm(request.form)
 
         active_token = request.cookies.get("token")
         token = decodeToken(active_token)
         email = token["email"]
 
-        if request.method == "POST":
-            current_user = Usuario.query.filter_by(email=email).first()
-            nombre_empresa = request.form.get("nombre_empresa")
-            direccion_empresa = request.form.get("direccion_empresa")
-            telefono_empresa = request.form.get("telefono_empresa")
-            nombre_encargado = request.form.get("nombre_encargado")
-            estatus = 1
-            created_at = fecha
-            updated_at = fecha
-            deleted_at = None
-            id_usuario = current_user.id
+        current_user = Usuario.query.filter_by(email=email).first()
 
-            proveedor = Proveedor(
-                nombre_empresa=str(nombre_empresa),
-                direccion_empresa=str(direccion_empresa),
-                telefono_empresa=str(telefono_empresa),
-                nombre_encargado=str(nombre_encargado),
-                estatus=estatus,
-                created_at=created_at,
-                updated_at=updated_at,
-                deleted_at=deleted_at,
-                id_usuario=id_usuario,
-            )
+        proveedor = Proveedor(
+            nombre_empresa=form.nombre_empresa.data,
+            direccion_empresa=form.direccion_empresa.data,
+            telefono_empresa=form.telefono_empresa.data,
+            nombre_encargado=form.nombre_encargado.data,
+            estatus=1,
+            created_at=fecha,
+            updated_at=fecha,
+            id_usuario=current_user.id,
+        )
 
-            db.session.add(proveedor)
-            db.session.commit()
+        db.session.add(proveedor)
+        db.session.commit()
 
-            productos = request.form.getlist("producto[]")
-            precios = request.form.getlist("precio[]")
-            cantidad = request.form.getlist("cantidad[]")
-            presentacion = request.form.getlist("presentacion[]")
-            medida = request.form.getlist("medida[]")
-
-            print(productos)
-            print(precios)
-            print(cantidad)
-            print(presentacion)
-            print(medida)
-
-            for producto, precio, cant, pres, med in zip(
-                productos, precios, cantidad, presentacion, medida
-            ):
-                mp = MateriaPrima.query.filter_by(material=producto.lower()).first()
-
-                mp = MateriaPrima(
-                    material=str(producto),
-                    tipo=str(med),
-                    estatus=1,
-                    created_at=fecha,
-                    updated_at=fecha,
-                    deleted_at=None,
-                )
-
-                db.session.add(mp)
-                db.session.commit()
-
-                mat_prim_prov = MateriaPrimaProveedor(
-                    materiaprima_id=mp.id,
-                    proveedor_id=proveedor.id,
-                    precio=float(precio),
-                    cantidad=cant,
-                    tipo=pres,
-                    created_at=fecha,
-                )
-
-                db.session.add(mat_prim_prov)
-                db.session.commit()
-
-            flash("Proveedor creado correctamente", "success")
-
-            return redirect("/proveedores")
-        return render_template("pages/provider/index.html", form=form)
+        flash("Proveedor creado correctamente", "success")
+        return redirect("/proveedores")
     except Exception as e:
         db.session.rollback()
-        flash(str(e), "error")
-        return str(e)
+        print(e)
+        flash("Ocurrio un error al crear el proveedor", "error")
+        return redirect("/proveedores")
 
 
 @proveedores.route("/edit_provider", methods=["GET", "POST"])
@@ -183,7 +101,6 @@ def ed_provider():
     email = token["email"]
 
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    form = ProveedorEditForm()
     current_user = Usuario.query.filter_by(email=email).first()
 
     try:
@@ -200,12 +117,9 @@ def ed_provider():
             db.session.commit()
 
             flash("Proveedor actualizado correctamente", "success")
-
             return redirect("/proveedores")
-        return redirect("/proveedores")
     except Exception as e:
         db.session.rollback()
-        print(str(e))
         flash("Ocurrio un error al actualizar los datos", "error")
         return redirect("/proveedores")
 
@@ -219,22 +133,24 @@ def del_provider():
     email = token["email"]
 
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    form = ProveedorForm()
+    form = ProveedorForm(request.form)
     current_user = Usuario.query.filter_by(email=email).first()
+    try:
+        if request.method == "POST":
+            id = request.form.get("id_del")
+            proveedor = Proveedor.query.get(id)
+            proveedor.estatus = 0
+            proveedor.deleted_at = fecha
+            proveedor.id_usuario = current_user.id
 
-    if request.method == "POST":
-        id = request.form.get("id_del")
-        proveedor = Proveedor.query.get(id)
-        proveedor.estatus = 0
-        proveedor.deleted_at = fecha
-        proveedor.id_usuario = current_user.id
+            db.session.commit()
 
-        db.session.commit()
-
-        flash("Proveedor eliminado correctamente", "success")
-
+            flash("Proveedor eliminado correctamente", "success")
+            return redirect("/proveedores")
+    except Exception as e:
+        db.session.rollback()
+        flash("Ocurrio un error al eliminar el proveedor", "error")
         return redirect("/proveedores")
-    return render_template("pages/provider/index.html", form=form)
 
 
 @proveedores.route("/get_materials", methods=["GET", "POST"])
@@ -277,7 +193,12 @@ def ed_mats():
             proveedor = Proveedor.query.get(prov_id)
 
             for idl, producto, precio, cant, pres, med in zip(
-                id_list, productos_list, precio_list, cantidad_list, presentacion_list, medida_list
+                id_list,
+                productos_list,
+                precio_list,
+                cantidad_list,
+                presentacion_list,
+                medida_list,
             ):
                 materia_prima = MateriaPrima.query.get(idl)
                 mpp = MateriaPrimaProveedor.query.filter_by(
@@ -287,10 +208,10 @@ def ed_mats():
                 mpp.precio = precio
                 mpp.cantidad = cant
                 mpp.tipo = pres
-                
+
                 materia_prima.material = producto
                 materia_prima.tipo = med
-                
+
                 db.session.commit()
 
             flash("Materiales actualizados correctamente", "success")

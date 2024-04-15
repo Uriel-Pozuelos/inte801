@@ -1,5 +1,7 @@
 {% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html' import
-Button %} {% from 'macros/_proveedor.html' import addProv,edProv,delProv,edMat %} {%
+Button %} {% from 'macros/_proveedor.html' import
+edProv,delProv,edMat,provField,addProv
+%} {%
 block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
 <style>
   .flash-messages {
@@ -28,13 +30,13 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   }
 </style>
 <section class="w-full h-screen flex flex-col">
-    <!-- Flash meesage -->
-    <div class="flash-messages">
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %} {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">{{ message }}</div>
-      {% endfor %} {% endif %} {% endwith %}
-    </div>
+  <!-- Flash meesage -->
+  <div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %} {% endif %} {% endwith %}
+  </div>
 
   <div class="md:contaner px-4">
     <section class="mt-3">
@@ -48,24 +50,20 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   <div class="md:contaner px-4">
     <section class="mt-5">
       <div class="relative overflow-x-auto">
-        <table class="w-full text-md text-left rtl:text-right text-black" id="tbl_prov">
-          <thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+        <table class="w-full text-md text-left rtl:text-right text-black"
+          id="tbl_prov">
+          <thead
+            class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
             <tr>
               <th scope="col" class="px-6 py-3">Nombre de empresa</th>
               <th scope="col" class="px-6 py-3">Dirección de empresa</th>
               <th scope="col" class="px-6 py-3">Teléfono de empresa</th>
               <th scope="col" class="px-6 py-3">Persona atendió</th>
               <th scope="col" class="px-6 py-3">Acciones</th>
-              <!-- <th hidden>materiaprima_id</th>
-              <th hidden>material</th>
-              <th hidden>precio</th>
-              <th hidden>cantidad</th>
-              <th hidden>tipo</th>
-              <th hidden>material_tipo</th> -->
             </tr>
           </thead>
           <tbody class="bg-transparent border-b text-center">
-            {% for provider in tbl_prov %}
+            {% for provider in proveedores %}
             <tr id="proveedor_{{provider.id}}">
               <td class="border px-6 py-3">{{ provider.nombre_empresa }}</td>
               <td class="border px-6 py-3">{{ provider.direccion_empresa }}</td>
@@ -78,7 +76,6 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
                 <button id="del_{{provider.id}}" class="btn btn-danger">
                   Eliminar proveedor
                 </button>
-                <button id="viewmats_{{provider.id}}" class="btn btn-primary">Ver Materiales</button>
               </td>
             </tr>
             {% endfor %}
@@ -89,7 +86,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   </div>
 
   <!-- Form Add -->
-  <form novalidate action="{{ url_for('proveedores.new_provider') }}" method="POST">
+  <form novalidate action="{{ url_for('proveedores.new_provider') }}"
+    method="POST">
     <div class="card">
       <dialog id="addProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
@@ -97,39 +95,30 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
         </div>
         <div class="dialog-content">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <div class="mt-3">
-            {{ addProv("Nombre de empresa", "",
-            "nombre_empresa","nombre_empresa") }}
+          <div class="grid grid-cols-2 gap-4 mb-3 mt-3">
+            <div>
+              <div class="mt-3">
+                {{ provField(form.nombre_empresa) }}
+              </div>
+              <div class="mt-3">
+                {{ provField(form.direccion_empresa) }}
+              </div>
+            </div>
+            <div>
+              <div class="mt-3">
+                {{ provField(form.telefono_empresa) }}
+              </div>
+              <div class="mt-3">
+                {{ provField(form.nombre_encargado) }}
+              </div>
+            </div>
           </div>
-          <div class="mt-3">
-            {{ addProv("Dirección de empresa", "",
-            "direccion_empresa","direccion_empresa") }}
-          </div>
-          <div class="mt-3">
-            {{ addProv("Teléfono de empresa", "", "telefono_empresa",
-            "telefono_empresa") }}
-          </div>
-          <div class="mt-3">
-            {{ addProv("Persona atendió", "", "nombre_encargado",
-            "nombre_encargado") }}
-          </div>
-          <div class="flex justify-between mt-4">
-            <button type="button" class="btn btn-primary w-auto" id="btnAddRow">
-              Agregar Fila
-            </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnRemoveRow">
-              Eliminar Fila
-            </button>
-          </div>
-          <div class="mt-3 text-center" id="lbl_productos" hidden>
-            <label class="text-gray-700">Productos</label>
-          </div>
-          <div id="rows-container"></div>
           <div class="flex justify-between mt-4">
             <button type="submit" class="btn btn-primary w-auto">
               Guardar
             </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProvider">
+            <button type="button" class="btn btn-danger w-auto"
+              id="btnCloseProvider">
               Cerrar
             </button>
           </div>
@@ -139,9 +128,11 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   </form>
 
   <!-- Dialog Edit -->
-  <form novalidate action="{{ url_for('proveedores.ed_provider') }}" method="POST">
+  <form novalidate action="{{ url_for('proveedores.ed_provider') }}"
+    method="POST">
     <div class="card">
-      <dialog id="editProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
+      <dialog id="editProvider"
+        class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
           <h3 class="text-lg font-semibold">Editar Proveedor</h3>
         </div>
@@ -164,12 +155,12 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
             {{ edProv("Nombre encargado", "", "nombre_encargado_edit",
             "nombre_encargado_edit") }}
           </div>
-          <div class="mt-3" id="rowMatsEdit"></div>
           <div class="flex justify-between mt-4">
             <button type="submit" class="btn btn-primary w-auto">
               Actualizar
             </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProviderEdit">
+            <button type="button" class="btn btn-danger w-auto"
+              id="btnCloseProviderEdit">
               Cerrar
             </button>
           </div>
@@ -178,31 +169,9 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
     </div>
   </form>
 
-  <!-- Dialog Mats -->
-  <form action="{{url_for('proveedores.ed_mats')}}" novalidate method="POST">
-    <div class="card">
-      <dialog id="manageMaterialsDialog" class="dialog p-6 bg-white shadow-lg rounded-md">
-        <div class="dialog-title">
-          <h3 class="text-lg font-semibold">Administrar Materiales</h3>
-        </div>
-        <div class="dialog-content">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" id="providerId" name="providerId" />
-          <div id="materialsList"></div>
-          <!-- <div class="mt-3">
-            <button id="btnAddMaterial" class="btn btn-primary">Agregar Material</button>
-          </div> -->
-          <div class="flex justify-between mt-4">
-            <button type="submit" id="btnSaveMaterials" class="btn btn-primary">Guardar</button>
-            <button type="button" id="btnCloseMaterials" class="btn btn-secondary">Cerrar</button>
-          </div>
-        </div>
-      </dialog>
-    </div>
-  </form>
-
   <!-- Dialog Delete -->
-  <form novalidate action="{{ url_for('proveedores.del_provider') }}" method="POST">
+  <form novalidate action="{{ url_for('proveedores.del_provider') }}"
+    method="POST">
     <div class="card">
       <dialog id="delProvider" class="dialog p-6 bg-white shadow-lg rounded-md">
         <div class="dialog-title">
@@ -231,30 +200,8 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
             <button type="submit" class="btn btn-primary w-auto">
               Eliminar
             </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseProviderDel">
-              Cerrar
-            </button>
-          </div>
-        </div>
-      </dialog>
-    </div>
-  </form>
-
-  <!-- Dialog Delete -->
-  <form novalidate action="">
-    <div class="card">
-      <dialog id="delMat" class="dialog p-6 bg-white shadow-lg rounded-md">
-        <div class="dialog-title">
-          <h3 class="text-lg font-semibold">Eliminar Materia prima</h3>
-        </div>
-        <div class="dialog-content">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" name="id_mat_del" id="id_mat_del" />
-          <div class="flex justify-between mt-4">
-            <button type="button" class="btn btn-primary w-auto">
-              Eliminar
-            </button>
-            <button type="button" class="btn btn-danger w-auto" id="btnCloseDelMat">
+            <button type="button" class="btn btn-danger w-auto"
+              id="btnCloseProviderDel">
               Cerrar
             </button>
           </div>
@@ -265,11 +212,6 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
 </section>
 
 <!-- Javascript -->
-<script>
-  var tbl_prov = {{ tbl_prov | tojson }};
-  var mats_list = {{ mats_list | tojson }}
-</script>
-
 <script>
   const flashMessage = document.querySelector(".flash-messages");
   if (flashMessage) {
@@ -295,10 +237,6 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   const btnCloseMaterials = document.getElementById("btnCloseMaterials");
   const btnAddProvider = document.getElementById("btnAddProvider");
   const btnCloseDelMat = document.getElementById("btnCloseDelMat");
-
-  var i = 0;
-  var ii = 0;
-  let rowMats = document.getElementById('rowMats');
 
   document.querySelectorAll('[id^="edit_"]').forEach((item) => {
     item.addEventListener("click", (event) => {
@@ -327,54 +265,6 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
     });
   });
 
-  document.querySelectorAll('[id^="viewmats_"]').forEach(button => {
-    button.addEventListener('click', function () {
-      var providerId = this.id.split('_')[1];
-
-      document.getElementById('providerId').value = providerId;
-      document.getElementById('materialsList').innerHTML = '';
-
-      mats_list.forEach(materia => {
-        if (providerId == materia.proveedor_id) {
-          ii++;
-          let matRow = document.createElement('div');
-
-          matRow.innerHTML = `
-                            <div class="grid grid-cols-2 gap-4 mb-3 mt-3">
-                              <div>
-                                <label class="float-start -mt-3">Producto ${ii}</label>
-                                <input hidden type="text" name="material_id[]" value="${materia.id}"/>
-                                  <div class="mt-3">
-                                      {{ edMat("Nombre del producto", "producto", "producto_edit[]", "${materia.material}") }}
-                                  </div>
-                                  <div class="mt-3">
-                                      {{ edMat("Precio del producto", "precio", "precio_edit[]", "${materia.precio}") }}
-                                  </div>
-                                  <div class="mt-3">
-                                      {{ edMat("Cantidad por producto", "cantidad", "cantidad_edit[]", "${materia.cantidad}") }}
-                                  </div>
-                              </div>
-                              <div class="mb-2">
-                                  <div class="mt-3">
-                                      {{ edMat("Presentación del producto", "presentacion", "presentacion_edit[]", "${materia.tipo}") }}
-                                  </div>
-                                  <div class="mt-3">
-                                      {{ edMat("Unidad de medida", "medida", "medida_edit[]", "${materia.material_tipo}") }}
-                                  </div>
-                              </div>
-                              <div class="">
-                                <button class="btn btn-danger" type="button" onclick="delMats(${materia.id})">Eliminar</button>
-                              </div>
-                          </div> 
-          `;
-          document.getElementById('materialsList').appendChild(matRow);
-        }
-      });
-      document.getElementById('manageMaterialsDialog').showModal();
-    });
-  });
-
-
   document.querySelectorAll('[id^="del_"]').forEach((item) => {
     item.addEventListener("click", (event) => {
       const id = item.id.split("_")[1];
@@ -402,55 +292,12 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
     });
   });
 
-  btnAddRow.addEventListener("click", function () {
-    i++;
-    const newRow = `
-                  <div class="grid grid-cols-2 gap-4 mb-3 mt-3">
-                    <div>
-                      <label class="float-start -mt-3">Producto ${i}</label>
-                        <div class="mt-3">
-                            {{ addProv("Nombre del producto", "Harina, azúcar, etc.", "producto", "producto[]") }}
-                        </div>
-                        <div class="mt-3">
-                            {{ addProv("Precio por producto", "Precio del producto", "precio", "precio[]") }}
-                        </div>
-                        <div class="mt-3">
-                            {{ addProv("Cantidad por producto", "Cantidad por producto", "cantidad", "cantidad[]") }}
-                        </div>
-                    </div>
-                    <div class="mb-2">
-                        <div class="mt-3">
-                            {{ addProv("Presentacion del producto", "Caja, bolsa, etc.", "presentacion", "presentacion[]") }}
-                        </div>
-                        <div class="mt-3">
-                            {{ addProv("Unidad de medida", "Gramos, mililitros, etc.", "medida", "medida[]") }}
-                        </div>
-                    </div>
-                </div>  
-            `;
-
-    rowsContainer.insertAdjacentHTML("beforeend", newRow);
-  });
-
-  btnRemoveRow.addEventListener("click", function () {
-    if (rowsContainer.children.length > 0) {
-      rowsContainer.removeChild(rowsContainer.lastElementChild);
-    }
-
-    if (rowsContainer.children.length === 0) {
-      lbl_productos.hidden = true;
-      i = 0;
-    }
-  });
-
   btnAddProvider.addEventListener("click", () => {
     addProvider.showModal();
   });
 
   btnCloseProvider.addEventListener("click", () => {
     addProvider.close();
-    lbl_productos.hidden = true;
-    rowsContainer.innerHTML = "";
   });
 
   btnCloseProviderEdit.addEventListener("click", () => {
@@ -460,30 +307,5 @@ block title %} Login - Cookies and Dreams{% endblock %} {% block content %}
   btnCloseProviderDel.addEventListener("click", () => {
     delProvider.close();
   });
-
-  btnCloseMaterials.addEventListener("click", () => {
-    manageMaterialsDialog.close();
-    ii = 0;
-  });
-
-  btnCloseDelMat.addEventListener("click", () => {
-    delMat.close();
-  });
-
-  function regex(event) {
-    if (!((event.keyCode >= 65) && (event.keyCode <= 90) || (event.keyCode == 97) && (event.keyCode <= 122) || (event.keyCode >= 48) && (event.keyCode <= 57))) {
-      event.returnValue = false;
-      return;
-    }
-
-    event.returnValue = true;
-  }
-
-  function delMats(id) {
-    id_mat_del = document.getElementById("id_mat_del");
-    id_mat_del.value = id;
-
-    delMat.showModal();
-  }
 </script>
 {% endblock %}
