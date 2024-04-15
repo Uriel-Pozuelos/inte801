@@ -165,3 +165,103 @@ JOIN galletas g ON g.id = ig.idGalleta;
 SELECT mp.material, ig.cantidad
 FROM inventariomateriaprima ig
 JOIN materiaprima mp ON mp.id = ig.idMateriaPrima;
+
+ SELECT COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoUnitario, min(totalGalletas) ,
+        min(totalGalletas) * COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoTotal, min(nombre) as nombre,min(precioTotal) as precioTotal
+        FROM (
+    SELECT
+        nombre_material,
+        SUM(cantidad_utilizada * precio_material) AS costo_produccion,
+        totalGalletas AS totalGalletas,
+        precioTotal as precioTotal,
+        nombre
+    FROM (
+        SELECT
+            mp.material AS nombre_material,
+            SUM(i.cantidad) AS cantidad_utilizada,
+            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 10000 AS precio_material,
+            g.totalGalletas,
+            g.nombre nombre,
+            g.precio as precioTotal
+        FROM
+            ingredientes i
+        JOIN
+            materiaprima mp ON i.material_id = mp.id
+        JOIN
+            galletas g ON i.galleta_id = g.id
+		JOIN 
+			materia_prima_proveedor mpp on mpp.materiaprima_id = mp.id
+        WHERE
+            g.id = :id and g.enable = 1
+        GROUP BY
+            mp.material, g.totalGalletas, g.precio, mpp.materiaprima_id, g.nombre
+    ) AS materiales
+    GROUP BY
+        nombre_material, nombre, totalGalletas, precioTotal
+    ) AS materiales;
+
+
+mysql> describe detalleventa;
++-----------------+---------------+------+-----+---------+----------------+
+| Field           | Type          | Null | Key | Default | Extra          |
++-----------------+---------------+------+-----+---------+----------------+
+| id              | int           | NO   | PRI | NULL    | auto_increment |
+| venta_id        | int           | YES  | MUL | NULL    |                |
+| galleta_id      | int           | YES  | MUL | NULL    |                |
+| cantidad        | decimal(10,2) | NO   |     | NULL    |                |
+| precio_unitario | decimal(10,2) | NO   |     | NULL    |                |
+| created_at      | datetime      | NO   |     | NULL    |                |
+| tipoVenta       | varchar(255)  | NO   |     | NULL    |                |
++-----------------+---------------+------+-----+---------+----------------+
+
+SELECT 
+    dv.galleta_id,
+    dv.precio_unitario,
+    dv.cantidad,
+    c.costoUnitario,
+    (dv.precio_unitario - c.costoUnitario) AS gananciaPorGalleta,
+    (dv.precio_unitario - c.costoUnitario) * dv.cantidad AS gananciaTotal
+FROM 
+    detalleventa dv
+JOIN
+    (SELECT 
+         g.id AS galleta_id,
+         COALESCE(SUM(costo_produccion) / NULLIF(min(totalGalletas), 0), 0) AS costoUnitario
+     FROM
+         (SELECT COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoUnitario, min(totalGalletas) ,
+        min(totalGalletas) * COALESCE(SUM(costo_produccion) / min(totalGalletas), 0) as costoTotal, min(nombre) as nombre,min(precioTotal) as precioTotal
+        FROM (
+    SELECT
+        nombre_material,
+        SUM(cantidad_utilizada * precio_material) AS costo_produccion,
+        totalGalletas AS totalGalletas,
+        precioTotal as precioTotal,
+        nombre
+    FROM (
+        SELECT
+            mp.material AS nombre_material,
+            SUM(i.cantidad) AS cantidad_utilizada,
+            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 10000 AS precio_material,
+            g.totalGalletas,
+            g.nombre nombre,
+            g.precio as precioTotal
+        FROM
+            ingredientes i
+        JOIN
+            materiaprima mp ON i.material_id = mp.id
+        JOIN
+            galletas g ON i.galleta_id = g.id
+		JOIN 
+			materia_prima_proveedor mpp on mpp.materiaprima_id = mp.id
+        WHERE
+            g.id = :id and g.enable = 1
+        GROUP BY
+            mp.material, g.totalGalletas, g.precio, mpp.materiaprima_id, g.nombre
+    ) AS materiales
+    GROUP BY
+        nombre_material, nombre, totalGalletas, precioTotal
+    ) AS materiales) AS costos
+     JOIN
+         galletas g ON costos.galleta_id = g.id
+     GROUP BY
+         g.id) AS c ON dv.galleta_id = c.galleta_id;  -- Cambia esto según necesites filtrar por tipo de venta
