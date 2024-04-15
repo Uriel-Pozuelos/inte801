@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, redirect, flash
 from models.Recetas import Galletas
 from models.solicitud_produccion import solicitud_produccion
 from models.Inventario_galletas import Inventario_galletas
@@ -27,46 +27,76 @@ def get_inventario_galletas():
         lote_data = lote.serialize()
         lote_data['nombreGalleta'] = galletas_dict.get(lote.idGalleta, 'Nombre no encontrado')
         registros_modificados.append(lote_data)
+    
     return registros_modificados
 
-#def get_InventarioGalletas():
- #   inventario_galletas = 
-
-def get_inventario_dict():
-    inventario = get_inventario_galletas()
-    inventario_dict = {lote.idLoteGalletas: lote.nombreGalleta for lote in inventario}
-    return inventario_dict
+def get_Galleta_nombre_por_idLote(idLoteGalletas):
+    inventario_item = Inventario_galletas.query.filter_by(idLoteGalletas=idLoteGalletas).first()
+    if inventario_item:
+        galletas_dict = get_Galletas_dict()
+        return galletas_dict.get(inventario_item.idGalleta, 'Nombre no encontrado')
+    return 'Lote no encontrado'
 
 def get_Solicitud_inventario():
     solicitudes = solicitud_produccion.query.all()
-    inventario_dict = get_Galletas_dict()  # Obtener el diccionario de galletas
-    # Modificar cada solicitud para reemplazar idGalleta con el nombre de la galleta
+    # No necesitas obtener el diccionario de galletas aquí si ajustas la lógica según lo sugerido
     solicitudes_modificadas = []
     for solicitud in solicitudes:
         solicitud_data = solicitud.serialize()
-        # Usar el diccionario para obtener el nombre de la galleta
-        solicitud_data['nombreGalleta'] = inventario_dict.get(solicitud.idLoteGalletas, 'Nombre no encontrado')
+        solicitud_data['nombreGalleta'] = get_Galleta_nombre_por_idLote(solicitud.idLoteGalletas)
         solicitudes_modificadas.append(solicitud_data)
+    solicitudes_modificadas.reverse()
     return solicitudes_modificadas
 
 @solicitud.route('/solicitud', methods=['GET', 'POST'] )
 def index():
-    form = SolicitudForm(request.form)
     if request.method == 'POST':
-        # Crear una nueva instancia del modelo solicitud_produccion con los datos del formulario
-        nueva_solicitud = solicitud_produccion(
-            idLoteGalletas=form.idLoteGalletas.data,
-            cantidad=form.cantidad.data
-        )
-        db.session.add(nueva_solicitud)
-        db.session.commit()
-
-        inventario = Inventario_galletas.query.get(form.idLoteGalletas.data)
-        if inventario:  # Verificar que el registro exista
-            inventario.estatus = 0
-            inventario.updated_at = datetime.now()
+        if request.form['action'] == 'enviar':
+            # Crear una nueva instancia del modelo solicitud_produccion con los datos del formulario
+            cantidad = request.form.get('cantidad')
+            idLoteGalleta = request.form.get('idLoteGalletas')
+            if cantidad =="" or idLoteGalleta == "":
+                flash("Completa todos los campos")
+                return redirect("/solicitud")
+            cantidad = int(cantidad)
+            if cantidad >= 2147483647:
+                flash('Por favor, ingresa un número válido.')
+                return(redirect('/solicitud'))
+                
+            nueva_solicitud = solicitud_produccion(
+                idLoteGalletas=idLoteGalleta,
+                cantidad=cantidad
+            )
+            db.session.add(nueva_solicitud)
             db.session.commit()
 
+            inventario = Inventario_galletas.query.get(idLoteGalleta)
+            if inventario:  # Verificar que el registro exista
+                inventario.estatus = 0
+                inventario.updated_at = datetime.now()
+                db.session.commit()
+                flash("Solicitud enviada correctamente")
+                return redirect('/solicitud')
+        elif request.form['action'] == 'cancelar':
+            idSolicitud = request.form.get('idSolicitudCancel')
+            if idSolicitud == "":
+                flash("Seleccione un tipo de galleta")
+                return redirect("/solicitud")
+            solicitud_filter =  solicitud_produccion.query.get(idSolicitud)
+            solicitud_filter.estatus = 'Cancelada'
+            solicitud_filter.updated_at = datetime.now()
+            db.session.commit()
+
+            inventario = Inventario_galletas.query.get(solicitud_filter.idLoteGalletas)
+            inventario.estatus = 1
+            inventario.updated_at = datetime.now()
+            db.session.commit()
+            flash('Solcitud cancelada correctamente')
+            return redirect('/solicitud')
     lotes = get_inventario_galletas()
     solicitudes = get_Solicitud_inventario()
-    return render_template('pages/solicitud_produccion/index.html', form=form, solicitudes = solicitudes, lotes=lotes)
+    solicitudes_pendientes = []
+    for solicitud in solicitudes:
+        if solicitud['estatus'] == 'Pendiente':
+            solicitudes_pendientes.append(solicitud)
+    return render_template('pages/solicitud_produccion/index.html', solicitudes = solicitudes, lotes=lotes, pendientes = solicitudes_pendientes)

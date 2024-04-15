@@ -49,8 +49,8 @@
             {{ camposNuevos(form2.created_at, class="hidden", id="created_at") }}    
             {{ camposNuevos(form2.galleta_id, class="hidden max-h-min") }}
             <span class="text-center text-2xl">Realizar una venta</span>
-                
                 <div>
+                    
                     <div class="">
                         {{camposNuevos(form2.galleta, id="selectG", style='padding: 0.5rem')}}
                     </div>
@@ -65,103 +65,74 @@
                     </div>
                     <div class="flex justify-center space-x-3">
                         <div class=''>
-                            <input type="submit" value="Añadir" id="añadir" name="btn" class="btn btn-primary mt-3">
+                            <input type="submit" value="Añadir" id="añadir" name="btn" class="btn btn-primary mt-3 rounded-md">
                         </div>
                         <div class="">
-                            <input type="submit" value="Ver lista" id="lista" name="btn" class=" btn btn-secondary mt-3">
+                            <input type="submit" value="Ver lista" id="lista" name="btn" class=" btn btn-secondary mt-3 rounded-md">
                         </div>
                     </div>
                 </div>
                 
                 <div class="flex justify-center space-x-3">
                     <div class='w-full'>
-                        <input type="submit" value="Vender" id="vender" name="btn" class="w-full btn btn-primary">
+                        <input type="submit" value="Vender" id="vender" name="btn" class="w-full btn btn-primary rounded-md">
                     </div>
                     <div class="w-full">
-                        <input type="submit" value="Cancelar" name="btn" id="cancelar" class="w-full btn btn-secondary">
+                        <input type="submit" value="Cancelar" name="btn" id="cancelar" class="w-full btn btn-secondary rounded-md">
                     </div>
                 </div>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                <!-- <input type="hidden" id="cantidad_galletas" value="{{ cantidad_galletas }}">      -->
+
+                <dialog id="listaVentas" class="modal">
+                    <div class="modal-box">
+                        <span class="text-2xl">Lista de ventas</span>
+                        <table class="table-fixed">
+                            <thead>
+                                <tr>
+                                    <th>Galleta</th>
+                                    <th>Tipo Venta</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio unitario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venta in lista_ventas %}
+                                <tr>
+                                    <td>{{ venta.galleta_id }}</td>
+                                    <td>{{ venta.tipoVenta }}</td>
+                                    <td>{{ venta.cantidad }}</td>
+                                    <td>{{ venta.precio_unitario }}</td>
+                                    <!-- Boton eliminar para el elemento seleccionado -->
+                                    <td>
+                                        <input type="submit" value="Eliminar" class="btn btn-secondary" name="btn" id="eliminar">
+                                        <input type="hidden" name="eliminar" value="{{ venta.galleta_id }}">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>Total</td>
+                                    <td class="">{{total}}</td>
+                                </tr>
+                                
+                            
+                            </tbody>
+                        </table>
+                        <button type="button" id="closeDialog" class="btn btn-secondary">Cerrar</button>
+                    </div>
+                </dialog>
             </form>
         </div>
+
         {% for message in get_flashed_messages() %}
             <p>{{ message }}</p>
         {% endfor %}
 
-        <dialog id="listaVentas" class="modal">
-            <div class="modal-box">
-                <span class="text-2xl">Lista de ventas</span>
-                <table class="table-fixed">
-                    <thead>
-                        <tr>
-                            <th>Galleta</th>
-                            <th>Tipo Venta</th>
-                            <th>Cantidad</th>
-                            <th>Precio unitario</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for venta in lista_ventas %}
-                        <tr>
-                            <td>{{ venta.galleta_id }}</td>
-                            <td>{{ venta.tipoVenta }}</td>
-                            <td>{{ venta.cantidad }}</td>
-                            <td>{{ venta.precio_unitario }}</td>
-                        </tr>
-                        {% endfor %}
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td>Total</td>
-                            <td class="">{{total}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button type="button" id="closeDialog" class="btn btn-secondary">Cerrar</button>
-            </div>
-        </dialog>
-
-        
-        <!-- <dialog id="redondeoDialog" class="modal">
-            <div class="modal-box">
-                <span class="text-2xl">Redondeo de galletas</span>
-                <p>La cantidad de galletas resultante es decimal. ¿Desea agregar una galleta más?</p>
-                <div class="flex justify-center mt-3">
-                    <button id="agregarGalleta" class="btn btn-primary mr-2">Sí</button>
-                    <button id="mantenerCantidad" class="btn btn-secondary">No</button>
-                </div>
-            </div>
-        </dialog> -->
-
     </section>
 
     <script>
-
-
-        /*añadir.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (cantidad_galletas % 1 !== 0) {
-                let redondeoDialog = document.getElementById('redondeoDialog');
-                redondeoDialog.showModal();
-        
-                // Si el usuario decide agregar una galleta más
-                document.getElementById('agregarGalleta').addEventListener('click', function() {
-                    redondeoDialog.close();
-                    cantidad_galletas += 1;  // Incrementar la cantidad de galletas
-                    document.getElementById('createVenta').submit();
-                });
-        
-                // Si el usuario decide mantener la cantidad actual
-                document.getElementById('mantenerCantidad').addEventListener('click', function() {
-                    redondeoDialog.close();
-                    
-                    document.getElementById('createVenta').submit();
-                });
-            }
-        });*/
-
-
+        console.log(document.getElementById('eliminar'));
 
         let modal = document.getElementById('listaVentas');
         let btn = document.getElementById('lista');
@@ -192,64 +163,54 @@
             
             let precios = {
                 1: {
-                    "1": 52.00, //Aprox 22 galletas
-                    "2": 35.00, //15 galletas
+                    "1": 52.00, 
+                    "2": 35.00, 
                     "3": 2.50,
-                    '4': 2.50
                 },
                 2: {
-                    "1": 70.00, //18 galletas
-                    "2": 45, //12 galletas
+                    "1": 70.00,
+                    "2": 45, 
                     "3": 4.00,
-                    '4': 4.00
                 },
                 3: {
-                    "1": 55.00, //20 galletas
-                    "2": 38.00, //14 galletas
+                    "1": 55.00, 
+                    "2": 38.00, 
                     "3": 3.00,
-                    '4': 3.00
                 },
                 4: {
-                    "1": 52.00, //16 galletas
-                    "2": 34.50, //11 galletas
+                    "1": 52.00, 
+                    "2": 34.50, 
                     "3": 3.50,
-                    '4': 3.50
                 },
                 5: {
-                    "1": 70.00, // 21 galletas
-                    "2": 60.00, // 14 galletas
+                    "1": 70.00, 
+                    "2": 60.00, 
                     "3": 3.50,
-                    '4': 3.50
                 },
                 6: {
-                    "1": 55.00, //19 galletas
-                    "2": 37.00, //13 galletas
+                    "1": 55.00, 
+                    "2": 37.00, 
                     "3": 3.00,
-                    '4': 3.00
                 },
                 7: {
-                    "1": 58.00, //20 galletas
-                    "2": 40.00, //14 galletas
+                    "1": 58.00, 
+                    "2": 40.00, 
                     "3": 3.00,
-                    '4': 3.00
                 },
                 8: {
-                    "1": 55.00, //17 galletas
-                    "2": 38.00, //12 galletas
+                    "1": 55.00, 
+                    "2": 38.00, 
                     "3": 3.50,
-                    '4': 3.50
                 },
                 9: {
-                    "1": 80.00, // 18 galletas
-                    "2": 53.00, // 12 galletas
+                    "1": 80.00, 
+                    "2": 53.00, 
                     "3": 4.50,
-                    '4': 4.50
                 },
                 10: {
-                    "1": 74.00, // 20 galletas
-                    "2": 52.00, // 14 galletas
+                    "1": 74.00, 
+                    "2": 52.00, 
                     "3": 3.80,
-                    '4': 3.80
                 }
             }
 

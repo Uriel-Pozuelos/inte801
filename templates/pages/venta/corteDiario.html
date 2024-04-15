@@ -1,0 +1,26 @@
+{% extends 'layouts/layout_page.html' %}
+{% from 'macros/_macros.html' import camposNuevos %} 
+
+{% block title %} Corte Diario - Cookies and Dreams {% endblock %}
+    
+    {% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center">Corte Diario</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <form action="" method="POST">
+                    <div class="form-group">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" value="{{ fecha }}">
+
+                        <input type="submit" name="btn" id="filtrar" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

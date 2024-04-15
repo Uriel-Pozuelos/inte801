@@ -2,7 +2,6 @@
 import Button %} {% from 'macros/_macros.html' import camposNuevos %}
 {% block title %} Login - Cookies and Dreams{% endblock %} {% block
 content %}
-
 <style>
 	.flash-messages {
 		position: fixed;
@@ -37,7 +36,36 @@ content %}
 		<div class="alert alert-{{ category }}">{{ message }}</div>
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
+
+
 	<form method="POST" novalidate>
+		<dialog class="modal" id="modal">
+			<div class="modal-box">
+				<div class="modal-header flex justify-around items-center w-full">
+					<h3>Olvide mi contraseña</h3>
+					<button class="btn btn-error" id="close" type="button">×</button>
+				</div>
+				<div class="modal-body">
+					<p>Ingresa tu correo para recuperar tu contraseña</p>
+					<label>
+						Correo
+						<input
+							type="email"
+							name="forgot"
+							class="input input-bordered"
+							placeholder="Correo"
+						/>
+						<input type="submit"
+						name="forgot"
+						class="btn btn-secondary"
+						value="Recuperar contraseña"
+						>
+					</label>
+				</div>
+		</dialog>
+
+		
+
 		<div class="card w-96 bg-primary text-primary_hover">
 			<div class="card-body">
 				<h2 class="card-title">Inicia sesión</h2>
@@ -49,18 +77,21 @@ content %}
 					value="{{ csrf_token() }}"
 				/>
 				<div class="card-actions justify-center">
-					<a
-						href="{{ url_for('login.reset_password') }}"
+					<button
+						id="forgot"
+						type="button"
 						class="btn btn-accent"
-						>Olvide mi contraseña</a
+						>Olvide mi contraseña</button
 					>
-
-					<input
-						type="submit"
-						class="btn btn-secondary"
-						value="Iniciar sesión"
-						name="login"
-					/>
+					<script>
+						document
+						document
+							.getElementById('forgot')
+							.addEventListener('click', () => {
+								document.getElementById('modal').showModal();
+							});
+					</script>
+					<button class="btn btn-secondary">Iniciar sesión</button>
 				</div>
 			</div>
 		</div>

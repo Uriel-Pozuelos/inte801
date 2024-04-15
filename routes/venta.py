@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, g
 from forms.VentaForm import VentaForm
 from models.venta import Venta
 from models.usuario import Usuario
-# from models.Galletas import Galletas
+from models.Recetas import Galletas
 from forms.DetalleVentaForm import DetalleVentaForm
 from models.detalleVenta import DetalleVenta
 from models.Inventario_galletas import Inventario_galletas
@@ -19,7 +19,7 @@ ventas = Blueprint("ventas", __name__, template_folder="templates")
 @token_required
 @allowed_roles(roles=["admin", "ventas"])
 def index():
-    
+    galletas = Galletas.query.all()
     try:
         token = decodeToken(request.cookies.get("token"))
     except:
@@ -28,14 +28,11 @@ def index():
     if not token:
         return redirect("/login")
     
-
-    
     email = token["email"]
     
     idUsuario = Usuario.query.filter_by(email=email).first().id 
     form = VentaForm()
     form.idUsuario.data = str(idUsuario)
-    print(idUsuario)
 
     total = 0
     if request.method == "POST":
@@ -62,17 +59,27 @@ def index():
         #         total += detalle.cantidad * detalle.precio_unitario
         #     ventas = Venta.query.all()
 
-        return render_template("pages/venta/ventas.html", form=form)
+        if request.form['btn'] == 'Filtrar':
+            form.fecha.data = request.form['fecha']
+            print(form.fecha.data)
+            ventas = Venta.query.filter_by(fecha_venta=form.fecha.data).all()
+            for venta in ventas:
+                total += venta.total
+            print(ventas)
+            print(ventas[0].total)
+
+
+        return render_template("pages/venta/ventas.html", form=form, total=total )
 
     ventas = Venta.query.all()
-    detalle_venta = DetalleVenta.query.all()
-    for detalle in detalle_venta:
-        total += detalle.cantidad * detalle.precio_unitario
+    print(ventas)
+    for venta in ventas:
+        total += venta.total
     
-    return render_template("pages/venta/ventas.html", form=form, ventas=ventas, total=total, detalle_venta=detalle_venta)
+    return render_template("pages/venta/ventas.html", form=form, ventas=ventas, total=total, galleta=galletas)
 
 lista_ventas = []
-@ventas.route("/venta", methods=["GET", "POST", "DELETE"])
+@ventas.route("/venta", methods=["GET", "POST"])
 @token_required
 @allowed_roles(roles=["admin", "ventas"])
 def detalle_venta():
@@ -124,6 +131,8 @@ def detalle_venta():
         10: 'Galleta de Avena y Miel'
     }
 
+    
+
     form2 = DetalleVentaForm()
 
     if request.method == "POST":
@@ -136,15 +145,17 @@ def detalle_venta():
         if request.form['btn'] == 'Añadir':
             cantidad_requerida = int(form2.cantidad.data)
             galleta_id = int(form2.galleta_id.data)
-
-            if form2.tipoVenta.data in [1, 2]:  # Tipo de venta 1 o 2 (paquete 1kg o 700g)
+            
+            if form2.tipoVenta.data == "1" or  form2.tipoVenta.data == "2":  # Tipo de venta 1 o 2 (paquete 1kg o 700g)
+                
                 if form2.tipoVenta.data == 2:
                     cantidad_galletas = ((cantidad_requerida * 700) / gramaje[galleta_id]) 
                 else:
                     cantidad_galletas = ((cantidad_requerida * 1000) / gramaje[galleta_id])
                 
                 if cantidad_galletas % 1 != 0:  
-                    cantidad_galletas = int(cantidad_galletas)  
+                    cantidad_galletas = int(cantidad_galletas)
+                    print(cantidad_galletas)  
 
                 if cantidad_galletas > inventario_galletas:
                     flash("No hay suficiente stock disponible", "danger")
@@ -168,7 +179,10 @@ def detalle_venta():
                     }
                     lista_ventas.append(venta_nueva)
                     flash("Producto añadido correctamente", "success")
-            else:  
+                print(lista_ventas)
+                
+            else:
+                cantidad_galletas = cantidad_requerida  
                 
                 if cantidad_requerida > inventario_galletas:
                     flash("No hay suficiente stock disponible", "danger")
@@ -189,11 +203,27 @@ def detalle_venta():
                         'cantidad': cantidad_requerida,
                         'precio_unitario': form2.precio_unitario.data,
                         'tipoVenta': form2.tipoVenta.data,
+                        'cantidad_galletas': cantidad_galletas,
                     }
                     lista_ventas.append(venta_nueva)
 
             total = sum(venta['cantidad'] * venta['precio_unitario'] for venta in lista_ventas)
             form.total.data = total
+            print(lista_ventas)    
+
+        if 'btn' in request.form and request.form['btn'].startswith("Eliminar"):
+            # Obtener el ID de la galleta desde el nombre del botón
+            galleta_id = int(request.form['eliminar'])
+            print(galleta_id)
+
+            # Eliminar la venta correspondiente de la lista
+            for venta in lista_ventas:
+                if venta['galleta_id'] == galleta_id:
+                    lista_ventas.remove(venta)
+                    flash("Venta eliminada correctamente", "success")
+                    break
+            log.info(f"Lista de ventas: {lista_ventas}")
+            
 
         if request.form['btn'] == "Vender":
 
@@ -224,7 +254,7 @@ def detalle_venta():
                 print(detalle_venta.cantidad)
                 print(total)
                 db.session.query(Venta).filter_by(id=venta_id).update({'total': total})
-
+                
                 db.session.commit()
                 lista_ventas.clear()
 
@@ -241,7 +271,7 @@ def detalle_venta():
     
     return render_template("pages/venta/index.html", form=form, form2=form2, lista_ventas=lista_ventas, total=total)
 
-@ventas.route("/createPdf", methods=["GET", "POST","DELETE"])
+@ventas.route("/createPdf", methods=["GET", "POST"])
 @token_required
 @allowed_roles(roles=["admin", "ventas"])
 def create_pdf():
@@ -307,7 +337,7 @@ def create_pdf():
         }
         detalles_venta.append(detalle_modificado)
     
-        subtotal_detalle = float(detalle['cantidad']) * float(detalle['precio_unitario'])  # Asegurar que la cantidad y el precio sean flotantes para la multiplicación
+        subtotal_detalle = float(detalle['cantidad']) * float(detalle['precio_unitario'])  
         total_venta += subtotal_detalle
 
     usuario = Usuario.query.filter_by(id=venta.idUsuario).first()
@@ -315,4 +345,23 @@ def create_pdf():
     # Renderizar el template y pasar los datos al contexto
     return render_template("pages/venta/createPdf.html", venta=venta, detalles_venta=detalles_venta, usuario=usuario, total_venta=total_venta)
 
+@ventas.route('/corte_diario', methods=['GET'])
+@token_required
+@allowed_roles(roles=['admin','ventas'])
+def corte_diario_index():
+    try:
+        token = decodeToken(request.cookies.get("token"))
+    except:
+        token = None
 
+    if not token:
+        return redirect('/login')
+    
+    email = token["email"]
+    
+    ventas = Venta.query.filter_by(usuario_id=Usuario.query.filter_by(email=email).first().id).all()
+    
+    total = 0
+    for venta in ventas:
+        total += venta.total
+    return render_template("pages/venta/corteDiario.html", ventas=ventas, total=total)

@@ -1,6 +1,6 @@
 
 from flask import Flask, render_template, request,g,redirect,url_for
-
+from routes.dashboard import dashboard
 from routes.login import login
 from dotenv import load_dotenv
 from config import DevConfig
@@ -19,10 +19,11 @@ from lib.jwt import token_required, allowed_roles
 from routes.inventario_mp import inventario_mp
 from routes.inventario_galletas import inventario_galletas
 from lib.jwt import get_role
+from models.usuario import Usuario
 from db import seeder
 import json
 from db.db import db,create_db
-from lib.jwt import token_required,allowed_roles
+from lib.jwt import token_required,allowed_roles,decodeToken,get_email
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -46,12 +47,16 @@ app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
 app.register_blueprint(inventario_galletas)
 app.register_blueprint(insumos)
+app.register_blueprint(dashboard)
 
 
 @app.before_request
 def before_request():
     rol = get_role()
     g.rol = rol if rol else 'invitado'
+    email = get_email()
+    if email:
+        g.nombre = Usuario.query.filter_by(email=get_email()).first().nombre
     
 
     allowed_routes = [
@@ -65,12 +70,12 @@ def before_request():
             },
                 {
                 'ruta': 'inventario_mp.index',
-                'name': 'inventario P',
+                'name': 'Inventarios',
                 'icon': None
             },
-                {
-                'ruta': 'inventario_mp.index',
-                'name': 'Inventario MP',
+            {
+                'ruta': 'dashboard.index',
+                'name': 'Dashboard',
                 'icon': None
             }
             ]
@@ -100,11 +105,6 @@ def before_request():
                 {
                 'ruta': 'recetas.index',
                 'name': 'Recetas',
-                'icon': None
-                },
-                {
-                'ruta': 'inventario_mp.index',
-                'name': 'Inventario MP',
                 'icon': None
                 },
                 {
@@ -184,9 +184,12 @@ def a():
     print(usuarios)
     return 'ok'
 
+# manerjar rutas que no existen
 @app.errorhandler(404)
 def page_not_found(e):
-    redirect('/404')
+    if g.rol == 'invitado':
+        return redirect('/')
+    return render_template('pages/404/404log.html'), 404
 
 def task():
     print("Hola mundo")
@@ -204,4 +207,4 @@ if __name__ == "__main__":
         print("Creando usuarios...")
         seeder.seed_users()
         print("Se crearon correctamente los usuarios...")
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

@@ -1,6 +1,12 @@
 {% macro addMerma(for="", name="", id="", type="") %}
 <div class="form-group mt-3">
-    <label for="{{for}}">{{for}}</label>
-    <input type="{{type}}" class="form-control" name="{{name}}" id="{{id}}" required>
+	<label for="{{for}}">{{for}}</label>
+	<input
+		type="{{type}}"
+		class="form-control"
+		name="{{name}}"
+		id="{{id}}"
+		required
+	/>
 </div>
 {% endmacro %}
