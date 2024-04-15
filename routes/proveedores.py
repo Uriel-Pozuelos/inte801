@@ -12,7 +12,7 @@ from models.proveedor import Proveedor
 from models.usuario import Usuario
 from models.Recetas import MateriaPrima
 from models.materia_prima_proveedor import MateriaPrimaProveedor
-from forms.ProveedorForm import ProveedorForm
+from forms.ProveedorForm import ProveedorForm, ProveedorEditForm, ProveedorDelForm
 from datetime import datetime
 from db.db import db
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
@@ -28,7 +28,9 @@ def index():
     token = decodeToken(active_token)
     email = token["email"]
 
-    form = ProveedorForm()
+    form = ProveedorForm(request.form)
+    formEP = ProveedorEditForm(request.form)
+    formDP = ProveedorDelForm(request.form)
     proveedores = Proveedor.query.filter_by(estatus=1).all()
     provs = []
 
@@ -52,6 +54,8 @@ def index():
         "pages/provider/index.html",
         proveedores=provs,
         form=form,
+        formEP=formEP,
+        formDP=formDP,
     )
 
 
@@ -60,13 +64,11 @@ def index():
 @allowed_roles(roles=["admin", "compras"])
 def new_provider():
     try:
-        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         form = ProveedorForm(request.form)
-
+        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         active_token = request.cookies.get("token")
         token = decodeToken(active_token)
         email = token["email"]
-
         current_user = Usuario.query.filter_by(email=email).first()
 
         proveedor = Proveedor(
@@ -92,7 +94,7 @@ def new_provider():
         return redirect("/proveedores")
 
 
-@proveedores.route("/edit_provider", methods=["GET", "POST"])
+@proveedores.route("/edit_provider", methods=["POST"])
 @token_required
 @allowed_roles(roles=["admin", "compras"])
 def ed_provider():
@@ -103,21 +105,27 @@ def ed_provider():
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     current_user = Usuario.query.filter_by(email=email).first()
 
+    formEP = ProveedorEditForm(request.form)
+    empresa = formEP.nombre_empresa_edit.data
+    direccion = formEP.direccion_empresa_edit.data
+    tel = formEP.telefono_empresa_edit.data
+    encargado = formEP.nombre_encargado_edit.data
+
     try:
-        if request.method == "POST":
-            id = request.form.get("id")
-            proveedor = Proveedor.query.get(id)
-            proveedor.nombre_empresa = request.form.get("nombre_empresa_edit")
-            proveedor.direccion_empresa = request.form.get("direccion_empresa_edit")
-            proveedor.telefono_empresa = request.form.get("telefono_empresa_edit")
-            proveedor.nombre_encargado = request.form.get("nombre_encargado_edit")
-            proveedor.updated_at = fecha
-            proveedor.id_usuario = current_user.id
+        id = request.form.get("id")
+        proveedor = Proveedor.query.get(id)
 
-            db.session.commit()
+        proveedor.nombre_empresa = empresa if empresa is not None else proveedor.nombre_empresa
+        proveedor.direccion_empresa = direccion if direccion is not None else proveedor.direccion_empresa
+        proveedor.telefono_empresa = tel if tel is not None and len(
+            tel) == 10 else proveedor.telefono_empresa
+        proveedor.nombre_encargado = encargado if encargado is not None else proveedor.nombre_encargado
+        proveedor.id_usuario = current_user.id
 
-            flash("Proveedor actualizado correctamente", "success")
-            return redirect("/proveedores")
+        db.session.commit()
+
+        flash("Proveedor actualizado correctamente", "success")
+        return redirect("/proveedores")
     except Exception as e:
         db.session.rollback()
         flash("Ocurrio un error al actualizar los datos", "error")
@@ -133,20 +141,21 @@ def del_provider():
     email = token["email"]
 
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    form = ProveedorForm(request.form)
     current_user = Usuario.query.filter_by(email=email).first()
+    formDP = ProveedorDelForm(request.form)
+
     try:
-        if request.method == "POST":
-            id = request.form.get("id_del")
-            proveedor = Proveedor.query.get(id)
-            proveedor.estatus = 0
-            proveedor.deleted_at = fecha
-            proveedor.id_usuario = current_user.id
+        id = request.form.get("id_del")
+        proveedor = Proveedor.query.get(id)
 
-            db.session.commit()
+        proveedor.estatus = 0
+        proveedor.deleted_at = fecha
+        proveedor.id_usuario = current_user.id
 
-            flash("Proveedor eliminado correctamente", "success")
-            return redirect("/proveedores")
+        db.session.commit()
+
+        flash("Proveedor eliminado correctamente", "success")
+        return redirect("/proveedores")
     except Exception as e:
         db.session.rollback()
         flash("Ocurrio un error al eliminar el proveedor", "error")

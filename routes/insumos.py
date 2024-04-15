@@ -8,11 +8,13 @@ from flask import (
     jsonify,
     g,
 )
-from forms.ProveedorForm import ProveedorForm, ProveedorEditForm
-from forms.InsumoForm import InsumoForm, InsumoEditForm
+from forms.ProveedorForm import (
+    ProveedorForm, ProveedorEditForm, ProveedorDelForm)
+from forms.InsumoForm import (InsumoForm, InsumoEditForm, InsumoDelForm)
 from forms.MateriaPrimaProveedorForm import (
     MateriaPrimaProveedorForm,
     MateriaPrimaProveedorEditForm,
+    MateriaPrimaProveedorDelForm
 )
 from models.proveedor import Proveedor
 from models.usuario import Usuario
@@ -34,10 +36,13 @@ def index():
     proveedores = Proveedor.query.all()
 
     form = InsumoForm(request.form)
-    formMPP = MateriaPrimaProveedorForm(request.form)
-    formMPP.proveedor_id.choices = [(p.id, p.nombre_empresa) for p in proveedores]
     formEditInsumo = InsumoEditForm(request.form)
+    formDelInsumo = InsumoDelForm(request.form)
+    formMPP = MateriaPrimaProveedorForm(request.form)
+    formMPP.proveedor_id.choices = [
+        (p.id, p.nombre_empresa) for p in proveedores]
     formEditMPP = MateriaPrimaProveedorEditForm(request.form)
+    formDMPP = MateriaPrimaProveedorDelForm(request.form)
 
     all_insumos = []
     prov = []
@@ -73,14 +78,16 @@ def index():
         "pages/insumos/index.html",
         insumos=all_insumos,
         form=form,
-        formMPP=formMPP,
         formEditInsumo=formEditInsumo,
+        formDelInsumo=formDelInsumo,
+        formMPP=formMPP,
         formEditMPP=formEditMPP,
+        formDMPP=formDMPP,
         prov=prov,
     )
 
 
-@insumos.route("/addinsumo", methods=["POST", "GET"])
+@insumos.route("/addinsumo", methods=["POST"])
 @token_required
 @allowed_roles(roles=["admin"])
 def new_insumo():
@@ -88,40 +95,39 @@ def new_insumo():
         form = InsumoForm(request.form)
         formMPP = MateriaPrimaProveedorForm(request.form)
 
-        if request.method == "POST" and form.validate():
-            insumo = MateriaPrima(
-                material=form.material.data,
-                tipo=form.tipo.data,
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-            )
+        insumo = MateriaPrima(
+            material=form.material.data,
+            tipo=form.tipo.data,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
 
-            db.session.add(insumo)
-            db.session.commit()
+        db.session.add(insumo)
+        db.session.commit()
 
-            precio = formMPP.precio.data
-            precio = float(precio)
+        precio = formMPP.precio.data
+        precio = float(precio)
 
-            cantidad = formMPP.cantidad.data
-            cantidad = int(cantidad)
+        cantidad = formMPP.cantidad.data
+        cantidad = int(cantidad)
 
-            presentation = formMPP.tipo.data
-            presentation.lower()
+        presentation = formMPP.tipo.data
+        presentation.lower()
 
-            mpp = MateriaPrimaProveedor(
-                materiaprima_id=insumo.id,
-                proveedor_id=formMPP.proveedor_id.data,
-                precio=precio,
-                cantidad=cantidad,
-                tipo=presentation.replace(" ", "_"),
-                created_at=datetime.now(),
-            )
+        mpp = MateriaPrimaProveedor(
+            materiaprima_id=insumo.id,
+            proveedor_id=formMPP.proveedor_id.data,
+            precio=precio,
+            cantidad=cantidad,
+            tipo=presentation.replace(" ", "_"),
+            created_at=datetime.now(),
+        )
 
-            db.session.add(mpp)
-            db.session.commit()
+        db.session.add(mpp)
+        db.session.commit()
 
-            flash("Insumo agregado correctamente", "success")
-            return redirect("/insumos")
+        flash("Insumo agregado correctamente", "success")
+        return redirect("/insumos")
         return redirect("/insumos")
     except Exception as e:
         print(e)
@@ -141,7 +147,8 @@ def ed_insumo():
         presentacion = request.form.get("presentacion")
         precio = request.form.get("precio")
         cantidad = request.form.get("cantidad")
-        mpp = MateriaPrimaProveedor.query.filter_by(materiaprima_id=mat.id).first()
+        mpp = MateriaPrimaProveedor.query.filter_by(
+            materiaprima_id=mat.id).first()
 
         mat.material = material if material is not None else mat.material
         mat.tipo = medida if medida is not None else mat.tipo

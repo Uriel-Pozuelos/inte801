@@ -16,7 +16,7 @@ class InsumoForm(Form):
 
     material = StringField(
         "Materia prima",
-        validators=[DataRequired(message="Campo requerido"), Length(max=50), Regexp('^[a-zA-Z ]*$', message='Ingrese solo letras y espacios')],
+        validators=[DataRequired(message="Campo requerido"), Length(max=50)],
         render_kw={
             "class": "input input-bordered input-primary w-full max-w-xs text-black"
         },
@@ -54,9 +54,24 @@ class InsumoForm(Form):
 class InsumoEditForm(Form):
     id = IntegerField("id")
 
-    material = StringField("material")
+    material_edit = StringField("Materia prima")
 
-    tipo = StringField("tipo")
+    tipo_edit = StringField("Unidad de medida")
+
+    estatus = BooleanField("Estatus")
+
+    created_at = DateTimeField("created_at")
+
+    updated_at = DateTimeField("updated_at")
+
+    deleted_at = DateTimeField("deleted_at")
+
+class InsumoDelForm(Form):
+    id = IntegerField("id")
+
+    material_del = StringField("Materia prima")
+
+    tipo_del = StringField("Unidad de medida")
 
     estatus = BooleanField("Estatus")
 
