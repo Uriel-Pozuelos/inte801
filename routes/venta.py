@@ -16,8 +16,7 @@ log = D(debug=True)
 ventas = Blueprint("ventas", __name__, template_folder="templates")
 
 @ventas.route("/ventas", methods=["GET", "POST"])
-@token_required
-@allowed_roles(roles=["admin", "ventas"])
+
 def index():
     galletas = Galletas.query.all()
     try:
@@ -84,8 +83,7 @@ def index():
 
 lista_ventas = []
 @ventas.route("/venta", methods=["GET", "POST"])
-@token_required
-@allowed_roles(roles=["admin", "ventas"])
+
 def detalle_venta():
 
     global lista_ventas
@@ -132,6 +130,8 @@ def detalle_venta():
     for galleta in Galletas.query.all():
         galletas[galleta.id] = galleta.nombre
 
+    print(galletas)
+
     
     form2 = DetalleVentaForm()
 
@@ -147,29 +147,30 @@ def detalle_venta():
                 try:
                     cantidad_requerida = int(form2.cantidad.data)
                     galleta_id = int(form2.galleta_id.data)
+                    print(tipo_venta)
                     
                     if form2.tipoVenta.data == "1" or  form2.tipoVenta.data == "2":  # Tipo de venta 1 o 2 (paquete 1kg o 700g)
                         
-                        if form2.tipoVenta.data == 2:
+                        if form2.tipoVenta.data == 2: #Obtener la cantidad de galletas en base al gramaje
                             cantidad_galletas = ((cantidad_requerida * 700) / gramaje[galleta_id]) 
                         else:
                             cantidad_galletas = ((cantidad_requerida * 1000) / gramaje[galleta_id])
                         
-                        if cantidad_galletas % 1 != 0:  
+                        if cantidad_galletas % 1 != 0:  #redondear la cantidad de galletas a un entero
                             cantidad_galletas = int(cantidad_galletas)
                             print(cantidad_galletas)  
 
-                        if cantidad_galletas > inventario_galletas:
+                        if cantidad_galletas > inventario_galletas: #Validar si hay suficiente stock
                             flash("No hay suficiente stock disponible", "danger")
                             return redirect("/venta")
                         
-                        for venta in lista_ventas:
-                            if venta['galleta_id'] == galleta_id:
-                                if (venta['cantidad'] + cantidad_requerida) > inventario_galletas:
+                        for venta in lista_ventas: #Validar si ya se ha añadido el producto a la lista
+                            if venta['galleta_id'] == galleta_id: 
+                                if (venta['cantidad'] + cantidad_requerida) > inventario_galletas: #Validar si hay suficiente stock
                                     flash("No se puede agregar más de este producto, no hay suficiente stock disponible", "danger")
                                     return redirect("/venta")
-                                else:
-                                    venta['cantidad'] += cantidad_requerida
+                                else: #Si ya se ha añadido el producto, se hace otra venta diferente con la misma galleta
+                                    
                                     break
                         else:  
                             venta_nueva = {
@@ -288,6 +289,7 @@ def detalle_venta():
                     flash(f"Error al procesar la Cancelacion {e}", "error")
                     return redirect("/venta")
             
+            print(galletas)
             return render_template("pages/venta/index.html", form=form, form2=form2, lista_ventas=lista_ventas, total=total, inventario_galletas=inventario_galletas, galletas=galletas)
 
         except KeyError as e:
@@ -301,8 +303,7 @@ def detalle_venta():
     return render_template("pages/venta/index.html", form=form, form2=form2, lista_ventas=lista_ventas, total=total, galletas=galletas)
 
 @ventas.route("/createPdf", methods=["GET", "POST"])
-@token_required
-@allowed_roles(roles=["admin", "ventas"])
+
 def create_pdf():
     try:
         #si no hay el cookie venta_id redirigir a ventas
@@ -379,8 +380,7 @@ def create_pdf():
         return redirect("/venta")
     
 @ventas.route('/corte_diario', methods=['GET'])
-@token_required
-@allowed_roles(roles=['admin','ventas'])
+
 def corte_diario_index():
     try:
         token = decodeToken(request.cookies.get("token"))

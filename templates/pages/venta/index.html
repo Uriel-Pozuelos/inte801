@@ -54,8 +54,8 @@
                     <div class="">
                         <label for="selectG" class="label">Galleta</label>
                         <select name="galleta_id" id="selectG" class="w-full p-2 rounded-md border border-gray-800">
-                            {% for galleta in galletas %}
-                                <option value="{{ galleta.id }}">{{ galleta.nombre }}</option>
+                            {% for key, value in galletas.items() %}
+                                <option value="{{ key }}">{{ value }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -160,11 +160,13 @@
             document.getElementById("galleta_id").value = document.getElementById("selectG").value;
             document.getElementById("created_at").value = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-            let selectG = document.getElementById("selectG");
+            let selectG = document.getElementById("selectG").value;
+            console.log(selectG)
             let precioUnitario = document.getElementById("precio_unitario");
             let galletaId = selectG.value;
             let tipoVenta = document.querySelector("input[name='tipoVenta']:checked").value; 
             
+
             let precios = {
                 1: {
                     "1": 52.00, 
