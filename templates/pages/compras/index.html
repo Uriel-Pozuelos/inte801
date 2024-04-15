@@ -85,13 +85,9 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                                     Ver Detalles
                                 </button>
                             </td>
+
                         </tr>
                         {% endfor %}
-                        {% else %}
-                        <tr>
-                            <td colspan="8" class="text-center">No hay
-                                compras</td>
-                        </tr>
                         {% endif %}
                     </tbody>
                 </table>
@@ -102,7 +98,8 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
     <!-- Dialog Add Purchase -->
     <form action="{{url_for('compras.purchase')}}" novalidate method="POST">
         <div class="card">
-            <dialog id="addPurchase" class="dialog p-6 bg-white shadow-lg rounded-md">
+            <dialog id="addPurchase"
+                class="dialog p-6 bg-white shadow-lg rounded-md">
                 <div class="dialog-title">
                     <h3 class="text-lg font-semibold">Agregar Compra</h3>
                 </div>
@@ -110,8 +107,11 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                     <input type="text" hidden name="csrf_token"
                         value="{{ csrf_token() }}" />
                     <div class="mt-3">
-                        <label for="provider" class="text-gray-700">Proveedor</label>
-                        <select class="select select-bordered min-w-full max-w-xs" name="slcProvider"
+                        <label for="provider"
+                            class="text-gray-700">Proveedor</label>
+                        <select
+                            class="select select-bordered min-w-full max-w-xs"
+                            name="slcProvider"
                             id="slcProvider">
                             <option value selected disabled>Seleccione un
                                 proveedor</option>
@@ -151,6 +151,9 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
 
 <!-- JavaScript Dialogs -->
 <script>
+    var options = {{ options | tojson }};
+</script>
+<script>
     const flashMessage = document.querySelector(".flash-messages");
     if (flashMessage) {
         setTimeout(() => {
@@ -181,29 +184,24 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
 
     slcProvider.addEventListener("change", function () {
         const selectedProveedorId = this.value;
+        var option = "<option value='' disabled selected>Seleccionar</option>";
+        
         rowMatPrim.innerHTML = ""; 
 
-        fetch('/compras/materia_prima', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': "{{ csrf_token() }}"
-            },
-            body: JSON.stringify({ proveedor_id: selectedProveedorId })
-        }).
-        then(response => response.json()).
-        then(data => {
-            var optionsHtml = "<option value='' disabled selected>Seleccionar</option>";
-            
-            data.forEach((materia_prima) => {
-                optionsHtml += `<option class="text-black" value="${materia_prima.id} - ${materia_prima.presentacion}">${materia_prima.material} - ${materia_prima.presentacion}</option>`;
-            });
+        options.forEach((option) => {
+            if (option.id_proveedor == selectedProveedorId) {
+                option.mats.forEach((materiaPrima) => {
+                    console.log(materiaPrima);
+                    option += `<option class="text-black" value="${materiaPrima.id}-${materiaPrima.presentacion}">${materiaPrima.material} - ${materiaPrima.presentacion}</option>`;
+                });
+            }
+        });
 
-            const newRow = `
+        const newRow = `
             <div class="form-group mt-3">
                 <label for="materia_prima">Materia Prima</label>
                 <select class="form-control" name="slcMateriaPrima[]" id="slcMateriaPrima">
-                    ${optionsHtml}
+                    ${option}
                 </select>
             </div>
             <div class="form-group mt-3">
@@ -217,54 +215,16 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
             <div class="form-group mt-3">
                 <label for="fecha">Fecha caducidad</label>
                 <input type="date" class="form-control" name="txtCaducidad[]">
-            </div>
-            `;
-            rowMatPrim.innerHTML = newRow;
-            });
+            </div>`;
 
+        rowMatPrim.innerHTML = newRow;
         btnsRows.removeAttribute("hidden");
     });
 
     btnAddRow.addEventListener("click", function(){
         const slcProvider = document.getElementById("slcProvider");
 
-        fetch('/compras/materia_prima', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': "{{ csrf_token() }}"
-            },
-            body: JSON.stringify({ proveedor_id: slcProvider.value })
-        }).then(response => response.json()).
-        then(data => {
-            var optionsHtml = "<option value='' disabled selected>Seleccionar</option>";
-            
-            data.forEach((materia_prima) => {
-                optionsHtml += `<option class="text-black" value="${materia_prima.id}">${materia_prima.material} - ${materia_prima.presentacion}</option>`;
-            });
-
-            const newRow = `
-            <div class="form-group mt-3">
-                <label for="materia_prima">Materia Prima</label>
-                <select class="form-control" name="slcMateriaPrima[]" id="slcMateriaPrima">
-                    ${optionsHtml}
-                </select>
-            </div>
-            <div class="form-group mt-3">
-                <label for="cantidad">Cantidad</label>
-                <input type="number" class="form-control" name="txtCantidad[]">
-            </div>
-            <div class="form-group mt-3">
-                <label for="precio">Precio</label>
-                <input type="number" class="form-control" readonly name="txtPrecio[]">
-            </div>
-            <div class="form-group mt-3">
-                <label for="fecha">Fecha caducidad</label>
-                <input type="date" class="form-control" name="txtCaducidad[]">
-            </div>
-            `;
-            rowMatPrim.innerHTML += newRow;
-        });
+        
     });
 
     btnRemoveRow.addEventListener("click", function(){

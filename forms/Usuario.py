@@ -13,7 +13,7 @@ def validar_contra_archivo(form, field):
 
 
 class UsuarioForm(Form):
-  id = HiddenField('Id', validators=[
+  id = HiddenField('id', validators=[
     Optional(),
   ], render_kw={"class": "hidden"})
 
