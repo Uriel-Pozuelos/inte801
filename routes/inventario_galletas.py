@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for
+from flask import Blueprint, request, render_template, redirect, url_for, flash
 from models.Recetas import Galletas, MateriaPrima
 from models.Inventario_galletas import Inventario_galletas
 from models.merma_galletas import Merma_galletas
@@ -29,6 +29,7 @@ def get_inventario_galletas():
 def index():
     inventario = get_inventario_galletas()
     all_merma = Merma_galletas.query.all()
+    
     ids_merma = []
     if all_merma:
         for merma in all_merma:
@@ -38,7 +39,7 @@ def index():
     for lote in inventario:
         fecha_caducidad = lote['fechaCaducidad'].date()
         fecha_actual = date.today()
-        if lote['estatus'] == 1 and fecha_caducidad > fecha_actual:
+        if lote['estatus'] == 1:
             inventario_filter.append(lote)
         elif all_merma:
              if lote['idLoteGalletas'] in ids_merma:
@@ -67,6 +68,12 @@ def index():
             db.session.commit()
             lote.cantidad = 0
             db.session.commit()
+            flash('Se agregó de forma correcta')
+            return(redirect('/inventario_galletas'))
 
+    for lote in all_merma:
+        inv_mermado = Inventario_galletas.query.get(lote.idInventarioGalletas)
+        galleta = Galletas.query.get(inv_mermado.idGalleta)
+        lote.nombreGalleta = galleta.nombre
 
-    return render_template('pages/inventario_galletas/index.html', inventario = inventario_filter, caducado = lote_caducado)
+    return render_template('pages/inventario_galletas/index.html', inventario = inventario_filter, caducado = lote_caducado, mermas = all_merma)
