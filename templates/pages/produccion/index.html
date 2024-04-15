@@ -54,7 +54,7 @@
           <th class="text-black text-lg text-center p-5">Cantidad</th>
           <th class="text-black text-lg text-center p-5">Producción Actual</th>
           <th class="text-black text-lg text-center p-5">Estatus</th>
-          <th class="text-black text-lg text-center p-5">Agregar</th> <!-- Nueva columna Agregar -->
+          <th class="text-black text-lg text-center p-5">Acción</th> <!-- Nueva columna Agregar -->
         </tr>
       </thead>
       <tbody>
@@ -76,7 +76,7 @@
             {% endif %}
           </td>
           <td class="text-md text-center p-3">
-            <button type="button" class="btn btn-primary agregar-btn" data-id="{{ prod.idProduccion }}">Agregar</button> <!-- Botón Agregar -->
+            <button type="button" class="btn btn-primary agregar-btn" data-id="{{ prod.idProduccion }}">Editar</button> <!-- Botón Agregar -->
           </td>
         </tr>
         {% endif %}
@@ -108,20 +108,21 @@
           </div>
           <div class="w-full">
             <h5 for="merma" class="font-bold text-lg mb-2 text-center">Merma</h5>
-            <select class="form-select w-full" id="ingrediente" aria-label="Seleccione el ingrediente">
+            <select class="form-select w-full" id="ingrediente" aria-label="Seleccione el ingrediente" name="ingrediente">
               <option value="" disabled selected>Selecciona el ingrediente</option>
-              {% for item in inventario %}
-              <option value="{{ item.id }}">{{ item.nombreMateria }}</option>
+              {% for item in materia %}
+              <option value="{{ item.id }}" data-unidad="{{ item.tipo }}">{{ item.material }}</option>
               {% endfor %}
             </select>
             
-            <input type="text" class="form-input mt-3 w-full" id="cantidadIngrediente" placeholder="Unidad de medida" readonly>
+            <input type="text" class="form-input mt-3 w-full" id="unidadMedida" placeholder="Unidad de medida" readonly name="unidadMedida">
             <div class="flex items-center w-full gap-2 mt-3">
-              <input type="number" class="form-input w-full" id="cantidadIngrediente" placeholder="Cantidad">
+              <input type="number" class="form-input w-full" id="cantidadIngrediente" placeholder="Cantidad" name="cantidadIngrediente">
               <button type="submit" class="btn btn-primary" name="add_merma">Agregar</button>
             </div>
             <div class="flex justify-center mt-5">
               <button type="button" class="btn btn-secondary" id="cancelarBtn">Cancelar</button>
+              <button type="sutbmit" class="btn bg-red-500 ml-5" id="finalizarBtn" name="finalizar">Finalizar Solicitud</button>  
             </div>
           </div>
         </form>
@@ -156,6 +157,13 @@
 // Manejador para el botón cancelar
 document.getElementById('cancelarBtn').addEventListener('click', function() {
     document.getElementById('formularioContainer').classList.add('hidden'); // Oculta el formulario
+});
+
+// Nuevo manejador para seleccionar ingrediente y actualizar unidad
+document.getElementById('ingrediente').addEventListener('change', function() {
+  var selectedOption = this.options[this.selectedIndex];
+  var unidad = selectedOption.getAttribute('data-unidad');
+  document.getElementById('unidadMedida').value = unidad;
 });
 
 </script>

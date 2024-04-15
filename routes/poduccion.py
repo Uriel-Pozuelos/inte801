@@ -4,11 +4,13 @@ from models.Recetas import Galletas, MateriaPrima, Ingredientes
 from models.solicitud_produccion import solicitud_produccion
 from models.Inventario_galletas import Inventario_galletas
 from models.inventario_mp import InventarioMP
+from models.merma_materia import MermaMateria
 from lib.d import D
 from db.db import db
 from forms.Produccion import ProduccionForm
 from datetime import datetime, timedelta
 from sqlalchemy import cast, Date
+from models.Galleta_materia import Galleta_materia
    
 
 produccion = Blueprint('produccion', __name__, template_folder='templates')
@@ -108,6 +110,10 @@ def index():
     for lote in inventario_materia:
         if lote['estatus'] == 1:
             inventario_update.append(lote)
+    materia = []
+    for _lote in inventario_update:
+        mp_selected = MateriaPrima.query.get(_lote['id_materia_prima'])
+        materia.append(mp_selected)
 
     if request.method == 'POST':
         if 'add_galleta' in request.form:
@@ -132,9 +138,8 @@ def index():
 
             total = 0
             ingredientes = Ingredientes.query.filter_by(galleta_id = galleta.id).all()
-            cantidad_restante = solicitud_filter.cantidad - produccion_filter.produccionActual
             for ingrediente in ingredientes:
-                cantidad_requerida = ingrediente.cantidad * cantidad_restante
+                cantidad_requerida = ingrediente.cantidad * int(cantidad_prod)
                 lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).all()
                 if lotes_materia:
                     for lote_materia in lotes_materia:
@@ -175,26 +180,109 @@ def index():
 
             # --------------------- Descontar inventario ----------------------------- 
             for ingrediente in ingredientes:
-                cantidad_requerida = ingrediente.cantidad * int(cantidad_prod)
+                cantidad_requerida = int(ingrediente.cantidad) * int(cantidad_prod)
                 lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).order_by(InventarioMP.caducidad.asc()).all()
+                inventario_active = Inventario_galletas.query.filter_by(idGalleta=galleta.id).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
                 for lote in lotes_materia:
-                    if lote.cantidad < cantidad_requerida:
-                        cantidad_requerida = cantidad_requerida - lote.cantidad
+                    galleta_materia = Galleta_materia.query.filter_by(idLoteGalletas = inventario_active.idLoteGalletas, idLoteMateria = lote.id).first()
+                    if int(lote.cantidad) < int(cantidad_requerida):
+                        cantidad_requerida = int(cantidad_requerida) - int(lote.cantidad)
                         lote.cantidad = 0
                         lote.updated_at = datetime.now()
                         db.session.commit()
+                        if not galleta_materia:
+                            relacion = Galleta_materia(
+                                idLoteMateria = lote.ids,
+                                idLoteGalletas = inventario_active.idLoteGalletas
+                            )
+                            db.session.add(relacion)
+                            db.session.commit()
                     else:
-                        materia_restante = lote.cantidad - cantidad_requerida
+                        materia_restante = int(lote.cantidad) - cantidad_requerida
                         lote.cantidad = materia_restante
                         lote.updated_at = datetime.now()
                         db.session.commit()
+                        if not galleta_materia:
+                            relacion = Galleta_materia(
+                                idLoteMateria = lote.id,
+                                idLoteGalletas = inventario_activo.idLoteGalletas
+                            )
+                            db.session.add(relacion)
+                            db.session.commit()
                         break
-
-            
             flash("Galletas agregadas correctamente")
-            return("/produccion")
+            return(redirect("/produccion"))
+        elif 'add_merma' in request.form:
+            produccion_id = request.form.get('id_produccion')
+            ingrediente_merma = request.form.get('ingrediente')
+            unidad_medida = request.form.get('unidadMedida')
+            cantidad_merma = request.form.get('cantidadIngrediente')
+            total = 0
 
-    return render_template('pages/produccion/index.html', solicitud=solicitud, form=form, produccion = produccion_filtro, inventario = inventario_update)
+            # -------------- Verificar existencia en inventario ----------------
+
+            lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente_merma, estatus = 1).all()
+            if lotes_materia:
+                for lote_materia in lotes_materia:
+                    total += int(lote_materia.cantidad)
+                if total < int(cantidad_merma):
+                    more_mp = MateriaPrima.query.get(ingrediente_merma)
+                    flash(str("No hay suficientes insumos de " + more_mp.material))
+                    return redirect('/produccion')
+            else:
+                not_found_mp = MateriaPrima.query.get(ingrediente_merma)
+                flash(str(not_found_mp.material + " no se encuentra en inventario"))
+                return redirect('/produccion')
+
+            # ---------------- Agregar a merma y descontar inventario------------------------------
+            for lote_materia in lotes_materia:
+                canitdad = 0
+                if int(lote_materia.cantidad) < int(cantidad_merma):
+                    cantidad = lote_materia.cantidad
+                    inventario_merma = InventarioMP.query.get(lote_materia.id)
+                    inventario_merma.cantidad = 0
+                    db.session.commit()
+                    cantidad_merma = int(cantidad_merma) - int(lote_materia.cantidad)
+
+                    merma_materia =MermaMateria(
+                        idInventarioMaterias = lote_materia.id,
+                        merma_tipo = "Produccion",
+                        merma_fecha = lote_materia.caducidad,
+                        cantidad = cantidad,
+                        created_at = datetime.now(),
+                        id_produccion = produccion_id,
+                        justificacion = "Produccion"
+                    )
+                    db.session.add(merma_materia)
+                    db.session.commit()
+                    flash("Algo salió mal")
+                else:
+                    cantidad = cantidad_merma
+                    inventario_merma = InventarioMP.query.get(lote_materia.id)
+                    inventario_merma.cantidad = int(lote_materia.cantidad) - int(cantidad_merma)
+                    db.session.commit()
+                    merma_materia =MermaMateria(
+                        idInventarioMaterias = lote_materia.id,
+                        merma_tipo = "Produccion",
+                        merma_fecha = lote_materia.caducidad,
+                        cantidad = cantidad,
+                        created_at = datetime.now(),
+                        id_produccion = produccion_id,
+                        justificacion = "Produccion"
+                    )
+                    db.session.add(merma_materia)
+                    db.session.commit()
+                    flash("Merma agregada correctamente")
+                    return(redirect("/produccion"))
+        elif 'finalizar' in request.form:
+            produccion_id = request.form.get('id_produccion')
+            produccion_fin = Produccion.query.get(produccion_id)
+            produccion_fin.estatus = 1
+            db.session.commit()            
+            flash("Solicitud finalizada")
+            return(redirect('/produccion'))
+
+    return render_template('pages/produccion/index.html', solicitud=solicitud, form=form, produccion = produccion_filtro, inventario = inventario_update, materia = materia)
         
 def calcular_materia_prima_restante(nombre):
     producciones_activas = Produccion.query.filter_by(estatus=0).all()
@@ -237,8 +325,8 @@ def revisar_solicitudes():
             solicitud_filter = solicitud_produccion.query.get(solicitud_id)
             for ingrediente in ingredientes:
                 cantidad_requerida = ingrediente.cantidad * int(solicitud_filter.cantidad)
-                material_prod = mp_requerida_prod[ingrediente.material_id]
-                if material_prod:
+                if mp_requerida_prod:
+                    material_prod = mp_requerida_prod[ingrediente.material_id]
                     cantidad_requerida = cantidad_requerida + material_prod
                 lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).all()
                 if lotes_materia:

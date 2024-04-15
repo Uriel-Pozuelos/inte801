@@ -75,6 +75,7 @@ def index():
                 inventario.estatus = 0
                 inventario.updated_at = datetime.now()
                 db.session.commit()
+                flash("Solicitud enviada correctamente")
                 return redirect('/solicitud')
         elif request.form['action'] == 'cancelar':
             idSolicitud = request.form.get('idSolicitudCancel')
