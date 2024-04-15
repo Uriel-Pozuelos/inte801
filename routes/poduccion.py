@@ -155,7 +155,7 @@ def index():
                 
             # -------------------- Agregar galleta ------------------
 
-            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
+            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
             if inventario_activo:
                 total = inventario_activo.cantidad + int(cantidad_prod)
                 inventario_activo.cantidad = total
@@ -182,7 +182,8 @@ def index():
             for ingrediente in ingredientes:
                 cantidad_requerida = int(ingrediente.cantidad) * int(cantidad_prod)
                 lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).order_by(InventarioMP.caducidad.asc()).all()
-                inventario_active = Inventario_galletas.query.filter_by(idGalleta=galleta.id).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
+                inventario_active = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).first()
+                print(inventario_active.idLoteGalletas)
                 for lote in lotes_materia:
                     galleta_materia = Galleta_materia.query.filter_by(idLoteGalletas = inventario_active.idLoteGalletas, idLoteMateria = lote.id).first()
                     if int(lote.cantidad) < int(cantidad_requerida):
@@ -278,7 +279,12 @@ def index():
             produccion_id = request.form.get('id_produccion')
             produccion_fin = Produccion.query.get(produccion_id)
             produccion_fin.estatus = 1
-            db.session.commit()            
+            db.session.commit()  
+            if produccion_fin.produccionActual == 0:
+                solicitud_rest = solicitud_produccion.query.get(produccion_fin.idSolicitud)
+                lote_rest = Inventario_galletas.query.get(solicitud_rest.idLoteGalletas)
+                lote_rest.estatus = 1
+                db.session.commit()
             flash("Solicitud finalizada")
             return(redirect('/produccion'))
 
@@ -359,14 +365,12 @@ def revisar_solicitudes():
                 return redirect('/revisar_solicitudes')
             solicitud_id = request.form.get('reject_solicitud_id')
             solicitud = solicitud_produccion.query.get(solicitud_id)
-            print(solicitud.idLoteGalletas)
             if solicitud:  # Verificar que el registro exista
                 solicitud.justificacion = justificacion_text  # Actualizar la justificación
                 solicitud.estatus = 'Rechazada'  # Cambiar el estatus a 'Rechazado'
                 solicitud.updated_at = datetime.now()
                 db.session.commit()  # Guardar los cambios en la base de datos
             inventario = Inventario_galletas.query.get(solicitud.idLoteGalletas)
-            print(inventario)
             if inventario:
                 inventario.estatus = 1
                 inventario.updated_at = datetime.now()
