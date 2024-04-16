@@ -154,8 +154,8 @@ def purchase():
             caduci_list = request.form.getlist("txtCaducidad[]")
 
             for ml in mat_list:
-                presentacion = ml.split(" - ")[1]
-                mat_id = ml.split(" - ")[0]
+                presentacion = ml.split("-")[1]
+                mat_id = ml.split("-")[0]
                 for pl in precio_list:
                     for cl in caduci_list:
                         for cant in cantidad_list:
