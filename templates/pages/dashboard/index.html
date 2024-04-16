@@ -51,6 +51,64 @@ block content %}
 			</div>
 		</div>
 	</section>
+	<!-- seccion info ventas -->
+	<section class="card w-full bg-neutral text-primary mt-4">
+		<h2>
+			Información de ventas - Total de ventas: {{ ventas | length }}
+			con un total de ${{ total_ventas }}
+		</h2>
+		<div>
+			<h3>Buscar ventas por fecha</h3>
+			<form method="POST">
+				<input
+					type="hidden"
+					name="csrf_token"
+					value="{{ csrf_token() }}"
+				/>
+
+				<input
+					type="date"
+					name="inicio"
+					id="fecha"
+					class="input input-bordered"
+				/>
+				<input
+					type="date"
+					name="fin"
+					id="fecha"
+					class="input input-bordered"
+				/>
+
+				<button type="submit" class="btn btn-accent">Buscar</button>
+			</form>
+		</div>
+
+		<table class="table w-full">
+			<thead>
+				<tr>
+					<th>folio</th>
+					<th>total</th>
+					<th>Empleado que realizo la venta</th>
+					<th>Fecha de la venta</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% if venta %} {% for venta in ventas %}
+				<tr>
+					<td>v-{{ venta.id }}</td>
+					<td>${{ venta.total }}</td>
+					<td>{{ venta.nombre }} {{ venta.apellido }}</td>
+					<td>{{ venta.fecha_venta }}</td>
+				</tr>
+				{% endfor %} {% else %}
+				<tr>
+					<td colspan="4">No hay ventas registradas</td>
+				</tr>
+				{% endif %}
+			</tbody>
+		</table>
+	</section>
+
 	<!-- Sección de gráficos -->
 	<section class="grid grid-cols-2 gap-4 w-full mt-4">
 		<div class="card w-full bg-neutral text-primary">
@@ -372,6 +430,15 @@ block content %}
 			}
 		}
 	});
+
+	// agregar la fecha de hoy al input de fecha inicio y fin
+	const fecha = new Date();
+	const fechaHoy = `${fecha.getFullYear()}-${
+		fecha.getMonth() + 1
+	}-${fecha.getDate()}`;
+
+	document.getElementById('inicio').value = fechaHoy;
+	document.getElementById('fin').value = fechaHoy;
 </script>
 
 {% endblock %}
