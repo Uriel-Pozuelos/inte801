@@ -154,11 +154,12 @@ def purchase():
             caduci_list = request.form.getlist("txtCaducidad[]")
 
             for ml in mat_list:
-                presentacion = ml.split(" - ")[1]
-                mat_id = ml.split(" - ")[0]
+                presentacion = ml.split("-")[1]
+                mat_id = ml.split("-")[0]
                 for pl in precio_list:
                     for cl in caduci_list:
                         for cant in cantidad_list:
+                            print("ok")
                             det_compra = DetalleCompra(
                                 id_materia=mat_id,
                                 precio_materia=pl,
@@ -187,6 +188,7 @@ def purchase():
 
                             db.session.add(inv_mat_prima)
                             db.session.commit()
+                            flash("Compra realizada con éxito", "success")
 
             flash("Compra realizada con éxito", "success")
 

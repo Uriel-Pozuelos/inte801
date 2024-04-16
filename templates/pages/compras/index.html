@@ -184,24 +184,25 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
 
     slcProvider.addEventListener("change", function () {
         const selectedProveedorId = this.value;
-        var option = "<option value='' disabled selected>Seleccionar</option>";
+        let optionsHTML = "<option value='' disabled selected>Seleccionar</option>";
         
         rowMatPrim.innerHTML = ""; 
-
+        
         options.forEach((option) => {
             if (option.id_proveedor == selectedProveedorId) {
-                option.mats.forEach((materiaPrima) => {
-                    console.log(materiaPrima);
-                    option += `<option class="text-black" value="${materiaPrima.id}-${materiaPrima.presentacion}">${materiaPrima.material} - ${materiaPrima.presentacion}</option>`;
+                var mats = option.mats;
+
+                mats.forEach((mat) => {
+                    optionsHTML += `<option value="${mat.id}-${mat.presentacion}">${mat.material} - ${mat.presentacion}</option>`;
                 });
             }
         });
-
+        
         const newRow = `
             <div class="form-group mt-3">
                 <label for="materia_prima">Materia Prima</label>
                 <select class="form-control" name="slcMateriaPrima[]" id="slcMateriaPrima">
-                    ${option}
+                    ${optionsHTML}
                 </select>
             </div>
             <div class="form-group mt-3">
@@ -217,8 +218,8 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                 <input type="date" class="form-control" name="txtCaducidad[]">
             </div>`;
 
+
         rowMatPrim.innerHTML = newRow;
-        btnsRows.removeAttribute("hidden");
     });
 
     btnAddRow.addEventListener("click", function(){
