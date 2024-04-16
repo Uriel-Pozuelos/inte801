@@ -13,10 +13,12 @@ from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from lib.d import D
+from lib.security import safe
 
 log = D(debug=True)
 
-inventario_mp = Blueprint("inventario_mp", __name__, template_folder="templates")
+inventario_mp = Blueprint("inventario_mp", __name__,
+                          template_folder="templates")
 
 
 @inventario_mp.route("/inventario_mp", methods=["GET", "POST"])
@@ -31,7 +33,6 @@ def index():
 
     inv_mat_prima = [inv.serialize() for inv in inv_mat_prima]
 
-
     materias_primas = MateriaPrima.query.all()
     materias_primas = [mat.serialize() for mat in materias_primas]
     compras = Compra.query.all()
@@ -40,14 +41,15 @@ def index():
     all_inv_mp = []
     all_merm = []
     fecha_actual = datetime.now()
-    
+
     for merma in all_mermas:
         prov = Proveedor.query.filter_by(id=merma.id_proveedor).first()
-        mat = MateriaPrima.query.filter_by(id=merma.idInventarioMaterias).first()
+        mat = MateriaPrima.query.filter_by(
+            id=merma.idInventarioMaterias).first()
 
         if merma is None or mat is None:
             continue
-        
+
         all_merm.append({
             "id": merma.id,
             "idInventarioMaterias": merma.idInventarioMaterias,
@@ -62,14 +64,11 @@ def index():
             "material": mat.material
         })
 
-    
-
     for inv_mp in inv_mat_prima:
         for mat in materias_primas:
             if inv_mp['id_materia_prima'] == mat['id']:
                 material = mat['material']
                 tipo = mat['tipo']
-                
 
                 prov_mpp = MateriaPrimaProveedor.query.filter_by(
                     materiaprima_id=mat["id"]
@@ -80,16 +79,13 @@ def index():
 
                 prov_mpp = prov_mpp.serialize()
 
-                
-
-                prov = Proveedor.query.filter_by(id=prov_mpp['proveedor']).first()
+                prov = Proveedor.query.filter_by(
+                    id=prov_mpp['proveedor']).first()
                 merma_inv = MermaMateria.query.filter_by(
                     idInventarioMaterias=inv_mp["id"]
                 ).first()
 
                 print(inv_mp)
-
-                
 
                 estatus_merma = ""
                 fecha_caducidad = inv_mp["caducidad"]
@@ -110,8 +106,8 @@ def index():
                 elif int(inv_mp["cantidad"]) > 10:
                     estatus = "Disponible"
 
-                nombre_empresa = Proveedor.query.filter_by(id=prov_mpp["proveedor"]).first().nombre_empresa
-
+                nombre_empresa = Proveedor.query.filter_by(
+                    id=prov_mpp["proveedor"]).first().nombre_empresa
 
                 all_inv_mp.append(
                     {
@@ -137,48 +133,48 @@ def new_merma():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)
     email = token["email"]
-    
+
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log.warning(request.form)
     try:
         if request.method == "POST":
-            id_inv_mat = request.form.get("id_inv_mat")
-            merma_tipo = request.form.get("slcMerma")
-            fecha_merma = request.form.get("fecha_merma")
-            cantidad_merma = request.form.get("cantidad_merma")
+            id_inv_mat = safe(request.form.get("id_inv_mat"))
+            merma_tipo = safe(request.form.get("slcMerma"))
+            fecha_merma = safe(request.form.get("fecha_merma"))
+            cantidad_merma = safe(request.form.get("cantidad_merma"))
 
             log.info(f"cantidad_mermas: {cantidad_merma}")
-            justificacion_merma = request.form.get("justificacion_merma")
+            justificacion_merma = safe(request.form.get("justificacion_merma"))
             id_proovedor = None
             id_produccion = None
-            
+
             imp = InventarioMP.query.filter_by(id=id_inv_mat).first()
             imp = imp.serialize()
-            
+
             if merma_tipo == "Proveedor":
                 compra = Compra.query.filter_by(id=imp['idCompra']).first()
                 compra = compra.serialize()
                 prov = compra['id_proveedor']
                 id_proovedor = prov
-                
+
             if merma_tipo == "Produccion":
                 user_production = Usuario.query.filter_by(email=email).first()
                 user_production = user_production.serialize()
                 if user_production['rol'] == "produccion":
                     prod = user_production['id']
                     id_produccion = prod
-            
+
             merma = MermaMateria(
                 idInventarioMaterias=id_inv_mat,
-                merma_tipo = merma_tipo,
-                merma_fecha = fecha_merma,
-                cantidad = cantidad_merma,
-                created_at = current_date,
-                id_produccion = id_produccion,
-                id_proveedor = id_proovedor,
-                justificacion = justificacion_merma
+                merma_tipo=merma_tipo,
+                merma_fecha=fecha_merma,
+                cantidad=cantidad_merma,
+                created_at=current_date,
+                id_produccion=id_produccion,
+                id_proveedor=id_proovedor,
+                justificacion=justificacion_merma
             )
-            
+
             db.session.add(merma)
             db.session.commit()
             log.info(imp)

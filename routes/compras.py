@@ -19,6 +19,7 @@ from models.inventario_mp import InventarioMP
 from datetime import datetime
 from db.db import db
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
+from lib.security import safe
 
 compras = Blueprint("compras", __name__, template_folder="templates")
 
@@ -162,10 +163,10 @@ def purchase():
                             print("ok")
                             det_compra = DetalleCompra(
                                 id_materia=mat_id,
-                                precio_materia=pl,
-                                cantidad=cant,
-                                tipo=presentacion,
-                                caducidad=cl,
+                                precio_materia=safe(pl),
+                                cantidad=safe(cant),
+                                tipo=safe(presentacion),
+                                caducidad=safe(cl),
                                 id_compra=compra.id,
                                 created_at=created_at,
                             )
@@ -181,7 +182,7 @@ def purchase():
                                 id_materia_prima=mat_id,
                                 cantidad=(int(cant_mpp.cantidad) * int(cant)),
                                 idCompra=compra.id,
-                                caducidad=cl,
+                                caducidad=safe(cl),
                                 estatus=1,
                                 created_at=created_at,
                             )

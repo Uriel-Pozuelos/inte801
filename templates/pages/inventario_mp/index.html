@@ -13,25 +13,14 @@ content %}
 	</div>
 
 	<div role="tablist" class="tabs tabs-bordered mt-5">
-		<input
-			type="radio"
-			name="my_tabs_1"
-			role="tab"
-			class="tab"
-			aria-label="Inventario"
-			checked
-		/>
+		<input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Inventario" checked />
 		<div role="tabpanel" class="tab-content p-10">
 			<!-- Table Inventario -->
 			<div class="md:contaner px-4">
 				<section class="mt-5">
 					<div class="relative overflow-x-auto">
-						<table
-							class="w-full text-sm text-left rtl:text-right text-black"
-						>
-							<thead
-								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black"
-							>
+						<table class="w-full text-sm text-left rtl:text-right text-black">
+							<thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
 								<tr>
 									<th scope="col" class="px-6 py-3">Materia prima</th>
 									<th scope="col" class="px-6 py-3">Cantidad</th>
@@ -74,11 +63,8 @@ content %}
 									</td>
 									<td class="px-6 py-3">{{ materia_prima.merma }}</td>
 									<td class="px-6 py-3">
-										<button
-											class="btn btn-primary"
-											type="button"
-											id="btnAddMerma_{{materia_prima.id}}"
-										>
+										<button class="btn btn-primary" type="button"
+											id="btnAddMerma_{{materia_prima.id}}">
 											Mermar
 										</button>
 									</td>
@@ -91,24 +77,14 @@ content %}
 			</div>
 		</div>
 
-		<input
-			type="radio"
-			name="my_tabs_1"
-			role="tab"
-			class="tab"
-			aria-label="Mermas"
-		/>
+		<input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Mermas" />
 		<div role="tabpanel" class="tab-content p-10">
 			<!-- Table Mermas -->
 			<div class="md:container px-4">
 				<section class="mt-5">
 					<div class="relative overflow-x-auto">
-						<table
-							class="w-full text-sm text-let rtl:text-right text-black"
-						>
-							<thead
-								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black"
-							>
+						<table class="w-full text-sm text-let rtl:text-right text-black">
+							<thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
 								<tr>
 									<th scope="col" class="px-6 py-3">Materia prima</th>
 									<th scope="col" class="px-6 py-3">Tipo de merma</th>
@@ -146,38 +122,19 @@ content %}
 	</div>
 
 	<!-- Dialog Add Merma -->
-	<form
-		action="{{url_for('inventario_mp.new_merma')}}"
-		novalidate
-		method="POST"
-	>
+	<form action="{{url_for('inventario_mp.new_merma')}}" novalidate method="POST">
 		<div class="card">
-			<dialog
-				class="dialog p-6 bg-white shadow-lg rounded-md"
-				id="addMerma"
-			>
+			<dialog class="dialog p-6 bg-white shadow-lg rounded-md" id="addMerma">
 				<div class="dialog-title">
 					<h3 class="text-lg font-bold">Agregar merma</h3>
 				</div>
 				<div class="dialog-content">
-					<input
-						type="hidden"
-						name="csrf_token"
-						value="{{ csrf_token() }}"
-					/>
-					<input
-						type="text"
-						hidden
-						name="id_inv_mat"
-						id="id_inv_mat"
-					/>
+					<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+					<input type="text" hidden name="id_inv_mat" id="id_inv_mat" />
 					<div class="mt-3">
 						<label for>Tipo de merma</label>
-						<select
-							class="select select-bordered select-primary min-w-full max-w-xs"
-							name="slcMerma"
-							id="slcMerma"
-						>
+						<select class="select select-bordered select-primary min-w-full max-w-xs" name="slcMerma"
+							id="slcMerma">
 							<option value disabled selected>Seleccionar</option>
 							<option value="Caducidad">Caducidad</option>
 							<option value="Produccion">Producci&oacute;n</option>
@@ -195,22 +152,14 @@ content %}
 					</div>
 					<div class="mt-3">
 						<label for>Justificaci&oacute;n</label>
-						<textarea
-							class="textarea textarea-primary"
-							name="justificacion_merma"
-							id="justificacion_merma"
-							required
-						></textarea>
+						<textarea class="textarea textarea-primary" name="justificacion_merma" id="justificacion_merma"
+							required></textarea>
 					</div>
 					<div class="flex justify-between mt-4">
 						<button type="submit" class="btn btn-primary">
 							Agregar merma
 						</button>
-						<button
-							type="button"
-							class="btn btn-danger"
-							id="btnCloseMerma"
-						>
+						<button type="button" class="btn btn-danger" id="btnCloseMerma">
 							Cerrar
 						</button>
 					</div>

@@ -4,17 +4,17 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
 {% block content %}
 
 <style>
-	input[type='text'],
-	input[type='email'],
-	input[type='password'],
-	input[type='number'],
-	input[type='date'],
-	input[type='time'],
-	input[type='datetime-local'],
-	select,
-	input[type='search'] {
-		background-color: white !important;
-	}
+    input[type='text'],
+    input[type='email'],
+    input[type='password'],
+    input[type='number'],
+    input[type='date'],
+    input[type='time'],
+    input[type='datetime-local'],
+    select,
+    input[type='search'] {
+        background-color: white !important;
+    }
 </style>
 </style>
 
@@ -30,12 +30,11 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
     <!-- Button Add Purchase -->
     <div class="md:contaner px-4">
         <section class="mt-3">
-            <button class="btn btn-primary" id="btnAddPurchase">
+            <button class="btn btn-primary float-end mx-3 text-white" id="btnAddPurchase">
                 Agregar Compra
             </button>
-            <button>
-                <a href="{{url_for('inventario_mp.index')}}"
-                    class="btn btn-primary">
+            <button class="btn btn-primary float-end text-white">
+                <a href="{{url_for('inventario_mp.index')}}" class="">
                     Inventario
                 </a>
             </button>
@@ -46,10 +45,8 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
     <div class="md:contaner px-4">
         <section class="mt-5">
             <div class="relative overflow-x-auto">
-                <table
-                    class="w-full text-md text-left rtl:text-right text-black">
-                    <thead
-                        class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+                <table class="w-full text-md text-left rtl:text-right text-black">
+                    <thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
                         <tr>
                             <th scope="col" class="px-6 py-3">Proveedor</th>
                             <th scope="col" class="px-6 py-3">Usuario</th>
@@ -61,8 +58,7 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                             <th scope="col" class="px-6 py-3">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody
-                        class="bg-transparent border-b text-center">
+                    <tbody class="bg-transparent border-b text-center">
                         {% if cont > 0 %}
                         {% for compra in compras %}
                         <tr id="compra_{{compra.id}}">
@@ -79,9 +75,7 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                             <td class="border px-6 py-3">{{ compra.tipo }}</td>
                             <td class="border px-6 py-3">{{ compra.fecha }}</td>
                             <td class="border px-6 py-3">
-                                <button type="button"
-                                    class="btn btn-primary"
-                                    id="details_{{compra.id}}">
+                                <button type="button" class="btn btn-primary" id="details_{{compra.id}}">
                                     Ver Detalles
                                 </button>
                             </td>
@@ -98,48 +92,37 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
     <!-- Dialog Add Purchase -->
     <form action="{{url_for('compras.purchase')}}" novalidate method="POST">
         <div class="card">
-            <dialog id="addPurchase"
-                class="dialog p-6 bg-white shadow-lg rounded-md">
+            <dialog id="addPurchase" class="dialog p-6 bg-white shadow-lg rounded-md">
                 <div class="dialog-title">
                     <h3 class="text-lg font-semibold">Agregar Compra</h3>
                 </div>
                 <div class="dialog-content">
-                    <input type="text" hidden name="csrf_token"
-                        value="{{ csrf_token() }}" />
-                    <div class="mt-3">
-                        <label for="provider"
-                            class="text-gray-700">Proveedor</label>
-                        <select
-                            class="select select-bordered min-w-full max-w-xs"
-                            name="slcProvider"
-                            id="slcProvider">
-                            <option value selected disabled>Seleccione un
-                                proveedor</option>
-                            {% for provider in proveedores_list %}
-                            <option class="text-black"
-                                value="{{ provider.id }}">{{
-                                provider.nombre_empresa
-                                }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="grid grid-cols-2 gap-4 mb-3 mt-3">
+                        <input type="text" hidden name="csrf_token" value="{{ csrf_token() }}" />
+                        <div>
+                            <div class="mt-3">
+                                <label for="provider" class="text-gray-700">Proveedor</label>
+                                <select class="select select-bordered min-w-full max-w-xs" name="slcProvider"
+                                    id="slcProvider">
+                                    <option value selected disabled>Seleccione un
+                                        proveedor</option>
+                                    {% for provider in proveedores_list %}
+                                    <option class="text-black" value="{{ provider.id }}">{{
+                                        provider.nombre_empresa
+                                        }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <div id="rowMatPrim"></div>
+                        </div>
                     </div>
-                    <div class="mt-3" id="btnsRows" hidden>
-                        <button type="button" class="btn btn-primary"
-                            id="btnAddRow">
-                            Agregar fila
-                        </button>
-                        <button type="button" class="btn btn-danger"
-                            id="btnRemoveRow">
-                            Eliminar fila
-                        </button>
-                    </div>
-                    <div id="rowMatPrim"></div>
-                    <div class="form-group mt-3">
-                        <button type="submit" class="btn btn-primary">
+                    <div class="flex justify-between mt-4">
+                        <button type="submit" class="btn btn-primary w-52">
                             Solicitar
                         </button>
-                        <button type="button" class="btn btn-danger"
-                            id="btnClosePurchase">
+                        <button type="button" class="btn btn-danger w-48" id="btnClosePurchase">
                             Cerrar
                         </button>
                     </div>
@@ -157,7 +140,7 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
     const flashMessage = document.querySelector(".flash-messages");
     if (flashMessage) {
         setTimeout(() => {
-        flashMessage.remove();
+            flashMessage.remove();
         }, 5000);
     }
 
@@ -166,9 +149,6 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
     const btnClosePurchase = document.getElementById("btnClosePurchase");
     const slcProvider = document.getElementById("slcProvider");
     const rowMatPrim = document.getElementById("rowMatPrim");
-    const btnAddRow = document.getElementById("btnAddRow");
-    const btnRemoveRow = document.getElementById("btnRemoveRow");
-    const btnsRows = document.getElementById("btnsRows");
     const slcMateriaPrima = document.getElementById("slcMateriaPrima");
 
     btnAddPurchase.addEventListener("click", () => {
@@ -179,15 +159,14 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
         addPurchase.close();
 
         rowMatPrim.innerHTML = "";
-        btnsRows.setAttribute("hidden", true);
     });
 
     slcProvider.addEventListener("change", function () {
         const selectedProveedorId = this.value;
         let optionsHTML = "<option value='' disabled selected>Seleccionar</option>";
-        
-        rowMatPrim.innerHTML = ""; 
-        
+
+        rowMatPrim.innerHTML = "";
+
         options.forEach((option) => {
             if (option.id_proveedor == selectedProveedorId) {
                 var mats = option.mats;
@@ -197,45 +176,52 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                 });
             }
         });
-        
+
         const newRow = `
-            <div class="form-group mt-3">
+            <div class="mt-3">
                 <label for="materia_prima">Materia Prima</label>
-                <select class="form-control" name="slcMateriaPrima[]" id="slcMateriaPrima">
+                <select class="select select-bordered select-primary w-full max-w-xs text-black" name="slcMateriaPrima[]" id="slcMateriaPrima">
                     ${optionsHTML}
                 </select>
             </div>
-            <div class="form-group mt-3">
+            <div class="mt-3">
                 <label for="cantidad">Cantidad</label>
-                <input type="number" class="form-control" name="txtCantidad[]">
+                <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCantidad[]">
             </div>
-            <div class="form-group mt-3">
-                <label for="precio">Precio</label>
-                <input type="number" class="form-control" name="txtPrecio[]">
+            <div class="mt-3">
+                <label for="precio">Precio unitario</label>
+                <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtPrecio[]">
             </div>
-            <div class="form-group mt-3">
-                <label for="fecha">Fecha caducidad</label>
-                <input type="date" class="form-control" name="txtCaducidad[]">
+            <div class="mt-3">
+                <label for="fecha">Fecha de caducidad</label>
+                <input type="date" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCaducidad[]">
             </div>`;
 
 
         rowMatPrim.innerHTML = newRow;
-    });
 
-    btnAddRow.addEventListener("click", function(){
-        const slcProvider = document.getElementById("slcProvider");
+        const inputs = document.getElementsByTagName("input");
 
-        
-    });
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener("keypress", function (event) {
+                var inputType = this.type;
 
-    btnRemoveRow.addEventListener("click", function(){
-        var totalChildren = rowMatPrim.children.length;
-        
-        if (totalChildren > 4) {
-            for (var i = 0; i < 4; i++) {
-                rowMatPrim.removeChild(rowMatPrim.lastElementChild);
-            }
+                var charCode = event.keyCode || event.which;
+
+                var charAllowed;
+                if (inputType === "number") {
+                    charAllowed = /[0-9]/;
+                } else {
+                    charAllowed = /[a-zA-Z\s]/;
+                }
+
+                if (!charAllowed.test(String.fromCharCode(charCode))) {
+                    event.preventDefault();
+                }
+            });
         }
+
     });
+
 </script>
 {% endblock %}

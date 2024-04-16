@@ -301,5 +301,26 @@ block title %} Proveedores - Cookies and Dreams{% endblock %} {% block content %
   btnCloseProviderDel.addEventListener("click", () => {
     delProvider.close();
   });
+
+  const inputs = document.getElementsByTagName("input");
+
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].addEventListener("keypress", function (event) {
+      var inputType = this.type;
+
+      var charCode = event.keyCode || event.which;
+
+      var charAllowed;
+      if (inputType === "number") {
+        charAllowed = /[0-9]/;
+      } else {
+        charAllowed = /[a-zA-Z\s]/;
+      }
+
+      if (!charAllowed.test(String.fromCharCode(charCode))) {
+        event.preventDefault();
+      }
+    });
+  }
 </script>
 {% endblock %}

@@ -23,6 +23,7 @@ from models.materia_prima_proveedor import MateriaPrimaProveedor
 from datetime import datetime
 from db.db import db
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
+from lib.security import safe
 
 insumos = Blueprint("insumos", __name__, template_folder="templates")
 
@@ -96,8 +97,8 @@ def new_insumo():
         formMPP = MateriaPrimaProveedorForm(request.form)
 
         insumo = MateriaPrima(
-            material=form.material.data,
-            tipo=form.tipo.data,
+            material=safe(form.material.data),
+            tipo=safe(form.tipo.data),
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
@@ -116,10 +117,10 @@ def new_insumo():
 
         mpp = MateriaPrimaProveedor(
             materiaprima_id=insumo.id,
-            proveedor_id=formMPP.proveedor_id.data,
-            precio=precio,
-            cantidad=cantidad,
-            tipo=presentation.replace(" ", "_"),
+            proveedor_id=safe(formMPP.proveedor_id.data),
+            precio=safe(precio),
+            cantidad=safe(cantidad),
+            tipo=safe(presentation),
             created_at=datetime.now(),
         )
 
@@ -141,12 +142,12 @@ def ed_insumo():
     try:
         material_id = request.form.get("id")
         mat = MateriaPrima.query.filter_by(id=material_id).first()
-        material = request.form.get("material")
-        proveedor = request.form.get("proveedor")
-        medida = request.form.get("medida")
-        presentacion = request.form.get("presentacion")
-        precio = request.form.get("precio")
-        cantidad = request.form.get("cantidad")
+        material = safe(request.form.get("material"))
+        proveedor = safe(request.form.get("proveedor"))
+        medida = safe(request.form.get("medida"))
+        presentacion = safe(request.form.get("presentacion"))
+        precio = safe(request.form.get("precio"))
+        cantidad = safe(request.form.get("cantidad"))
         mpp = MateriaPrimaProveedor.query.filter_by(
             materiaprima_id=mat.id).first()
 
