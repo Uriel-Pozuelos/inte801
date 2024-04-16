@@ -155,7 +155,7 @@ def index():
                 
             # -------------------- Agregar galleta ------------------
 
-            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
+            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).first()
             if inventario_activo:
                 total = inventario_activo.cantidad + int(cantidad_prod)
                 inventario_activo.cantidad = total
@@ -193,7 +193,7 @@ def index():
                         db.session.commit()
                         if not galleta_materia:
                             relacion = Galleta_materia(
-                                idLoteMateria = lote.ids,
+                                idLoteMateria = lote.id,
                                 idLoteGalletas = inventario_active.idLoteGalletas
                             )
                             db.session.add(relacion)
@@ -206,7 +206,7 @@ def index():
                         if not galleta_materia:
                             relacion = Galleta_materia(
                                 idLoteMateria = lote.id,
-                                idLoteGalletas = inventario_activo.idLoteGalletas
+                                idLoteGalletas = inventario_active.idLoteGalletas
                             )
                             db.session.add(relacion)
                             db.session.commit()
