@@ -52,13 +52,19 @@ block content %}
 		</div>
 	</section>
 	<!-- seccion info ventas -->
-	<section class="card w-full bg-neutral text-primary mt-4">
-		<h2>
-			Información de ventas - Total de ventas: {{ ventas | length }}
-			con un total de ${{ total_ventas }}
+	<section class="card w-full bg-neutral text-primary mt-4 px-4 py-4">
+		<h2 class="text-xl font-bold text-white">
+			Información de ventas - Total de ventas: <span class="text-2xl text-yellow-200">
+				{{ ventas | length }}
+			</span>
+			con un total de <span class="text-2xl text-yellow-200">
+				${{ total_ventas }}
+			</span>
 		</h2>
 		<div>
-			<h3>Buscar ventas por fecha</h3>
+			<h3
+			class="text-md font-bold text-white mt-4"
+			>Buscar ventas por fecha</h3>
 			<form method="POST">
 				<input
 					type="hidden"
@@ -85,7 +91,7 @@ block content %}
 
 		<table class="table w-full">
 			<thead>
-				<tr>
+				<tr class="bg-primary-700 text-neutral-content">
 					<th>folio</th>
 					<th>total</th>
 					<th>Empleado que realizo la venta</th>
