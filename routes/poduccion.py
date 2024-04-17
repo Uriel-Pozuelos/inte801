@@ -11,6 +11,7 @@ from forms.Produccion import ProduccionForm
 from datetime import datetime, timedelta
 from sqlalchemy import cast, Date
 from models.Galleta_materia import Galleta_materia
+from lib.security import safe
    
 
 produccion = Blueprint('produccion', __name__, template_folder='templates')
@@ -118,8 +119,9 @@ def index():
     if request.method == 'POST':
         if 'add_galleta' in request.form:
             nombre_galleta = request.form.get('tipo_galleta')
-            cantidad_prod = request.form.get('cantidad_prod')
-            produccion_id = request.form.get('id_produccion')
+            cantidad_prod = safe(request.form.get('cantidad_prod'))
+            cantidad_prod = int(cantidad_prod)*10
+            produccion_id = safe(request.form.get('id_produccion'))
             fecha_hoy = datetime.now()
             fecha_caducidad = fecha_hoy + timedelta(days=20)
             fecha_caducidad_date = fecha_caducidad.date()
@@ -214,10 +216,9 @@ def index():
             flash("Galletas agregadas correctamente")
             return(redirect("/produccion"))
         elif 'add_merma' in request.form:
-            produccion_id = request.form.get('id_produccion')
+            produccion_id = safe(request.form.get('id_produccion'))
             ingrediente_merma = request.form.get('ingrediente')
-            unidad_medida = request.form.get('unidadMedida')
-            cantidad_merma = request.form.get('cantidadIngrediente')
+            cantidad_merma = safe(request.form.get('cantidadIngrediente'))
             total = 0
 
             # -------------- Verificar existencia en inventario ----------------
@@ -276,7 +277,7 @@ def index():
                     flash("Merma agregada correctamente")
                     return(redirect("/produccion"))
         elif 'finalizar' in request.form:
-            produccion_id = request.form.get('id_produccion')
+            produccion_id = safe(request.form.get('id_produccion'))
             produccion_fin = Produccion.query.get(produccion_id)
             produccion_fin.estatus = 1
             db.session.commit()  
@@ -322,7 +323,7 @@ def revisar_solicitudes():
 
     if request.method == 'POST':
         if 'aceptada' in request.form:
-            solicitud_id = request.form.get('solicitud_id')
+            solicitud_id = safe(request.form.get('solicitud_id'))
             nombre_galleta = request.form.get('nombreGalleta')
             mp_requerida_prod = calcular_materia_prima_restante(nombre_galleta)
             total = 0
@@ -359,7 +360,7 @@ def revisar_solicitudes():
             return redirect('/revisar_solicitudes')
             #return redirect(url_for('produccion.revisar_solicitudes'))
         elif 'rechazada' in request.form:
-            justificacion_text = request.form['justificacion']  # Extraer el texto de justificación del formulario
+            justificacion_text = safe(request.form['justificacion'])  # Extraer el texto de justificación del formulario
             if justificacion_text == "":
                 flash("Por favor, agrega una justificación")
                 return redirect('/revisar_solicitudes')

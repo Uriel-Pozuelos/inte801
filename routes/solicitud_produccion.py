@@ -6,6 +6,8 @@ from datetime import datetime
 from lib.d import D
 from db.db import db
 from forms.SolicitudProduccion import SolicitudForm
+from lib.security import safe
+
 solicitud = Blueprint('solicitud', __name__, template_folder='templates')
 log = D(debug=True)
 
@@ -53,7 +55,7 @@ def index():
     if request.method == 'POST':
         if request.form['action'] == 'enviar':
             # Crear una nueva instancia del modelo solicitud_produccion con los datos del formulario
-            cantidad = request.form.get('cantidad')
+            cantidad = safe(request.form.get('cantidad'))
             idLoteGalleta = request.form.get('idLoteGalletas')
             if cantidad =="" or idLoteGalleta == "":
                 flash("Completa todos los campos")
@@ -65,7 +67,7 @@ def index():
                 
             nueva_solicitud = solicitud_produccion(
                 idLoteGalletas=idLoteGalleta,
-                cantidad=cantidad
+                cantidad=cantidad*10
             )
             db.session.add(nueva_solicitud)
             db.session.commit()
