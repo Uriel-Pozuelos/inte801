@@ -70,38 +70,54 @@
 </div>
 </div>
 
-<h2 class="text-2xl font-bold text-black mt-5 mb-2 text-center">Inventario caducado</h2>
 <div class="flex justify-center">
-    <div class="flex-grow table-container overflow-y-auto max-h-96 w-full max-w-5xl mr-5 mb-5">
-        <table class="mt-5 table w-full text-black">
-            <!-- Encabezado de la tabla -->
-            <thead>
-                <tr>
-                    <th class="text-black text-lg text-center p-5">Tipo de Galleta</th>
-                    <th class="text-black text-lg text-center p-5">Cantidad</th>
-                    <th class="text-black text-lg text-center p-5">Fecha de Caducidad</th>
-                    <th class="text-black text-lg text-center p-5">Mover a Merma</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for lote in caducado %}
-                <tr>
-                    <td class="text-md text-center p-5">{{ lote.nombreGalleta }}</td>
-                    <td class="text-md text-center p-5">{{ lote.cantidad }}</td>
-                    <td class="text-md text-center p-5">{{ lote.fechaCaducidad.strftime('%Y-%m-%d') }}</td>
-                    <td class="text-md text-center p-5">
-                        <form action="" method="post">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <input type="hidden" name="idLoteGalletas" value="{{ lote.idLoteGalletas }}">
-                            <button type="submit" class="btn btn-danger">Remover</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="w-full max-w-2xl">
+        <h2 class="text-2xl font-bold text-black mt-5 mb-2 text-center">Inventario caducado</h2>
+        <div class="table-container overflow-y-auto max-h-96 mr-5 mb-5">
+            <table class="table w-full text-black">
+                <!-- Encabezado de la tabla -->
+                <thead>
+                    <tr>
+                        <th class="text-black text-lg text-center p-5">Tipo de Galleta</th>
+                        <th class="text-black text-lg text-center p-5">Cantidad</th>
+                        <th class="text-black text-lg text-center p-5">Fecha de Caducidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lote in caducado %}
+                    <tr>
+                        <td class="text-md text-center p-5">{{ lote.nombreGalleta }}</td>
+                        <td class="text-md text-center p-5">{{ lote.cantidad }}</td>
+                        <td class="text-md text-center p-5">{{ lote.fechaCaducidad.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="w-full max-w-xs ml-5 mt-5 mb-5">
+        <form method="post" class="bg-white p-5 rounded-lg shadow-lg">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <h3 class="text-xl font-bold text-center mb-4">Agregar Merma</h3>
+            <label for="razonMerma" class="block mb-2 text-sm font-medium text-gray-900">Razón de Merma:</label>
+            <select id="razonMerma" name="razonMerma" class="select select-bordered w-full mb-4">
+                <option disabled selected>Seleccione una razón</option>
+                <option>Por caducidad</option>
+                <option>Galleta dañada</option>
+            </select>
+            <label for="lote" class="block mb-2 text-sm font-medium text-gray-900">Selecciona el Lote:</label>
+            <select id="lote" name="lote" class="select select-bordered w-full mb-4">
+                <option disabled selected>Seleccione un lote</option>
+            </select>
+            <label for="cantidad" class="block mb-2 text-sm font-medium text-gray-900">Cantidad:</label>
+            <input type="number" id="cantidad" name="cantidad" class="input input-bordered w-full mb-4" min="1" placeholder="Ingrese la cantidad">
+            <button type="submit" class="btn btn-primary w-full">Agregar</button>
+        </form>
     </div>
 </div>
+
+
+
 
 <h2 class="text-2xl font-bold text-black mt-5 mb-2 text-center">Mermas galletas</h2>
 <div class="flex justify-center">
@@ -128,6 +144,13 @@
     </div>
 </div>
 
+<script type="application/json" id="lotesCaducados">
+    {{ caducado | tojson }}
+</script>
+
+<script type="application/json" id="lotesInventario">
+    {{ inventario | tojson }}
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -138,5 +161,39 @@
                 }, 5000);
             }
       });
+
+      document.getElementById('razonMerma').addEventListener('change', function() {
+        var selectedReason = this.value;
+        var loteSelect = document.getElementById('lote');
+        var cantidadInput = document.getElementById('cantidad');
+        
+        // Reset del campo cantidad y su estado
+        cantidadInput.value = '';
+        cantidadInput.removeAttribute('readonly');
+    
+        loteSelect.innerHTML = '<option disabled selected>Seleccione un lote</option>';
+        var lotesCaducados = JSON.parse(document.getElementById('lotesCaducados').textContent);
+        var lotesInventario = JSON.parse(document.getElementById('lotesInventario').textContent);
+        var lotes = selectedReason === 'Por caducidad' ? lotesCaducados : lotesInventario;
+    
+        lotes.forEach(function(lote) {
+            var option = document.createElement('option');
+            option.value = lote.idLoteGalletas;
+            option.textContent = lote.nombreGalleta;
+            option.dataset.cantidad = lote.cantidad;  // Guardar cantidad en el dataset del option
+            loteSelect.appendChild(option);
+        });
+    
+        loteSelect.onchange = function() {
+            if (selectedReason === 'Por caducidad') {
+                var selectedOption = this.options[this.selectedIndex];
+                cantidadInput.value = selectedOption.dataset.cantidad;
+                cantidadInput.setAttribute('readonly', true);
+            } else {
+                cantidadInput.value = '';
+                cantidadInput.removeAttribute('readonly');
+            }
+        };
+    });
 </script>
 {% endblock %}
