@@ -1,12 +1,3 @@
-from flask import (
-    Blueprint,
-    render_template,
-    request,
-    flash,
-    redirect,
-    jsonify,
-    Response,
-)
 from forms.CompraForm import CompraForm
 from forms.DetalleCompraForm import DetalleCompraForm
 from models.compra import Compra
@@ -18,8 +9,21 @@ from models.materia_prima_proveedor import MateriaPrimaProveedor
 from models.inventario_mp import InventarioMP
 from datetime import datetime
 from db.db import db
-from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 from lib.security import safe
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    flash,
+    redirect,
+    jsonify,
+    Response,
+)
+from lib.jwt import (
+    token_required,
+    allowed_roles,
+    createToken,
+    decodeToken)
 
 compras = Blueprint("compras", __name__, template_folder="templates")
 
@@ -57,7 +61,8 @@ def index():
     for mp in mpp:
         for prov in proveedores:
             if mp.proveedor_id == prov.id:
-                mat = MateriaPrima.query.filter_by(id=mp.materiaprima_id).first()
+                mat = MateriaPrima.query.filter_by(
+                    id=mp.materiaprima_id).first()
                 mats.append(
                     {
                         "id": mat.id,
@@ -108,31 +113,6 @@ def index():
         options=options,
         form=form,
     )
-
-
-@compras.route("/compras/materia_prima", methods=["GET", "POST"])
-@token_required
-@allowed_roles(roles=["admin", "inventario"])
-def get_mat():
-    prov_id = request.json["proveedor_id"]
-
-    mpp = MateriaPrimaProveedor.query.all()
-    materias = MateriaPrima.query.all()
-    materias_primas_by_proveedor = []
-
-    for mp in mpp:
-        if int(prov_id) == mp.proveedor_id:
-            for mat in materias:
-                if mp.materiaprima_id == mat.id:
-                    materias_primas_by_proveedor.append(
-                        {
-                            "id": int(mat.id),
-                            "material": str(mat.material),
-                            "presentacion": str(mp.tipo),
-                        }
-                    )
-    print(materias_primas_by_proveedor)
-    return jsonify(materias_primas_by_proveedor)
 
 
 @compras.route("/purchase", methods=["POST"])
@@ -216,7 +196,3 @@ def purchase():
         db.session.rollback()
         flash("Error al realizar la compra", "danger")
         return redirect("/compras")
-
-
-def cleanNumber(number):
-    return number.replace("e", "")
