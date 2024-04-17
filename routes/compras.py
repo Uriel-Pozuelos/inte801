@@ -32,12 +32,20 @@ def index():
     token = decodeToken(active_token)
     email = token["email"]
 
+    form = CompraForm()
+    formDC = DetalleCompraForm(request.form)
+
     compras = Compra.query.all()
     det_com = DetalleCompra.query.all()
     proveedores = Proveedor.query.all()
     materias = MateriaPrima.query.all()
     mpp = MateriaPrimaProveedor.query.all()
     usuarios = Usuario.query.all()
+
+    form.id_proveedor.choices = [
+        (prov.id, prov.nombre_empresa)
+        for prov in Proveedor.query.filter_by(estatus=1).all()
+    ]
 
     compras_generales = []
     materias_primas_by_proveedor = []
@@ -98,6 +106,7 @@ def index():
         materias_list=materias_primas_by_proveedor,
         usuarios_list=usuarios,
         options=options,
+        form=form,
     )
 
 
@@ -126,7 +135,7 @@ def get_mat():
     return jsonify(materias_primas_by_proveedor)
 
 
-@compras.route("/compras/purchase", methods=["GET", "POST"])
+@compras.route("/purchase", methods=["POST"])
 @token_required
 @allowed_roles(roles=["admin", "inventario"])
 def purchase():
@@ -134,68 +143,77 @@ def purchase():
     token = decodeToken(active_token)
     email = token["email"]
 
-    try:
-        if request.method == "POST":
-            prov_id = request.form.get("slcProvider")
-            current_user = Usuario.query.filter_by(email=email).first()
-            created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_user = Usuario.query.filter_by(email=email).first()
+    created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            compra = Compra(
-                id_proveedor=prov_id,
-                id_usuario=current_user.id,
+    try:
+        prov_id = request.form.get("slcProvider")
+
+        compra = Compra(
+            id_proveedor=prov_id,
+            id_usuario=current_user.id,
+            created_at=created_at,
+        )
+
+        db.session.add(compra)
+        db.session.commit()
+
+        mat_list = request.form.getlist("slcMateriaPrima[]")
+        cantidad_list = request.form.getlist("txtCantidad[]")
+        precio_list = request.form.getlist("txtPrecio[]")
+        caduci_list = request.form.getlist("txtCaducidad[]")
+
+        for ml, cl, pl, cad in zip(mat_list, cantidad_list, precio_list, caduci_list):
+            presentacion = ml.split("-")[1]
+            mat_id = ml.split("-")[0]
+
+            det_compra = DetalleCompra(
+                id_materia=safe(mat_id),
+                precio_materia=safe(pl),
+                cantidad=safe(cl),
+                tipo=safe(presentacion),
+                caducidad=safe(cad),
+                id_compra=compra.id,
                 created_at=created_at,
             )
 
-            db.session.add(compra)
+            db.session.add(det_compra)
             db.session.commit()
 
-            mat_list = request.form.getlist("slcMateriaPrima[]")
-            cantidad_list = request.form.getlist("txtCantidad[]")
-            precio_list = request.form.getlist("txtPrecio[]")
-            caduci_list = request.form.getlist("txtCaducidad[]")
+            tipo = presentacion.split("_")[0]
+            peso = presentacion.split("_")[1]
+            medida = None
 
-            for ml in mat_list:
-                presentacion = ml.split("-")[1]
-                mat_id = ml.split("-")[0]
-                for pl in precio_list:
-                    for cl in caduci_list:
-                        for cant in cantidad_list:
-                            print("ok")
-                            det_compra = DetalleCompra(
-                                id_materia=mat_id,
-                                precio_materia=safe(pl),
-                                cantidad=safe(cant),
-                                tipo=safe(presentacion),
-                                caducidad=safe(cl),
-                                id_compra=compra.id,
-                                created_at=created_at,
-                            )
+            if peso.find("kg") != -1:
+                peso = peso.replace("kg", "")
+                medida = (int(peso) * 1000) * int(cl)
+            elif peso.find("ml") != -1:
+                peso = peso.replace("ml", "")
+                medida = (int(peso) * int(cl))
+            elif peso.find("g") != -1:
+                peso = peso.replace("g", "")
+                medida = (int(peso) * int(cl))
+            elif peso.find("lt") != -1:
+                peso = int(peso) * 1000
+                medida = (int(peso) * int(cl))
 
-                            db.session.add(det_compra)
-                            db.session.commit()
+            inv_mpp = InventarioMP(
+                id_materia_prima=mat_id,
+                cantidad=medida,
+                idCompra=compra.id,
+                caducidad=cad,
+                estatus=1,
+                created_at=created_at,
+            )
 
-                            cant_mpp = MateriaPrimaProveedor.query.filter_by(
-                                materiaprima_id=mat_id
-                            ).first()
+            db.session.add(inv_mpp)
+            db.session.commit()
 
-                            inv_mat_prima = InventarioMP(
-                                id_materia_prima=mat_id,
-                                cantidad=(int(cant_mpp.cantidad) * int(cant)),
-                                idCompra=compra.id,
-                                caducidad=safe(cl),
-                                estatus=1,
-                                created_at=created_at,
-                            )
-
-                            db.session.add(inv_mat_prima)
-                            db.session.commit()
-                            flash("Compra realizada con éxito", "success")
-
-            flash("Compra realizada con éxito", "success")
-
-            return redirect("/compras")
+        flash("Compra realizada correctamente", "success")
+        return redirect("/compras")
     except Exception as ex:
         print(ex)
+        db.session.rollback()
         flash("Error al realizar la compra", "danger")
         return redirect("/compras")
 

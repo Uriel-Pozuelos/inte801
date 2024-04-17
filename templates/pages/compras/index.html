@@ -1,5 +1,5 @@
 {% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
-import Button %} {% from 'macros/_compras.html' import lblipt %}
+import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
 {% block title %}Compras{% endblock %}
 {% block content %}
 
@@ -97,12 +97,12 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                     <h3 class="text-lg font-semibold">Agregar Compra</h3>
                 </div>
                 <div class="dialog-content">
-                    <div class="grid grid-cols-2 gap-4 mb-3 mt-3">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
                         <input type="text" hidden name="csrf_token" value="{{ csrf_token() }}" />
                         <div>
                             <div class="mt-3">
                                 <label for="provider" class="text-gray-700">Proveedor</label>
-                                <select class="select select-bordered min-w-full max-w-xs" name="slcProvider"
+                                <select class="select select-bordered select-primary min-w-full max-w-xs" name="slcProvider"
                                     id="slcProvider">
                                     <option value selected disabled>Seleccione un
                                         proveedor</option>
@@ -113,9 +113,24 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
                                     {% endfor %}
                                 </select>
                             </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4" id="btnsRow">
+                                <div>
+                                    <button type="button" class="btn btn-primary w-auto" id="btnAddRow">
+                                        Agregar otro insumo
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-danger w-auto" id="btnRemoveRow">
+                                        Eliminar ultimo insumo
+                                    </button>
+                                </div> 
+                            </div>
                         </div>
+
                         <div>
-                            <div id="rowMatPrim"></div>
+                            <div id="rowMatPrim">
+
+                            </div>
                         </div>
                     </div>
                     <div class="flex justify-between mt-4">
@@ -150,9 +165,13 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
     const slcProvider = document.getElementById("slcProvider");
     const rowMatPrim = document.getElementById("rowMatPrim");
     const slcMateriaPrima = document.getElementById("slcMateriaPrima");
+    const btnsRow = document.getElementById("btnsRow");
+    const btnAddRow = document.getElementById("btnAddRow");
+    const btnRemoveRow = document.getElementById("btnRemoveRow");
 
     btnAddPurchase.addEventListener("click", () => {
         addPurchase.showModal();
+        btnsRow.style.display = "none";
     });
 
     btnClosePurchase.addEventListener("click", () => {
@@ -179,26 +198,30 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
 
         const newRow = `
             <div class="mt-3">
-                <label for="materia_prima">Materia Prima</label>
-                <select class="select select-bordered select-primary w-full max-w-xs text-black" name="slcMateriaPrima[]" id="slcMateriaPrima">
-                    ${optionsHTML}
-                </select>
-            </div>
-            <div class="mt-3">
-                <label for="cantidad">Cantidad</label>
-                <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCantidad[]">
-            </div>
-            <div class="mt-3">
-                <label for="precio">Precio unitario</label>
-                <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtPrecio[]">
-            </div>
-            <div class="mt-3">
-                <label for="fecha">Fecha de caducidad</label>
-                <input type="date" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCaducidad[]">
+                <div class="mt-1">
+                    <label for="materia_prima">Materia Prima</label>
+                    <select class="select select-bordered select-primary w-full max-w-xs text-black" name="slcMateriaPrima[]" id="slcMateriaPrima">
+                        ${optionsHTML}
+                    </select>
+                </div>
+                <div class="mt-1">
+                    <label for="cantidad">Cantidad</label>
+                    <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCantidad[]">
+                </div>
+                <div class="mt-1">
+                    <label for="precio">Precio unitario</label>
+                    <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtPrecio[]">
+                </div>
+                <div class="mt-1">
+                    <label for="fecha">Fecha de caducidad</label>
+                    <input type="date" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCaducidad[]">
+                </div>
             </div>`;
 
 
         rowMatPrim.innerHTML = newRow;
+
+        btnsRow.style.display = "flex";
 
         const inputs = document.getElementsByTagName("input");
 
@@ -223,5 +246,57 @@ import Button %} {% from 'macros/_compras.html' import lblipt %}
 
     });
 
+    btnAddRow.addEventListener("click", () => {
+        const selectedProveedorId = slcProvider.value;
+
+        let optionsHTML = "<option value='' disabled selected>Seleccionar</option>";
+
+        options.forEach((option) => {
+            if (option.id_proveedor == selectedProveedorId) {
+                var mats = option.mats;
+
+                mats.forEach((mat) => {
+                    optionsHTML += `<option value="${mat.id}-${mat.presentacion}">${mat.material} - ${mat.presentacion}</option>`;
+                });
+            }
+        });
+
+        const newRow = `
+                <div class="mt-3">
+                    <div class="mt-1">
+                        <label for="materia_prima">Materia Prima</label>
+                        <select class="select select-bordered select-primary w-full max-w-xs text-black" name="slcMateriaPrima[]" id="slcMateriaPrima">
+                            ${optionsHTML}
+                        </select>
+                    </div>
+                    <div class="mt-1">
+                        <label for="cantidad">Cantidad</label>
+                        <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCantidad[]">
+                    </div>
+                    <div class="mt-1">
+                        <label for="precio">Precio unitario</label>
+                        <input type="number" min="1" oninput="this.value = Math.abs(this.value)" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtPrecio[]">
+                    </div>
+                    <div class="mt-1">
+                        <label for="fecha">Fecha de caducidad</label>
+                        <input type="date" class="input input-bordered input-primary w-full max-w-xs text-black" name="txtCaducidad[]">
+                    </div>
+                </div>`;
+
+        rowMatPrim.insertAdjacentHTML("beforeend", newRow);
+        
+
+    });
+
+    btnRemoveRow.addEventListener("click", () => {
+        const rows = rowMatPrim.children;
+
+        if (rows.length > 4) {
+            rowMatPrim.removeChild(rows[rows.length - 1]);
+            rowMatPrim.removeChild(rows[rows.length - 1]);
+            rowMatPrim.removeChild(rows[rows.length - 1]);
+            rowMatPrim.removeChild(rows[rows.length - 1]);
+        }
+    });
 </script>
 {% endblock %}
