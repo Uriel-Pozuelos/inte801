@@ -29,13 +29,21 @@ def get_Galletas_dict():
     galletas_dict = {galleta.id: galleta.nombre for galleta in galletas}
     return galletas_dict
 
+def get_total_gallecta():
+    galletas = Galletas.query.all()
+    # Crear un diccionario que mapea id de galletas a sus nombres
+    galletas_dict = {galleta.id: galleta.totalGalletas for galleta in galletas}
+    return galletas_dict
+
 def get_inventario_galletas():
     inventario = Inventario_galletas.query.all()
     galletas_dict = get_Galletas_dict()
+    total_dict = get_total_gallecta()
     registros_modificados = []
     for lote in inventario:
         lote_data = lote.serialize()
         lote_data['nombreGalleta'] = galletas_dict.get(lote.idGalleta, 'Nombre no encontrado')
+        lote_data['totalGalleta'] = total_dict.get(lote.idGalleta, 'Número de galletas por receta no encontrado') 
         registros_modificados.append(lote_data)
     return registros_modificados
 
@@ -44,15 +52,21 @@ def get_inventario_dict():
     inventario_dict = {lote['idLoteGalletas']: lote['nombreGalleta'] for lote in inventario}
     return inventario_dict
 
+def get_inventario_total():
+    inventario = get_inventario_galletas()
+    inventario_dict = {lote['idLoteGalletas']: lote['totalGalleta'] for lote in inventario}
+    return inventario_dict
+
 def get_Solicitud_inventario():
     solicitudes = solicitud_produccion.query.all()
     inventario_dict = get_inventario_dict()  # Obtener el diccionario de galletas
-    # Modificar cada solicitud para reemplazar idGalleta con el nombre de la galleta
+    inventario_total = get_inventario_total()
     solicitudes_modificadas = []
     for solicitud in solicitudes:
         solicitud_data = solicitud.serialize()
         # Usar el diccionario para obtener el nombre de la galleta
         solicitud_data['nombreGalleta'] = inventario_dict.get(solicitud.idLoteGalletas, 'Nombre no encontrado')
+        solicitud_data['totalGalleta'] = inventario_total.get(solicitud.idLoteGalletas, 'Número de galletas por receta no encontrado')
         solicitudes_modificadas.append(solicitud_data)
     return solicitudes_modificadas
 
@@ -61,6 +75,10 @@ def get_solicitud_dict():
     inventario_dict = {solicitud['idSolicitud']: solicitud['nombreGalleta'] for solicitud in solicitudes}
     return inventario_dict
 
+def get_solicitud_total():
+    solicitudes = get_Solicitud_inventario()
+    inventario_dict = {solicitud['idSolicitud']: solicitud['totalGalleta'] for solicitud in solicitudes}
+    return inventario_dict
 
 def get_Solicitud():
     solicitudes = solicitud_produccion.query.all()
@@ -71,11 +89,13 @@ def get_Solicitud():
 def get_Produccion():
     en_produccion = Produccion.query.all()
     solicitud_dict = get_solicitud_dict()
+    solicitud_total = get_solicitud_total()
     produccion_new = []
     for registro in en_produccion:
         produccion_data = registro.serialize()
         # Usar el diccionario para obtener el nombre de la galleta
         produccion_data['nombreGalleta'] = solicitud_dict.get(registro.idSolicitud, 'Nombre no encontrado')
+        produccion_data['totalGalleta'] = solicitud_total.get(registro.idSolicitud, 'Número de galletas por receta no encontrado')
         produccion_new.append(produccion_data)
     return produccion_new
 
@@ -124,12 +144,12 @@ def index():
         if 'add_galleta' in request.form:
             nombre_galleta = request.form.get('tipo_galleta')
             cantidad_prod = safe(request.form.get('cantidad_prod'))
-            cantidad_prod = int(cantidad_prod)*10
             produccion_id = safe(request.form.get('id_produccion'))
             fecha_hoy = datetime.now()
             fecha_caducidad = fecha_hoy + timedelta(days=20)
             fecha_caducidad_date = fecha_caducidad.date()
             galleta = Galletas.query.filter_by(nombre = nombre_galleta).first()
+            cantidad_prod = int(cantidad_prod)*int(galleta.totalGalletas)
             produccion_filter = Produccion.query.get(produccion_id)
             solicitud_filter = solicitud_produccion.query.get(produccion_filter.idSolicitud)
 
