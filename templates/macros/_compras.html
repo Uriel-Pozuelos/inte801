@@ -4,3 +4,26 @@
     <input type="text" class="input mt-1 input-bordered input-primary" id="{{id}}" name="{{name}}">
 </div>
 {% endmacro %}
+
+{% macro compra_field(field) %}
+
+<td>{{field.label}}</td>
+<dd>{{field(**kwargs) | safe}}</dd>
+
+{% if field.errors %}
+
+<ul>
+    {% for error in field.errors %}
+    <li style="
+			color: red;
+			font-size: 12px;
+			font-weight: bold;
+			list-style: none;
+		">
+        {{error}}
+    </li>
+    {% endfor %}
+</ul>
+
+{% endif %}
+{% endmacro %}

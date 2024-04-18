@@ -16,6 +16,7 @@ from forms.ProveedorForm import ProveedorForm, ProveedorEditForm, ProveedorDelFo
 from datetime import datetime
 from db.db import db
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
+from lib.security import safe
 
 proveedores = Blueprint("proveedores", __name__, template_folder="templates")
 
@@ -72,10 +73,10 @@ def new_provider():
         current_user = Usuario.query.filter_by(email=email).first()
 
         proveedor = Proveedor(
-            nombre_empresa=form.nombre_empresa.data,
-            direccion_empresa=form.direccion_empresa.data,
-            telefono_empresa=form.telefono_empresa.data,
-            nombre_encargado=form.nombre_encargado.data,
+            nombre_empresa=safe(form.nombre_empresa.data),
+            direccion_empresa=safe(form.direccion_empresa.data),
+            telefono_empresa=safe(form.telefono_empresa.data),
+            nombre_encargado=safe(form.nombre_encargado.data),
             estatus=1,
             created_at=fecha,
             updated_at=fecha,
@@ -106,10 +107,10 @@ def ed_provider():
     current_user = Usuario.query.filter_by(email=email).first()
 
     formEP = ProveedorEditForm(request.form)
-    empresa = formEP.nombre_empresa_edit.data
-    direccion = formEP.direccion_empresa_edit.data
-    tel = formEP.telefono_empresa_edit.data
-    encargado = formEP.nombre_encargado_edit.data
+    empresa = safe(formEP.nombre_empresa_edit.data)
+    direccion = safe(formEP.direccion_empresa_edit.data)
+    tel = safe(formEP.telefono_empresa_edit.data)
+    encargado = safe(formEP.nombre_encargado_edit.data)
 
     try:
         id = request.form.get("id")
@@ -160,73 +161,3 @@ def del_provider():
         db.session.rollback()
         flash("Ocurrio un error al eliminar el proveedor", "error")
         return redirect("/proveedores")
-
-
-@proveedores.route("/get_materials", methods=["GET", "POST"])
-@token_required
-@allowed_roles(roles=["admin", "compras"])
-def get_mats():
-    pov_id = request.json["proveedor_id"]
-    mats_list = []
-
-    mats = MateriaPrimaProveedor.query.filter_by(proveedor_id=pov_id).all()
-    for mat in mats:
-        material = MateriaPrima.query.filter_by(id=mat.materiaprima_id).first()
-
-        mats_list.append(
-            {
-                "id": mat.materiaprima_id,
-                "material": material.material,
-                "precio": mat.precio,
-                "cantidad": mat.cantidad,
-                "tipo": mat.tipo,
-            }
-        )
-
-    return jsonify(mats_list)
-
-
-@proveedores.route("/edit_mats", methods=["GET", "POST"])
-@token_required
-@allowed_roles(roles=["admin"])
-def ed_mats():
-    try:
-        if request.method == "POST":
-            productos_list = request.form.getlist("producto_edit[]")
-            precio_list = request.form.getlist("precio_edit[]")
-            cantidad_list = request.form.getlist("cantidad_edit[]")
-            presentacion_list = request.form.getlist("presentacion_edit[]")
-            medida_list = request.form.getlist("medida_edit[]")
-            id_list = request.form.getlist("material_id[]")
-            prov_id = request.form.get("providerId")
-            proveedor = Proveedor.query.get(prov_id)
-
-            for idl, producto, precio, cant, pres, med in zip(
-                id_list,
-                productos_list,
-                precio_list,
-                cantidad_list,
-                presentacion_list,
-                medida_list,
-            ):
-                materia_prima = MateriaPrima.query.get(idl)
-                mpp = MateriaPrimaProveedor.query.filter_by(
-                    materiaprima_id=materia_prima.id, proveedor_id=proveedor.id
-                ).first()
-
-                mpp.precio = precio
-                mpp.cantidad = cant
-                mpp.tipo = pres
-
-                materia_prima.material = producto
-                materia_prima.tipo = med
-
-                db.session.commit()
-
-            flash("Materiales actualizados correctamente", "success")
-            return redirect("/proveedores")
-        return redirect("/proveedores")
-    except Exception as ex:
-        print(str(ex))
-        flash("Se produjo un error al actualizar las materias primas", "error")
-        return str(ex)

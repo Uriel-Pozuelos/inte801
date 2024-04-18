@@ -10,3 +10,25 @@
 	/>
 </div>
 {% endmacro %}
+{% macro mermaField(field) %}
+
+<td>{{field.label}}</td>
+<dd>{{field(**kwargs) | safe}}</dd>
+
+{% if field.errors %}
+
+<ul>
+    {% for error in field.errors %}
+    <li style="
+			color: red;
+			font-size: 12px;
+			font-weight: bold;
+			list-style: none;
+		">
+        {{error}}
+    </li>
+    {% endfor %}
+</ul>
+
+{% endif %}
+{% endmacro %}
