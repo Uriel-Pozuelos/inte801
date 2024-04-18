@@ -750,7 +750,22 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+#consulta para saber las ganancias de las ventas quitando 
 
+describe venta;
+
+# consulta para saber las ventas que de hicieron en un determinado rango de fechas
+
+SELECT 
+    venta.id,
+    venta.fecha_venta,
+    venta.total,
+    usuario.nombre,
+    usuario.apellido
+
+ FROM venta join usuario on venta.idUsuario = usuario.id WHERE fecha_venta BETWEEN now() AND now();
+
+insert into materia_prima_proveedor (materiaprima_id, proveedor_id, precio, cantidad, tipo, created_at) values (1, 1, '100', '20', 'red', '2024-04-03 18:05:22');
 
 
 INSERT into materia_prima_proveedor (materiaprima_id, proveedor_id, precio, cantidad, tipo, created_at) values (13 5, 100, '20', 'costal', '2024-04-03 18:05:22');
@@ -899,3 +914,13 @@ BEGIN
 END$$
 
 DELIMITER ;
+SELECT mp.material, mpp.precio, mpp.cantidad, mpp.tipo FROM inventariogalletas ig JOIN materia_prima_proveedor mpp ON mpp.materiaprima_id = ig.idGalleta JOIN materiaprima mp ON mp.id = mpp.materiaprima_id WHERE ig.idLoteGalletas = 1 AND mpp.proveedor_id = 1;
+
+#en la consulta hay un error ya que une el materia_prima_proveedor usando el id de la materia
+#prima con el id de la galleta, lo cual no es correcto, ya que el id de la materia prima
+#debe ser igual al id de la materia prima en la tabla de materia prima proveedor
+#por lo que primero se debe hacer una subconsulta para saber que materias primas 
+# se usan en una galleta y despues hacer el join con la tabla de materia prima proveedor
+#para saber el precio de cada materia prima y que proveedor la proporciona
+
+

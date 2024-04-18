@@ -13,6 +13,7 @@ from routes.proveedores import proveedores
 from routes.compras import compras
 from routes.usuario import usuario
 from routes.venta import ventas
+from routes.insumos import insumos
 from db.db import db, create_db
 from lib.jwt import token_required, allowed_roles
 from routes.inventario_mp import inventario_mp
@@ -24,7 +25,7 @@ import json
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles,decodeToken,get_email
 
-from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 from lib.security import safe
 
@@ -34,17 +35,18 @@ load_dotenv()
 app = Flask(__name__)
 app.config.from_object(DevConfig)
 csrf = CSRFProtect(app)
+
 app.register_blueprint(recetas)
 app.register_blueprint(login)
 app.register_blueprint(produccion)
 app.register_blueprint(solicitud)
-
 app.register_blueprint(proveedores)
 app.register_blueprint(usuario)
 app.register_blueprint(ventas)
 app.register_blueprint(compras)
 app.register_blueprint(inventario_mp)
 app.register_blueprint(inventario_galletas)
+app.register_blueprint(insumos)
 app.register_blueprint(dashboard)
 
 
@@ -90,6 +92,10 @@ def before_request():
                 {
                 'ruta': 'proveedores.index',
                 'name': 'Proveedores',
+                'icon': None
+            },{
+                'ruta': 'insumos.index',
+                'name': 'Insumos',
                 'icon': None
             }
             ]

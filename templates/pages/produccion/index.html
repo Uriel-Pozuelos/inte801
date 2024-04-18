@@ -97,13 +97,13 @@
           <input type="hidden" id="produccionId" name="id_produccion">
           
           <div class="w-full">
-            <h5 for="tipoGalleta" class="font-bold text-lg mb-2 text-center">Tipo de Galleta</h5>
+            <h5 for="tipoGalleta" class="font-bold text-lg mb-2 text-center">Lote de Galleta</h5>
             <!-- Se reemplaza el select por un input readonly -->
             <input type="text" class="form-input w-full" id="tipoGalleta" readonly name="tipo_galleta">
           </div>
           <!-- Input and button wrapper with flex and item alignment -->
           <div class="flex items-center w-full gap-2">
-            <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad" name="cantidad_prod">
+            <input type="number" class="form-input block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="cantidad" placeholder="Cantidad de lotes" name="cantidad_prod">
             <button type="submit" class="btn btn-primary" name="add_galleta">Agregar</button>
           </div>
           <div class="w-full">
@@ -114,10 +114,9 @@
               <option value="{{ item.id }}" data-unidad="{{ item.tipo }}">{{ item.material }}</option>
               {% endfor %}
             </select>
-            
-            <input type="text" class="form-input mt-3 w-full" id="unidadMedida" placeholder="Unidad de medida" readonly name="unidadMedida">
+            <input type="number" class="form-input block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="unidadMedida" placeholder="Unidad de medida" name="unidadMedida" readonly>
             <div class="flex items-center w-full gap-2 mt-3">
-              <input type="number" class="form-input w-full" id="cantidadIngrediente" placeholder="Cantidad" name="cantidadIngrediente">
+              <input type="number" class="form-input block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="cantidadIngrediente" placeholder="Cantidad" name="cantidadIngrediente">
               <button type="submit" class="btn btn-primary" name="add_merma">Agregar</button>
             </div>
             <div class="flex justify-center mt-5">

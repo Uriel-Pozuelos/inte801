@@ -191,6 +191,38 @@ def get_id_galleta():
     result = db.session.execute(query).fetchall()
     return result
 
+import datetime
+def get_ventas_between_dates(str_inicio = datetime.datetime.now().strftime('%Y-%m-%d'), str_fin = datetime.datetime.now().strftime('%Y-%m-%d')):
+
+    if str_inicio == '' or str_fin == '':
+        str_inicio = datetime.datetime.now().strftime('%Y-%m-%d')
+        str_fin = datetime.datetime.now().strftime('%Y-%m-%d')
+
+
+    inicio = datetime.datetime.strptime(str_inicio, '%Y-%m-%d')
+    fin = datetime.datetime.strptime(str_fin, '%Y-%m-%d')
+
+    query = text("""
+                 
+SELECT 
+    venta.id,
+    venta.fecha_venta,
+    venta.total,
+    usuario.nombre,
+    usuario.apellido
+
+ FROM venta join usuario on venta.idUsuario = usuario.id WHERE fecha_venta BETWEEN :inicio AND :fin;
+    """)
+
+    result = db.session.execute(query, {'inicio': inicio, 'fin': fin}).fetchall()
+
+
+    log.warning(f"Inicio: {inicio}, Fin: {fin}, la query es: {query}, el resultado es: {result}")
+    log.warning(f"ayuda: {result}")
+    return [{'id': x[0], 'fecha_venta': x[1], 'total': x[2], 'nombre': x[3], 'apellido': x[4]} for x in result]
+
+
+
 def get_all_costos_produccion():
     id_galletas = get_id_galleta()
     costos_produccion = []
@@ -221,12 +253,12 @@ def get_ids_produccion():
 
 def get_proveedor_by_produccion(id):
     query = text("""
-        SELECT inventariogalletas.idLoteGalletas, proveedor.nombre_empresa, proveedor.nombre_encargado, proveedor.telefono_empresa, proveedor.direccion_empresa
+        SELECT inventariogalletas.idLoteGalletas, proveedor.nombre_empresa, proveedor.nombre_encargado, proveedor.telefono_empresa, proveedor.direccion_empresa, proveedor.id
         FROM inventariogalletas
         JOIN materia_prima_proveedor ON materia_prima_proveedor.materiaprima_id = inventariogalletas.idGalleta
         JOIN proveedor ON proveedor.id = materia_prima_proveedor.proveedor_id
         WHERE inventariogalletas.idLoteGalletas = :id AND proveedor.estatus = 1
-        GROUP BY proveedor.nombre_empresa, proveedor.nombre_encargado, proveedor.telefono_empresa, proveedor.direccion_empresa;
+        GROUP BY proveedor.nombre_empresa, proveedor.nombre_encargado, proveedor.telefono_empresa, proveedor.direccion_empresa, proveedor.id;
         """)
     result = db.session.execute(query, {'id': id}).all()
 
@@ -235,9 +267,22 @@ def get_proveedor_by_produccion(id):
 
 def get_materiales_produccion_proveedor(idLote, idProveedor):
     query = text("""
-                 SELECT mp.material, mpp.precio, mpp.cantidad, mpp.tipo
-                 FROM inventariogalletas ig JOIN materia_prima_proveedor mpp 
-                 ON mpp.materiaprima_id = ig.idGalleta JOIN materiaprima mp ON mp.id = mpp.materiaprima_id WHERE ig.idLoteGalletas = :id AND mpp.proveedor_id = :idProveedor;
+                 SELECT 
+    mp.material, 
+    mpp.precio, 
+    mpp.cantidad, 
+    mpp.tipo 
+    FROM 
+        inventariogalletas ig 
+    JOIN 
+        ingredientes i ON i.galleta_id = ig.idGalleta
+    JOIN 
+        materiaprima mp ON mp.id = i.material_id
+    JOIN 
+        materia_prima_proveedor mpp ON mpp.materiaprima_id = mp.id
+    WHERE 
+        ig.idLoteGalletas = :id
+        AND mpp.proveedor_id = :idProveedor;
     """)
     result = db.session.execute(query, {'id': idLote, 'idProveedor': idProveedor}).fetchall()
     return [{'material': x[0], 'precio': x[1], 'cantidad': x[2], 'tipo': x[3]} for x in result]
@@ -291,7 +336,8 @@ def index():
                         'nombre_encargado': proveedor[2],
                         'telefono_empresa': proveedor[3],
                         'direccion_empresa': proveedor[4],
-                        'materiales': get_materiales_produccion_proveedor(id['id'], proveedor[0])
+                        'idProveedor': proveedor[5],
+                        'materiales': get_materiales_produccion_proveedor(id['id'], proveedor[5])
                     },
                     
                 })
@@ -300,12 +346,29 @@ def index():
             lista_ids_produccion_reales.append(id)
             lista_nombres_empleados.append({'id': id['id'], 'nombre_empleado': nombre_empleado[0]})
 
-
-
-    log.info(lista_proveedores)
-
-    log.info(lista_nombres_empleados)
     
+
+
+    ventas = get_ventas_between_dates()
+
+
+
+    if request.method == 'POST':
+        inicio = request.form['inicio']
+        fin = request.form['fin']
+        if inicio == '' or fin == '':
+            inicio = datetime.datetime.now().strftime('%Y-%m-%d') and fin == datetime.datetime.now().strftime('%Y-%m-%d')
+        log.error(f"Fecha inicio: {inicio}, Fecha fin: {fin}")
+        if inicio == '' or fin == '':
+            inicio = None and fin == None
+        ventas = get_ventas_between_dates(inicio, fin)
+
+
+    total_ventas = 0
+    for venta in ventas:
+        total_ventas += venta['total']
+    
+    log.warning(f"Ventas: {ventas}")
     #hacer que ranking_cookies sea un string para que pueda ser renderizado en el template    
     return render_template('pages/dashboard/index.html',
                             galletas_en_inventario=galletas_en_inventario,
@@ -314,6 +377,8 @@ def index():
                             produccion_ids=lista_ids_produccion_reales,
                             lista_nombres_empleados=lista_nombres_empleados,
                             info_produccion=costo_produccion_galletas,
-                            proveedores=lista_proveedores
+                            proveedores=lista_proveedores,
+                            ventas=ventas,
+                            total_ventas=total_ventas
                             )
 
