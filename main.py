@@ -25,7 +25,7 @@ import json
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles,decodeToken,get_email
 
-from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 from lib.security import safe
 
