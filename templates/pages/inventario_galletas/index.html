@@ -62,7 +62,7 @@
             <tr>
                 <td class="text-md text-center p-5">{{ lote.nombreGalleta }}</td>
                 <td class="text-md text-center p-5">{{ lote.cantidad }}</td>
-                <td class="text-md text-center p-5">{{ lote.fechaCaducidad.strftime('%Y-%m-%d') }}</td>
+                <td class="text-md text-center p-5">{{ lote.fechaCaducidad }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -88,7 +88,7 @@
                     <tr>
                         <td class="text-md text-center p-5">{{ lote.nombreGalleta }}</td>
                         <td class="text-md text-center p-5">{{ lote.cantidad }}</td>
-                        <td class="text-md text-center p-5">{{ lote.fechaCaducidad.strftime('%Y-%m-%d') }}</td>
+                        <td class="text-md text-center p-5">{{ lote.fechaCaducidad }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -136,7 +136,7 @@
                 <tr>
                     <td class="text-md text-center p-5">{{ lote.nombreGalleta }}</td>
                     <td class="text-md text-center p-5">{{ lote.cantidad }}</td>
-                    <td class="text-md text-center p-5">{{ lote.fechaCaducidad.strftime('%Y-%m-%d') }}</td>
+                    <td class="text-md text-center p-5">{{ lote.fechaCaducidad }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

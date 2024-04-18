@@ -1,9 +1,8 @@
--- Active: 1710919255921@@127.0.0.1@3306@cookies
--- MySQL dump 10.13  Distrib 8.0.32, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
 --
 -- Host: localhost    Database: cookies
 -- ------------------------------------------------------
--- Server version	8.0.32-0ubuntu0.20.04.2
+-- Server version	8.0.36-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -15,14 +14,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Current Database: `cookies`
---
-
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `cookies` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-
-USE `cookies`;
 
 --
 -- Table structure for table `CorteDiario`
@@ -67,7 +58,7 @@ CREATE TABLE `compras` (
   KEY `id_usuario` (`id_usuario`),
   CONSTRAINT `compras_ibfk_1` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedor` (`id`),
   CONSTRAINT `compras_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -76,7 +67,7 @@ CREATE TABLE `compras` (
 
 LOCK TABLES `compras` WRITE;
 /*!40000 ALTER TABLE `compras` DISABLE KEYS */;
-INSERT INTO `compras` VALUES (2,1,5,'2024-04-08 18:22:07'),(3,1,5,'2024-04-08 18:23:30'),(4,1,5,'2024-04-11 18:29:33'),(5,2,5,'2024-04-11 18:30:13'),(6,2,5,'2024-04-11 18:32:25'),(7,5,5,'2024-04-13 10:04:41'),(8,5,5,'2024-04-13 10:06:39'),(9,1,5,'2024-04-13 10:10:13'),(10,1,5,'2024-04-13 10:12:09'),(11,2,5,'2024-04-13 18:15:35'),(12,2,5,'2024-04-13 20:26:33');
+INSERT INTO `compras` VALUES (2,1,5,'2024-04-08 18:22:07'),(3,1,5,'2024-04-08 18:23:30'),(4,1,5,'2024-04-11 18:29:33'),(5,2,5,'2024-04-11 18:30:13'),(6,2,5,'2024-04-11 18:32:25'),(7,5,5,'2024-04-13 10:04:41'),(8,5,5,'2024-04-13 10:06:39'),(9,1,5,'2024-04-13 10:10:13'),(10,1,5,'2024-04-13 10:12:09'),(11,2,5,'2024-04-13 18:15:35'),(12,2,5,'2024-04-13 20:26:33'),(13,1,2,'2024-04-18 10:36:14'),(14,1,2,'2024-04-18 10:36:35'),(15,1,2,'2024-04-18 10:37:28');
 /*!40000 ALTER TABLE `compras` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -108,6 +99,32 @@ INSERT INTO `conversiones` VALUES (1,1.00,1000.00,'kilos','gramos'),(2,1.00,3785
 UNLOCK TABLES;
 
 --
+-- Table structure for table `cortediario`
+--
+
+DROP TABLE IF EXISTS `cortediario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cortediario` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `fecha` datetime NOT NULL,
+  `totalEntrada` decimal(10,2) NOT NULL,
+  `totalSalida` decimal(10,2) NOT NULL,
+  `totalEfectivo` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cortediario`
+--
+
+LOCK TABLES `cortediario` WRITE;
+/*!40000 ALTER TABLE `cortediario` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cortediario` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `detalle_compra`
 --
 
@@ -128,7 +145,7 @@ CREATE TABLE `detalle_compra` (
   KEY `id_materia` (`id_materia`),
   CONSTRAINT `detalle_compra_ibfk_1` FOREIGN KEY (`id_compra`) REFERENCES `compras` (`id`),
   CONSTRAINT `detalle_compra_ibfk_2` FOREIGN KEY (`id_materia`) REFERENCES `materiaprima` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,7 +154,7 @@ CREATE TABLE `detalle_compra` (
 
 LOCK TABLES `detalle_compra` WRITE;
 /*!40000 ALTER TABLE `detalle_compra` DISABLE KEYS */;
-INSERT INTO `detalle_compra` VALUES (1,1,256,'8','costal','2024-04-18',3,'2024-04-08 18:23:30'),(2,6,30,'5','frasco 500 ml','2024-04-30',4,'2024-04-11 18:29:33'),(3,1,70,'23','costal','2024-05-01',5,'2024-04-11 18:30:13'),(4,8,20,'8','bolsa','2024-04-25',6,'2024-04-11 18:32:25'),(5,1,315,'1','costal','2024-04-13',7,'2024-04-13 10:04:41'),(6,2,21.5,'20','costal','2024-04-13',8,'2024-04-13 10:06:39'),(7,7,20000,'10000','bolsa','2024-04-30',10,'2024-04-13 10:12:09'),(8,7,6000,'20000','bolsa','2024-04-16',11,'2024-04-13 18:15:35'),(9,2,100,'5','costal','2024-04-25',12,'2024-04-13 20:26:33');
+INSERT INTO `detalle_compra` VALUES (1,1,256,'8','costal','2024-04-18',3,'2024-04-08 18:23:30'),(2,6,30,'5','frasco 500 ml','2024-04-30',4,'2024-04-11 18:29:33'),(3,1,70,'23','costal','2024-05-01',5,'2024-04-11 18:30:13'),(4,8,20,'8','bolsa','2024-04-25',6,'2024-04-11 18:32:25'),(5,1,315,'1','costal','2024-04-13',7,'2024-04-13 10:04:41'),(6,2,21.5,'20','costal','2024-04-13',8,'2024-04-13 10:06:39'),(7,7,20000,'10000','bolsa','2024-04-30',10,'2024-04-13 10:12:09'),(8,7,6000,'20000','bolsa','2024-04-16',11,'2024-04-13 18:15:35'),(9,2,100,'5','costal','2024-04-25',12,'2024-04-13 20:26:33'),(10,1,5,'2','Bolsa 250g','2024-04-25',13,'2024-04-18 10:36:14'),(11,1,15,'5','Bolsa 250g','2024-05-09',14,'2024-04-18 10:36:35'),(12,20,12,'5','Bolsa_500g','2024-04-25',15,'2024-04-18 10:37:28');
 /*!40000 ALTER TABLE `detalle_compra` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -435,7 +452,7 @@ CREATE TABLE `inventario_mp` (
   KEY `idCompra` (`idCompra`),
   CONSTRAINT `inventario_mp_ibfk_1` FOREIGN KEY (`id_materia_prima`) REFERENCES `materiaprima` (`id`),
   CONSTRAINT `inventario_mp_ibfk_2` FOREIGN KEY (`idCompra`) REFERENCES `compras` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -444,7 +461,7 @@ CREATE TABLE `inventario_mp` (
 
 LOCK TABLES `inventario_mp` WRITE;
 /*!40000 ALTER TABLE `inventario_mp` DISABLE KEYS */;
-INSERT INTO `inventario_mp` VALUES (1,1,'20000',2,'2024-04-11 18:15:02',1,'2024-04-30 02:54:24'),(22,1,'19600',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(23,2,'2000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(24,3,'5000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(25,4,'20000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(26,5,'900',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(27,6,'500',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(28,7,'800',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(29,8,'2000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(30,9,'6000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(31,10,'2000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(32,1,'160',3,'2024-04-18 00:00:00',1,'2024-04-08 18:23:30'),(33,1,'20000',2,'2024-04-11 18:16:08',1,'2024-04-30 02:54:24'),(37,6,'2500',4,'2024-04-30 00:00:00',1,'2024-04-11 18:29:33'),(38,1,'460',5,'2024-05-01 00:00:00',1,'2024-04-11 18:30:13'),(39,8,'40',6,'2024-04-25 00:00:00',1,'2024-04-11 18:32:25'),(40,1,'20',7,'2024-04-13 00:00:00',1,'2024-04-13 10:04:41'),(41,2,'400',8,'2024-04-13 00:00:00',1,'2024-04-13 10:06:39'),(42,7,'10000',10,'2024-04-30 00:00:00',1,'2024-04-13 10:12:09'),(43,7,'20000',11,'2024-04-16 00:00:00',1,'2024-04-13 18:15:35'),(44,2,'100',12,'2024-04-25 00:00:00',1,'2024-04-13 20:26:33');
+INSERT INTO `inventario_mp` VALUES (1,1,'20000',2,'2024-04-11 18:15:02',0,'2024-04-30 02:54:24'),(22,1,'19600',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(23,2,'2000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(24,3,'5000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(25,4,'20000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(26,5,'900',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(27,6,'500',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(28,7,'800',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(29,8,'2000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(30,9,'6000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(31,10,'2000',2,'2024-04-30 02:54:24',1,'2024-04-08 18:22:51'),(32,1,'160',3,'2024-04-18 00:00:00',0,'2024-04-08 18:23:30'),(33,1,'20000',2,'2024-04-11 18:16:08',0,'2024-04-30 02:54:24'),(37,6,'2500',4,'2024-04-30 00:00:00',1,'2024-04-11 18:29:33'),(38,1,'460',5,'2024-05-01 00:00:00',1,'2024-04-11 18:30:13'),(39,8,'40',6,'2024-04-25 00:00:00',1,'2024-04-11 18:32:25'),(40,1,'20',7,'2024-04-13 00:00:00',0,'2024-04-13 10:04:41'),(41,2,'400',8,'2024-04-13 00:00:00',0,'2024-04-13 10:06:39'),(42,7,'10000',10,'2024-04-30 00:00:00',1,'2024-04-13 10:12:09'),(43,7,'20000',11,'2024-04-16 00:00:00',0,'2024-04-13 18:15:35'),(44,2,'50',12,'2024-04-25 00:00:00',1,'2024-04-13 20:26:33'),(45,20,'2330',15,'2024-04-25 00:00:00',1,'2024-04-18 10:37:28');
 /*!40000 ALTER TABLE `inventario_mp` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -526,7 +543,7 @@ CREATE TABLE `materia_prima_proveedor` (
   KEY `proveedor_id` (`proveedor_id`),
   CONSTRAINT `materia_prima_proveedor_ibfk_1` FOREIGN KEY (`materiaprima_id`) REFERENCES `materiaprima` (`id`),
   CONSTRAINT `materia_prima_proveedor_ibfk_2` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedor` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -535,7 +552,7 @@ CREATE TABLE `materia_prima_proveedor` (
 
 LOCK TABLES `materia_prima_proveedor` WRITE;
 /*!40000 ALTER TABLE `materia_prima_proveedor` DISABLE KEYS */;
-INSERT INTO `materia_prima_proveedor` VALUES (1,1,1,18,'20','costal','2024-04-03 18:05:22'),(2,2,1,15,'20','costal','2024-04-03 18:05:22'),(3,3,2,60,'20','costal','2024-04-03 18:05:22'),(4,1,1,10.5,'20','costal','2024-04-11 13:08:45'),(5,1,2,12,'20','costal','2024-04-11 13:08:45'),(6,2,1,8,'15','costal','2024-04-11 13:08:45'),(7,2,2,9.5,'15','costal','2024-04-11 13:08:45'),(8,3,1,15.75,'1','barra','2024-04-11 13:08:45'),(9,3,2,17,'1','barra','2024-04-11 13:08:45'),(10,4,1,6.8,'30','costal','2024-04-11 13:08:45'),(11,4,2,7.5,'30','costal','2024-04-11 13:08:45'),(12,5,1,0.25,'100','unidad','2024-04-11 13:08:45'),(13,5,2,0.3,'100','unidad','2024-04-11 13:08:45'),(14,6,1,3.5,'500','frasco 500 ml','2024-04-11 13:08:45'),(15,6,2,4,'500','frasco 500 ml','2024-04-11 13:08:45'),(16,7,1,2,'1','bolsa','2024-04-11 13:08:45'),(17,7,2,2.5,'1','bolsa','2024-04-11 13:08:45'),(18,8,1,7,'5','bolsa','2024-04-11 13:08:45'),(19,8,2,8,'5','bolsa','2024-04-11 13:08:45'),(20,9,1,10,'2','lata','2024-04-11 13:08:45'),(21,9,2,11.5,'2','lata','2024-04-11 13:08:45'),(22,10,1,9,'3 ','bolsa','2024-04-11 13:08:45'),(23,10,2,10,'3','bolsa','2024-04-11 13:08:45'),(24,1,5,100,'20','costal','2024-04-03 18:05:22'),(25,2,5,100,'20','costal','2024-04-03 18:05:22'),(26,3,5,100,'20','costal','2024-04-03 18:05:22'),(27,4,5,100,'20','costal','2024-04-03 18:05:22'),(29,15,5,100,'20','costal','2024-04-03 18:05:22'),(30,16,5,100,'20','costal','2024-04-03 18:05:22'),(31,7,2,60,'20000','bolsa','2024-04-13 18:15:35'),(32,2,2,100,'5','costal','2024-04-13 20:26:33');
+INSERT INTO `materia_prima_proveedor` VALUES (1,1,1,100,'20','Bolsa 250g','2024-04-03 18:05:22'),(2,2,1,15,'20','costal','2024-04-03 18:05:22'),(3,3,2,60,'20','costal','2024-04-03 18:05:22'),(4,1,1,10.5,'20','costal','2024-04-11 13:08:45'),(5,1,2,12,'20','costal','2024-04-11 13:08:45'),(6,2,1,8,'15','costal','2024-04-11 13:08:45'),(7,2,2,9.5,'15','costal','2024-04-11 13:08:45'),(8,3,1,15.75,'1','barra','2024-04-11 13:08:45'),(9,3,2,17,'1','barra','2024-04-11 13:08:45'),(10,4,1,6.8,'30','costal','2024-04-11 13:08:45'),(11,4,2,7.5,'30','costal','2024-04-11 13:08:45'),(12,5,1,0.25,'100','unidad','2024-04-11 13:08:45'),(13,5,2,0.3,'100','unidad','2024-04-11 13:08:45'),(14,6,1,3.5,'500','frasco 500 ml','2024-04-11 13:08:45'),(15,6,2,4,'500','frasco 500 ml','2024-04-11 13:08:45'),(16,7,1,2,'1','bolsa','2024-04-11 13:08:45'),(17,7,2,2.5,'1','bolsa','2024-04-11 13:08:45'),(18,8,1,7,'5','bolsa','2024-04-11 13:08:45'),(19,8,2,8,'5','bolsa','2024-04-11 13:08:45'),(20,9,1,10,'2','lata','2024-04-11 13:08:45'),(21,9,2,11.5,'2','lata','2024-04-11 13:08:45'),(22,10,1,9,'3 ','bolsa','2024-04-11 13:08:45'),(23,10,2,10,'3','bolsa','2024-04-11 13:08:45'),(24,1,5,100,'20','costal','2024-04-03 18:05:22'),(25,2,5,100,'20','costal','2024-04-03 18:05:22'),(26,3,5,100,'20','costal','2024-04-03 18:05:22'),(27,4,5,100,'20','costal','2024-04-03 18:05:22'),(29,15,5,100,'20','costal','2024-04-03 18:05:22'),(30,16,5,100,'20','costal','2024-04-03 18:05:22'),(31,7,2,60,'20000','bolsa','2024-04-13 18:15:35'),(32,2,2,100,'5','costal','2024-04-13 20:26:33'),(33,20,1,15,'0','Bolsa_500g','2024-04-18 10:36:56');
 /*!40000 ALTER TABLE `materia_prima_proveedor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -555,7 +572,7 @@ CREATE TABLE `materiaprima` (
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -564,7 +581,7 @@ CREATE TABLE `materiaprima` (
 
 LOCK TABLES `materiaprima` WRITE;
 /*!40000 ALTER TABLE `materiaprima` DISABLE KEYS */;
-INSERT INTO `materiaprima` VALUES (1,'harina','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(2,'avena','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(3,'mantequilla','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(4,'azúcar','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(5,'huevo','unidad',1,'2024-04-04 00:05:21',NULL,NULL),(6,'esencia de vainilla','mililitros',1,'2024-04-04 00:05:21',NULL,NULL),(7,'bicarbonato de sodio','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(8,'pasas','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(9,'cacao en polvo','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(10,'chips de chocolate','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(11,'azúcar glass','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(12,'almendras fileteadas','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(13,'jengibre molido','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(14,'canela','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(15,'clavo molido','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(16,'nuez moscada','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(17,'miel','mililitros',1,'2024-04-04 00:05:21',NULL,NULL),(18,'coco rallado','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(19,'nueces picadas','gramos',1,'2024-04-04 00:05:21',NULL,NULL);
+INSERT INTO `materiaprima` VALUES (1,'harina','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(2,'avena','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(3,'mantequilla','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(4,'azúcar','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(5,'huevo','unidad',1,'2024-04-04 00:05:21',NULL,NULL),(6,'esencia de vainilla','mililitros',1,'2024-04-04 00:05:21',NULL,NULL),(7,'bicarbonato de sodio','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(8,'pasas','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(9,'cacao en polvo','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(10,'chips de chocolate','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(11,'azúcar glass','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(12,'almendras fileteadas','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(13,'jengibre molido','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(14,'canela','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(15,'clavo molido','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(16,'nuez moscada','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(17,'miel','mililitros',1,'2024-04-04 00:05:21',NULL,NULL),(18,'coco rallado','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(19,'nueces picadas','gramos',1,'2024-04-04 00:05:21',NULL,NULL),(20,'harina','gramos',1,'2024-04-18 10:36:56','2024-04-18 10:36:56',NULL);
 /*!40000 ALTER TABLE `materiaprima` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -602,40 +619,40 @@ INSERT INTO `merma_galletas` VALUES (11,1,1,NULL,'Se cayo al suelo',1,'2024-04-1
 UNLOCK TABLES;
 
 --
--- Table structure for table `mermas_material`
+-- Table structure for table `merma_materia`
 --
 
-DROP TABLE IF EXISTS `mermas_material`;
+DROP TABLE IF EXISTS `merma_materia`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `mermas_material` (
+CREATE TABLE `merma_materia` (
   `id` int NOT NULL AUTO_INCREMENT,
   `idInventarioMaterias` int NOT NULL,
-  `merma_tipo` varchar(100) NOT NULL,
-  `merma_fecha` varchar(50) NOT NULL,
+  `merma_tipo` varchar(200) NOT NULL,
+  `merma_fecha` datetime NOT NULL,
   `cantidad` int NOT NULL,
   `created_at` datetime NOT NULL,
   `id_produccion` int DEFAULT NULL,
-  `justificacion` varchar(255) NOT NULL,
+  `justificacion` text NOT NULL,
   `id_proveedor` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_produccion` (`id_produccion`),
   KEY `idInventarioMaterias` (`idInventarioMaterias`),
+  KEY `id_produccion` (`id_produccion`),
   KEY `id_proveedor` (`id_proveedor`),
-  CONSTRAINT `mermas_material_ibfk_1` FOREIGN KEY (`id_produccion`) REFERENCES `produccion` (`idProduccion`),
-  CONSTRAINT `mermas_material_ibfk_2` FOREIGN KEY (`idInventarioMaterias`) REFERENCES `inventario_mp` (`id`),
-  CONSTRAINT `mermas_material_ibfk_3` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedor` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `merma_materia_ibfk_1` FOREIGN KEY (`idInventarioMaterias`) REFERENCES `inventario_mp` (`id`),
+  CONSTRAINT `merma_materia_ibfk_2` FOREIGN KEY (`id_produccion`) REFERENCES `produccion` (`idProduccion`),
+  CONSTRAINT `merma_materia_ibfk_3` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedor` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `mermas_material`
+-- Dumping data for table `merma_materia`
 --
 
-LOCK TABLES `mermas_material` WRITE;
-/*!40000 ALTER TABLE `mermas_material` DISABLE KEYS */;
-INSERT INTO `mermas_material` VALUES (1,22,'Produccion','2024-04-10',400,'2024-04-10 17:37:06',NULL,'se perdio producto',NULL);
-/*!40000 ALTER TABLE `mermas_material` ENABLE KEYS */;
+LOCK TABLES `merma_materia` WRITE;
+/*!40000 ALTER TABLE `merma_materia` DISABLE KEYS */;
+INSERT INTO `merma_materia` VALUES (1,1,'Caducidad','2024-04-18 10:34:10',20000,'2024-04-18 10:34:10',NULL,'Caducidad',1),(2,32,'Caducidad','2024-04-18 10:34:10',160,'2024-04-18 10:34:10',NULL,'Caducidad',1),(3,33,'Caducidad','2024-04-18 10:34:10',20000,'2024-04-18 10:34:10',NULL,'Caducidad',1),(4,40,'Caducidad','2024-04-18 10:34:10',20,'2024-04-18 10:34:10',NULL,'Caducidad',1),(5,41,'Caducidad','2024-04-18 10:34:10',400,'2024-04-18 10:34:10',NULL,'Caducidad',1),(6,43,'Caducidad','2024-04-18 10:34:10',20000,'2024-04-18 10:34:10',NULL,'Caducidad',1),(7,44,'Control de calidad','2024-04-18 10:34:10',50,'2024-04-18 10:34:26',NULL,'merma',2),(8,45,'Control de calidad','2024-04-18 10:37:30',120,'2024-04-18 10:37:45',NULL,'se cayo',1),(9,45,'Control de calidad','2024-04-18 10:39:35',45,'2024-04-18 10:39:42',NULL,'',1),(10,45,'Control de calidad','2024-04-18 10:39:42',1,'2024-04-18 10:40:48',NULL,'',1),(11,45,'Control de calidad','2024-04-18 10:42:01',4,'2024-04-18 10:42:09',NULL,'w',1);
+/*!40000 ALTER TABLE `merma_materia` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -743,10 +760,11 @@ DROP TABLE IF EXISTS `relacionGalletaMateria`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `relacionGalletaMateria` (
-  `idRelacion` int PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  `idRelacion` int NOT NULL AUTO_INCREMENT,
   `idLoteMateria` int NOT NULL,
   `idLoteGalletas` int NOT NULL,
   `created_at` datetime NOT NULL,
+  PRIMARY KEY (`idRelacion`),
   KEY `idLoteMateria` (`idLoteMateria`),
   KEY `idLoteGalletas` (`idLoteGalletas`),
   CONSTRAINT `relacionGalletaMateria_ibfk_1` FOREIGN KEY (`idLoteMateria`) REFERENCES `inventario_materias` (`id`),
@@ -920,4 +938,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-14 15:32:01
+-- Dump completed on 2024-04-18 12:22:53

@@ -153,7 +153,7 @@ def get_precio_produccion_by_id(id):
         SELECT
             mp.material AS nombre_material,
             SUM(i.cantidad) AS cantidad_utilizada,
-            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 1000000 AS precio_material,
+            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 10000 AS precio_material,
             g.totalGalletas,
             g.nombre nombre,
             g.precio as precioTotal

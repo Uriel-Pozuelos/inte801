@@ -57,92 +57,52 @@ def before_request():
     email = get_email()
     if email:
         g.nombre = Usuario.query.filter_by(email=get_email()).first().nombre
-    
-
-    allowed_routes = [
+        allowed_routes = [
         {
             'rol': 'produccion',
             'routes': [
-                {
-                'ruta': 'produccion.index',
-                'name': 'Produccion',
-                'icon': None
-            },
-                {
-                'ruta': 'inventario_mp.index',
-                'name': 'Inventarios',
-                'icon': None
-            },
-            {
-                'ruta': 'dashboard.index',
-                'name': 'Dashboard',
-                'icon': None
-            }
+                {'ruta': 'produccion.index', 'name': 'Produccion', 'icon': None},
+                {'ruta': 'inventario_mp.index', 'name': 'Inventarios', 'icon': None},
+                {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None}
             ]
-            
         },
         {
             'rol': 'compras',
             'routes': [
-                {
-                'ruta': 'compras.index',
-                'name': 'Compras',
-                'icon': None
-            },
-                {
-                'ruta': 'proveedores.index',
-                'name': 'Proveedores',
-                'icon': None
-            },{
-                'ruta': 'insumos.index',
-                'name': 'Insumos',
-                'icon': None
-            },
-            {
-                'ruta': 'dashboard.index',
-                'name': 'Dashboard',
-                'icon': None
-            }
+                {'ruta': 'compras.index', 'name': 'Compras', 'icon': None},
+                {'ruta': 'proveedores.index', 'name': 'Proveedores', 'icon': None},
+                {'ruta': 'insumos.index', 'name': 'Insumos', 'icon': None},
+                {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None}
             ]
-        },{
+        },
+        {
             'rol': 'ventas',
             'routes': [
-                {
-                'ruta': 'recetas.index',
-                'name': 'Recetas',
-                'icon': None
-                },
-                {
-                    'ruta': 'ventas.index',
-                    'name': 'Ventas',
-                    'icon': None
-                },
-                {
-                'ruta': 'dashboard.index',
-                'name': 'Dashboard',
-                'icon': None
-            },
-            {
-                'ruta': 'inventario_galletas.index',
-                'name': 'Inventario Galletas',
-                'icon': None
-            }
+                {'ruta': 'recetas.index', 'name': 'Recetas', 'icon': None},
+                {'ruta': 'ventas.index', 'name': 'Ventas', 'icon': None},
+                {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None},
+                {'ruta': 'inventario_galletas.index', 'name': 'Inventario Galletas', 'icon': None},
+                {'ruta': 'solicitud.index', 'name': 'Solicitud Produccion', 'icon': None}
             ]
-        
-        }]
-    #agrergar rutas de admin, haciendo un merge de las rutas de los otros roles
-    admin_routes = [
-        {
-            'rol': 'admin',
-            'routes': []
         }
     ]
-    for route in allowed_routes:
-        admin_routes[0]['routes'] += route['routes']
+
+    admin_routes = [{'rol': 'admin', 'routes': []}]
+
+    admin_route_set = set()  # Conjunto para almacenar las rutas únicas
+
+    # Agregar rutas únicas al conjunto para el rol "admin"
+    for route_set in allowed_routes:
+        for route in route_set['routes']:
+            if route['ruta'] not in admin_route_set:
+                admin_routes[0]['routes'].append(route)
+                admin_route_set.add(route['ruta'])
+
+    # Agregar las rutas del rol "admin" al conjunto de rutas permitidas
     allowed_routes += admin_routes
 
-
     g.allowed_routes = allowed_routes
+
     
 @app.route("/")
 @app.route("/home")

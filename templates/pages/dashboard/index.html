@@ -85,7 +85,7 @@ block content %}
 		<div class="md:contaner px-4">
 			<section class="mt-5 mb-5">
 				<div class="relative overflow-x-auto">
-					<table class="w-full text-md text-left rtl:text-right text-black"
+					<table class="w-full text-md text-left rtl:text-right text-white"
 						id="tbl_prov">
 						<thead
 							class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
@@ -152,14 +152,13 @@ block content %}
 				<div class="md:contaner px-4">
 					<section class="mt-4">
 						<div class="relative overflow-x-auto">
-							<table class="w-full text-md text-left rtl:text-right text-black"
+							<table class="w-full text-md text-left rtl:text-right text-white"
 								id="tbl_prov">
 								<thead
 									class="text-md uppercase bg-transparent text-white text-center border-b-2 border-b-black">
 									<tr>
 										<th scope="col" class="px-6 py-3">Receta</th>
 										<th scope="col" class="px-6 py-3">Costo unitario</th>
-										<th scope="col" class="px-6 py-3">Costo total</th>
 										<th scope="col" class="px-6 py-3">Porciones</th>
 										<th scope="col" class="px-6 py-3">Precio final</th>
 										<th scope="col" class="px-6 py-3">Ver receta</th>
@@ -170,9 +169,7 @@ block content %}
 									<tr>
 										<td class="border px-6 py-3">{{ receta.nombre }}</td>
 										<td class="border px-6 py-3">$ {{ receta.costoUnitario }}</td>
-										<td class="border px-6 py-3">
-											${{ (receta.costoUnitario) * receta.totalGalletas }}
-										</td>
+									
 
 										<td class="border px-6 py-3">{{ receta.totalGalletas }} unidades</td>
 										<td class="border px-6 py-3">$ {{ receta.precioTotal }}</td>
