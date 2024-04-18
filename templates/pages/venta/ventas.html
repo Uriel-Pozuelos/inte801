@@ -45,7 +45,10 @@
 
         <div class="form-group mx-auto my-auto text-center flex flex-col border border-gray-600 p-4 rounded-md">
             <span class="text-2xl">Corte Diario</span>
-            <input type="submit" name="btn" id="corte" value="Corte" class="btn btn-primary mt-2 rounded-md mx-4">
+            <!-- <input type="submit" name="btn" id="corte" value="Corte" class="btn btn-primary mt-2 rounded-md mx-4"> -->
+            <a href="/corteDiario" class="btn btn-primary mt-2 rounded-md mx-4">
+                Corte
+            </a>
         </div>
 
         {% if ventas %}
@@ -54,6 +57,7 @@
                     <h3>Total de ventas para el {{ fecha }}: ${{ total }}</h3>
                 </div>
             </div>
+
         {% endif %}
     </form>
 

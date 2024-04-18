@@ -38,9 +38,12 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
         {% endfor %} {% endif %} {% endwith %}
     </div>
 
+    <h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Insumos</h1>
+
     <div class="md:contaner px-4">
-        <section class="mt-3">
-            <button class="btn btn-primary mt-5 float-end" id="btnAddInsumo">
+        <section class>
+            <button class="btn btn-primary mt-2 float-end" id="btnAddInsumo">
                 Agregar insumo
             </button>
         </section>
@@ -62,11 +65,10 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                                 medida</th>
                             <th class="px-6 py-3" scope="col">Precio de la
                                 presentaci&oacute;n</th>
-                            <th class="px-6 py-3" scope="col">Cantidad</th>
-                            <th class="px-6 py-3" scope="col">Acc</th>
+                            <th class="px-6 py-3" scope="col">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-transparent border-b text-center">
                         {% for insumo in insumos %}
                         <tr>
                             <td class="border px-6 py-3">{{ insumo.material
@@ -77,14 +79,14 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                                 }}</td>
                             <td class="border px-6 py-3">{{ insumo.precio
                                 }}</td>
-                            <td class="border px-6 py-3">{{ insumo.cantidad
-                                }}</td>
                             <td class="border px-6 py-3">
-                                <button type="button" class="btn btn-primary"
+                                <button type="button"
+                                    class="btn btn-secondary text-black"
                                     id="edit_{{ insumo.materiaprima_id }}">
                                     Editar
                                 </button>
-                                <button type="button" class="btn btn-danger"
+                                <button type="button"
+                                    class="btn btn-error text-white"
                                     id="del_{{ insumo.materiaprima_id }}">
                                     Eliminar
                                 </button>
@@ -117,9 +119,6 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                         <div class="mt-3">
                             {{ insumo_field(formMPP.proveedor_id) }}
                         </div>
-                        <div class="mt-3">
-                            {{ insumo_field(form.tipo) }}
-                        </div>
                     </div>
                     <div>
                         <div class="mt-3">
@@ -128,16 +127,14 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                         <div class="mt-3">
                             {{ insumo_field(formMPP.precio) }}
                         </div>
-                        <div class="mt-3">
-                            {{ insumo_field(formMPP.cantidad) }}
-                        </div>
                     </div>
                 </div>
-                <div class="flex justify-between mt-4">
-                    <button type="submit" class="btn btn-primary">
+                <div class="flex justify-end space-x-4 mt-4">
+                    <button type="submit" class="btn btn-warning text-white">
                         Guardar
                     </button>
-                    <button type="button" class="btn btn-danger" id="closeDlgAddInsumo">
+                    <button type="button" class="btn btn-error text-white"
+                        id="closeDlgAddInsumo">
                         Cancelar
                     </button>
                 </div>
@@ -159,11 +156,11 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                     value="{{ csrf_token() }}" />
                 <div id="editDlgInsumoBody">
                 </div>
-                <div class="flex justify-between mt-4">
-                    <button type="submit" class="btn btn-primary">
+                <div class="flex justify-end space-x-4 mt-4">
+                    <button type="submit" class="btn btn-warning">
                         Actualizar
                     </button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-error text-white"
                         id="closeDlgEdInsumo">
                         Cancelar
                     </button>
@@ -186,11 +183,11 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                     value="{{ csrf_token() }}" />
                 <div id="delDlgInsumoBody">
                 </div>
-                <div class="flex justify-between mt-4">
-                    <button type="submit" class="btn btn-primary">
+                <div class="flex justify-end space-x-4 mt-4">
+                    <button type="submit" class="btn btn-warning text-white">
                         Eliminar
                     </button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-error text-white"
                         id="closeDlgDelInsumo">
                         Cancelar
                     </button>
@@ -250,18 +247,6 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                                     ${opt}
                                 </select>
                             </div>
-                            <div class="mt-3">
-                                <label for="medida">Unidad de medida</label>
-                                <select name="medida" id="medida"
-                                    class="select select-bordered select-primary min-w-full max-w-xs">
-                                    <option value="${insumo.medida}" selected>${insumo.medida}</option>
-                                    <option value="litros">Litros</option>
-                                    <option value="kilos">Kilos</option>
-                                    <option value="gramos">Gramos</option>
-                                    <option value="mililitros">Mililitros</option>
-                                    <option value="unidad">Unidad</option>
-                                </select>
-                            </div>
                         </div>
                         <div>
                             <div class="mt-3">
@@ -298,9 +283,6 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                             </div>
                             <div class="mt-3">
                                 {{ edin("Precio unitario", "number", "precio", "precio", "${insumo.precio}") }}
-                            </div>
-                            <div class="mt-3">
-                                {{ edin("Cantidad por presentacion", "number", "cantidad", "cantidad", "${insumo.cantidad}") }}
                             </div>
                         </div>
                     </div>
@@ -341,10 +323,6 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                                 <label for="proveedor" class="text-gray-700">Proveedor</label>
                                 <input class="input input-bordered input-primary min-w-full max-w-xs" type="text" id="proveedor" name="proveedor" value="${insumo.empresa}" required readonly>
                             </div>
-                            <div class="mt-3">
-                                <label for="tipo" class="text-gray-700">Unidad de medida</label>
-                                <input class="input input-bordered input-primary min-w-full max-w-xs" type="text" id="tipo" name="tipo" value="${insumo.medida}" required readonly>
-                            </div>
                         </div>
                         <div>
                             <div class="mt-3">
@@ -354,10 +332,6 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                             <div class="mt-3">
                                 <label for="precio" class="text-gray-700">Precio unitario</label>
                                 <input class="input input-bordered input-primary min-w-full max-w-xs" type="number" id="precio" name="precio" value="${insumo.precio}" required readonly>
-                            </div>
-                            <div class="mt-3">
-                                <label for="cantidad" class="text-gray-700">Cantidad por presentacion</label>
-                                <input class="input input-bordered input-primary min-w-full max-w-xs" type="number" id="cantidad" name="cantidad" value="${insumo.cantidad}" required readonly>
                             </div>
                         </div>
                     </div>

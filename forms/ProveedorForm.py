@@ -29,14 +29,13 @@ class ProveedorForm(Form):
             "class": "input input-bordered input-primary w-full max-w-xs text-black"},
     )
 
-    telefono_empresa = StringField(
+    telefono_empresa = IntegerField(
         "Teléfono de la empresa",
         [validators.DataRequired(
             message="El teléfono de la empresa es obligatorio."),
          validators.Length(
-            min=13,
-            max=13,
-            message="El teléfono de la empresa debe tener 13 caracteres.",
+            message="El teléfono de la empresa debe tener 10 digitos.",
+            max=10
         )],
         render_kw={
             "class": "input input-bordered input-primary w-full max-w-xs text-black"},

@@ -1,5 +1,5 @@
 {% extends 'layouts/layout_page.html' %} {% from 'macros/_button.html'
-import Button %} {% from 'macros/_inventario_mp.html' import addMerma
+import Button %} {% from 'macros/_inventario_mp.html' import addMerma,mermaField
 %} {% block title %}Inventario de Materia Prima{% endblock %} {% block
 content %}
 
@@ -11,27 +11,19 @@ content %}
 		<div class="alert alert-{{ category }}">{{ message }}</div>
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
-
 	<div role="tablist" class="tabs tabs-bordered mt-5">
-		<input
-			type="radio"
-			name="my_tabs_1"
-			role="tab"
-			class="tab"
-			aria-label="Inventario"
-			checked
-		/>
-		<div role="tabpanel" class="tab-content p-10">
+		<input type="radio" name="my_tabs_1" role="tab"
+			class="tab text-lg text-primary" aria-label="Inventario" checked />
+		<div role="tabpanel" class="tab-content">
+			<h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Inventario</h1>
 			<!-- Table Inventario -->
 			<div class="md:contaner px-4">
 				<section class="mt-5">
 					<div class="relative overflow-x-auto">
-						<table
-							class="w-full text-sm text-left rtl:text-right text-black"
-						>
+						<table class="w-full text-sm text-left rtl:text-right text-black">
 							<thead
-								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black"
-							>
+								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
 								<tr>
 									<th scope="col" class="px-6 py-3">Materia prima</th>
 									<th scope="col" class="px-6 py-3">Cantidad</th>
@@ -48,7 +40,7 @@ content %}
 									<th scope="col" class="px-6 py-3">Acciones</th>
 								</tr>
 							</thead>
-							<tbody class="bg-transparent border-b text-center">
+							<tbody class="bg-transparent border-b text-center text-md">
 								{% for materia_prima in materia_primas %}
 								<tr>
 									<td class="px-6 py-3">
@@ -74,11 +66,8 @@ content %}
 									</td>
 									<td class="px-6 py-3">{{ materia_prima.merma }}</td>
 									<td class="px-6 py-3">
-										<button
-											class="btn btn-primary"
-											type="button"
-											id="btnAddMerma_{{materia_prima.id}}"
-										>
+										<button class="btn btn-secondary" type="button"
+											id="btnAddMerma_{{materia_prima.id}}">
 											Mermar
 										</button>
 									</td>
@@ -91,27 +80,22 @@ content %}
 			</div>
 		</div>
 
-		<input
-			type="radio"
-			name="my_tabs_1"
-			role="tab"
-			class="tab"
-			aria-label="Mermas"
-		/>
-		<div role="tabpanel" class="tab-content p-10">
+		<input type="radio" name="my_tabs_1" role="tab"
+			class="tab text-lg text-primary" aria-label="Mermas" />
+		<div role="tabpanel" class="tab-content">
+			<h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Mermas</h1>
 			<!-- Table Mermas -->
 			<div class="md:container px-4">
 				<section class="mt-5">
 					<div class="relative overflow-x-auto">
-						<table
-							class="w-full text-sm text-let rtl:text-right text-black"
-						>
+						<table class="w-full text-md text-left rtl:text-right text-black"
+							id="tbl_prov">
 							<thead
-								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black"
-							>
+								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
 								<tr>
 									<th scope="col" class="px-6 py-3">Materia prima</th>
-									<th scope="col" class="px-6 py-3">Tipo de merma</th>
+									<th scope="col" class="px-6 py-3">Causa merma</th>
 									<th scope="col" class="px-6 py-3">
 										Fecha de merma
 									</th>
@@ -124,7 +108,7 @@ content %}
 									<th scope="col" class="px-6 py-3">Proveedor</th>
 								</tr>
 							</thead>
-							<tbody class="bg-transparent border-b text-center">
+							<tbody class="bg-transparent border-b text-center text-md">
 								{% for merma in mermas %}
 								<tr>
 									<td class="px-6 py-3">{{ merma.material }}</td>
@@ -146,71 +130,39 @@ content %}
 	</div>
 
 	<!-- Dialog Add Merma -->
-	<form
-		action="{{url_for('inventario_mp.new_merma')}}"
-		novalidate
-		method="POST"
-	>
+	<form action="{{url_for('inventario_mp.new_merma')}}" novalidate method="POST">
 		<div class="card">
-			<dialog
-				class="dialog p-6 bg-white shadow-lg rounded-md"
-				id="addMerma"
-			>
+			<dialog class="dialog p-6 bg-white shadow-lg rounded-md" id="addMerma">
 				<div class="dialog-title">
 					<h3 class="text-lg font-bold">Agregar merma</h3>
 				</div>
 				<div class="dialog-content">
-					<input
-						type="hidden"
-						name="csrf_token"
-						value="{{ csrf_token() }}"
-					/>
-					<input
-						type="text"
-						hidden
-						name="id_inv_mat"
-						id="id_inv_mat"
-					/>
-					<div class="mt-3">
-						<label for>Tipo de merma</label>
-						<select
-							class="select select-bordered select-primary min-w-full max-w-xs"
-							name="slcMerma"
-							id="slcMerma"
-						>
-							<option value disabled selected>Seleccionar</option>
-							<option value="Caducidad">Caducidad</option>
-							<option value="Produccion">Producci&oacute;n</option>
-							<option value="Proveedor">Proveedor</option>
-						</select>
+					<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+					<input type="hidden" name="id" id="id" />
+					<div class="grid grid-cols-2 gap-4 mb-3 mt-3">
+						<div>
+							<div class="mt-3">
+								{{ mermaField(formM.merma_tipo) }}
+							</div>
+							<div class="mt-3">
+								{{ mermaField(formM.merma_fecha) }}
+							</div>
+							<div class="mt-3">
+								{{ mermaField(formM.cantidad)
+								}}
+							</div>
+						</div>
+						<div>
+							<div class="mt-3">
+								{{ mermaField(formM.justificacion) }}
+							</div>
+						</div>
 					</div>
-					<div class="mt-3">
-						{{ addMerma(for="Fecha de merma", name="fecha_merma",
-						id="fecha_merma", type="date") }}
-					</div>
-					<div class="mt-3">
-						{{ addMerma(for="Cantidad de merma",
-						name="cantidad_merma", id="cantidad_merma", type="number")
-						}}
-					</div>
-					<div class="mt-3">
-						<label for>Justificaci&oacute;n</label>
-						<textarea
-							class="textarea textarea-primary"
-							name="justificacion_merma"
-							id="justificacion_merma"
-							required
-						></textarea>
-					</div>
-					<div class="flex justify-between mt-4">
-						<button type="submit" class="btn btn-primary">
+					<div class="flex justify-end space-x-4 mt-4">
+						<button type="submit" class="btn btn-warning">
 							Agregar merma
 						</button>
-						<button
-							type="button"
-							class="btn btn-danger"
-							id="btnCloseMerma"
-						>
+						<button type="button" class="btn btn-error text-white" id="btnCloseMerma">
 							Cerrar
 						</button>
 					</div>
@@ -232,24 +184,17 @@ content %}
 	const current_date = new Date().toISOString().split('T')[0];
 	const btnCloseMerma = document.getElementById('btnCloseMerma');
 	const slcMerma = document.getElementById('slcMerma');
+	const dialog = document.getElementById('addMerma');
 
-	document
-		.querySelectorAll('button[id^="btnAddMerma_"]')
-		.forEach(button => {
-			button.addEventListener('click', e => {
-				const id = e.target.id.split('_')[1];
-				const dialog = document.getElementById('addMerma');
-				dialog.showModal();
-				document.getElementById('id_inv_mat').value = id;
-				document.getElementById('fecha_merma').value = current_date;
-				document
-					.getElementById('fecha_merma')
-					.setAttribute('readonly', true);
-			});
+	document.querySelectorAll('[id^="btnAddMerma_"]').forEach(button => {
+		button.addEventListener('click', (e) => {
+			const id = button.id.split("_")[1];
+			document.querySelector("#id").value = id;
+			dialog.showModal();
 		});
+	});
 
 	btnCloseMerma.addEventListener('click', () => {
-		const dialog = document.getElementById('addMerma');
 		dialog.close();
 	});
 </script>
