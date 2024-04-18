@@ -19,115 +19,124 @@ block content %}
 </style>
 <script src="/static/js/chart.js"></script>
 
-<section class="w-full h-screen flex flex-col">
+<section class="w-full h-screen flex flex-col mb-5">
 	<!-- Sección de mensajes flash -->
 	<div class="flash-messages"></div>
 
 	<!-- Sección de las dos tarjetas principales -->
 	<section class="mt-8 flex justify-between">
-		<div class="card w-96 bg-neutral text-neutral-content">
+		<div class="card w-96 bg-warning text-neutral-content">
 			<div class="card-body">
-				<h2 class="card-title text-4xl font-bold text-blue-700">
+				<h2 class="card-title text-2xl font-bold text-white">
 					Galleta más vendida
 				</h2>
-				<p class="text-2xl font-bold" id="cookie_name"></p>
+				<p class="text-xl font-bold" id="cookie_name"></p>
 			</div>
 		</div>
 
-		<div class="card w-96 bg-neutral text-neutral-content">
+		<div class="card w-96 bg-warning text-neutral-content">
 			<div class="card-body">
-				<h2 class="card-title text-4xl font-bold text-blue-700">
+				<h2 class="card-title text-2xl font-bold text-white">
 					Galleta con más mermas
 				</h2>
-				<p class="text-2xl font-bold" id="cookie_nameM"></p>
+				<p class="text-xl font-bold" id="cookie_nameM"></p>
 			</div>
 		</div>
-		<div class="card w-96 bg-neutral text-neutral-content">
+		<div class="card w-96 bg-warning text-neutral-content">
 			<div class="card-body">
-				<h2 class="card-title text-4xl font-bold text-blue-700">
+				<h2 class="card-title text-2xl font-bold text-white">
 					Galleta con utilidad más alta por ventas
 				</h2>
-				<p class="text-2xl font-bold" id="mayorUtilidad"></p>
+				<p class="text-xl font-bold" id="mayorUtilidad"></p>
 			</div>
 		</div>
 	</section>
 	<!-- seccion info ventas -->
-	<section class="card w-full bg-neutral text-primary mt-4">
-		<h2>
+	<section class="card w-full bg-warning text-primary mt-4">
+		<h2 class="text-white text-center text-lg mt-3 mb-3">
 			Información de ventas - Total de ventas: {{ ventas | length }}
 			con un total de ${{ total_ventas }}
 		</h2>
 		<div>
-			<h3>Buscar ventas por fecha</h3>
+			<h2 class="text-white text-lg mx-4 mb-3">Buscar ventas por fecha</h2>
 			<form method="POST">
 				<input
 					type="hidden"
 					name="csrf_token"
-					value="{{ csrf_token() }}"
-				/>
+					value="{{ csrf_token() }}" />
 
-				<input
-					type="date"
-					name="inicio"
-					id="fecha"
-					class="input input-bordered"
-				/>
-				<input
-					type="date"
-					name="fin"
-					id="fecha"
-					class="input input-bordered"
-				/>
+				<div class="mx-4">
+					<input
+						type="date"
+						name="inicio"
+						id="fecha"
+						class="input input-bordered input-primary text-black" />
+					<input
+						type="date"
+						name="fin"
+						id="fecha"
+						class="input input-bordered input-primary text-black" />
 
-				<button type="submit" class="btn btn-accent">Buscar</button>
+					<button type="submit" class="btn btn-accent">Buscar</button>
+				</div>
 			</form>
 		</div>
 
-		<table class="table w-full">
-			<thead>
-				<tr>
-					<th>folio</th>
-					<th>total</th>
-					<th>Empleado que realizo la venta</th>
-					<th>Fecha de la venta</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% if venta %} {% for venta in ventas %}
-				<tr>
-					<td>v-{{ venta.id }}</td>
-					<td>${{ venta.total }}</td>
-					<td>{{ venta.nombre }} {{ venta.apellido }}</td>
-					<td>{{ venta.fecha_venta }}</td>
-				</tr>
-				{% endfor %} {% else %}
-				<tr>
-					<td colspan="4">No hay ventas registradas</td>
-				</tr>
-				{% endif %}
-			</tbody>
-		</table>
+		<div class="md:contaner px-4">
+			<section class="mt-5 mb-5">
+				<div class="relative overflow-x-auto">
+					<table class="w-full text-md text-left rtl:text-right text-black"
+						id="tbl_prov">
+						<thead
+							class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+							<tr>
+								<th scope="col" class="px-6 py-3 text-white">folio</th>
+								<th scope="col" class="px-6 py-3 text-white">total</th>
+								<th scope="col" class="px-6 py-3 text-white">Empleado que realizo la
+									venta</th>
+								<th scope="col" class="py-6 px-3 text-white">Fecha de la venta</th>
+							</tr>
+						</thead>
+						<tbody class="bg-transparent border-b text-center">
+							{% if venta %} {% for venta in ventas %}
+							<tr>
+								<td class="px-6 py-3">v-{{ venta.id }}</td>
+								<td class="px-6 py-3">${{ venta.total }}</td>
+								<td class="px-6 py-3">{{ venta.nombre }} {{ venta.apellido }}</td>
+								<td class="px-6 py-3">{{ venta.fecha_venta }}</td>
+							</tr>
+							{% endfor %} {% else %}
+							<tr>
+								<td colspan="4" class="text-gray-900 text-lg">No hay ventas
+									registradas</td>
+							</tr>
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+			</section>
+		</div>
 	</section>
 
 	<!-- Sección de gráficos -->
 	<section class="grid grid-cols-2 gap-4 w-full mt-4">
-		<div class="card w-full bg-neutral text-primary">
+		<div class="card w-full bg-warning text-primary">
 			<div class="card-body">
-				<h2 class="text-xl font-bold">Ranking de galletas</h2>
+				<h2 class="text-2xl font-bold text-white">Ranking de galletas</h2>
 				<canvas id="ranking_cookies" width="400"></canvas>
 			</div>
 		</div>
 
-		<div class="card w-full bg-neutral text-primary">
+		<div class="card w-full bg-warning text-primary">
 			<div class="card-body">
-				<h2 class="text-xl font-bold">Ranking de mermas</h2>
+				<h2 class="text-2xl font-bold text-white">Ranking de mermas</h2>
 				<canvas id="ranking_mermas" width="400"></canvas>
 			</div>
 		</div>
 
-		<div class="card w-full bg-neutral text-primary">
+		<div class="card w-full bg-warning text-primary">
 			<div class="card-body">
-				<h2 class="text-xl font-bold">Galletas en inventario</h2>
+				<h2 class="text-2xl font-bold text-white">Galletas en inventario</h2>
 				<canvas id="galletas_en_inventario" width="400"></canvas>
 			</div>
 		</div>
@@ -135,56 +144,62 @@ block content %}
 
 	<!-- Sección de tabla de costo de producción por receta -->
 	<section class="mt-8">
-		<div class="card w-full bg-neutral text-neutral-content">
+		<div class="card w-full bg-warning">
 			<div class="card-body">
-				<h2 class="text-xl font-bold card-title text-primary">
+				<h2 class="text-xl font-bold card-title text-white text-center">
 					Costo de producción por receta
 				</h2>
-				<table class="table mt-4">
-					<thead>
-						<tr class="bg-primary-700 text-neutral-content">
-							<th>Receta</th>
-							<th>Costo unitario</th>
-							<th>Costo total</th>
-							<th>Porciones</th>
-							<th>Precio final</th>
-							<th>Ver receta</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for receta in info_produccion %}
-						<tr>
-							<td>{{ receta.nombre }}</td>
-							<td>$ {{ receta.costoUnitario }}</td>
-							<td>
-								${{ (receta.costoUnitario) * receta.totalGalletas }}
-							</td>
+				<div class="md:contaner px-4">
+					<section class="mt-4">
+						<div class="relative overflow-x-auto">
+							<table class="w-full text-md text-left rtl:text-right text-black"
+								id="tbl_prov">
+								<thead
+									class="text-md uppercase bg-transparent text-white text-center border-b-2 border-b-black">
+									<tr>
+										<th scope="col" class="px-6 py-3">Receta</th>
+										<th scope="col" class="px-6 py-3">Costo unitario</th>
+										<th scope="col" class="px-6 py-3">Costo total</th>
+										<th scope="col" class="px-6 py-3">Porciones</th>
+										<th scope="col" class="px-6 py-3">Precio final</th>
+										<th scope="col" class="px-6 py-3">Ver receta</th>
+									</tr>
+								</thead>
+								<tbody class="bg-transparent border-b text-center text-gray-900">
+									{% for receta in info_produccion %}
+									<tr>
+										<td class="border px-6 py-3">{{ receta.nombre }}</td>
+										<td class="border px-6 py-3">$ {{ receta.costoUnitario }}</td>
+										<td class="border px-6 py-3">
+											${{ (receta.costoUnitario) * receta.totalGalletas }}
+										</td>
 
-							<td>{{ receta.totalGalletas }} unidades</td>
-							<td>$ {{ receta.precioTotal }}</td>
-							<td>
-								<a
-									href="/recetas/{{ receta.id }}"
-									class="btn btn-accent"
-									target="_blank"
-								>
-									Ver receta
-								</a>
-							</td>
-						</tr>
-
-						{% endfor %}
-					</tbody>
-				</table>
+										<td class="border px-6 py-3">{{ receta.totalGalletas }} unidades</td>
+										<td class="border px-6 py-3">$ {{ receta.precioTotal }}</td>
+										<td class="border px-6 py-3">
+											<a
+												href="/recetas/{{ receta.id }}"
+												class="btn btn-accent"
+												target="_blank">
+												Ver receta
+											</a>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
 			</div>
 		</div>
 	</section>
 
 	<!-- Sección de información de producción -->
 	<section class="mt-8">
-		<div class="card w-full bg-neutral text-primary">
+		<div class="card w-full bg-warning text-primary">
 			<div class="card-body">
-				<h2 class="text-xl font-bold card-title">
+				<h2 class="text-2xl font-bold card-title text-white">
 					Información de Lotes de Producción
 				</h2>
 				<label for="idProd" class="text-white">
@@ -193,8 +208,7 @@ block content %}
 				<select
 					name="idProd"
 					id="idProd"
-					class="select select-bordered w-full text-black"
-				>
+					class="select select-bordered select-primary w-full text-black">
 					{% for prod in produccion_ids %}
 					<option value="{{ prod.id }}">Lote-{{ prod.id }}</option>
 					{% endfor %}
@@ -206,16 +220,14 @@ block content %}
 						El empleado encargado de la producción fue :
 						<span
 							id="empreado"
-							class="text-2xl font-bold text-yellow-400"
-						></span>
+							class="text-2xl font-bold text-yellow-400"></span>
 					</span>
 				</div>
 				<div>
-					<h4>Proveedores que participaron en la producción:</h4>
+					<h4 class="text-white text-lg">Proveedores que participaron en la producción:</h4>
 					<article
 						id="proveedores"
-						class="text-slate-950 grid grid-cols-2 gap-4 mt-4 place-content-around w-full"
-					></article>
+						class="text-slate-950 grid grid-cols-2 gap-4 mt-4 place-content-around w-full"></article>
 				</div>
 			</div>
 		</div>

@@ -14,22 +14,12 @@ from lib.d import D
 from lib.security import safe
 from forms.InventarioMP import InventarioMPForm
 from forms.MermaMateriaForm import MermaMateriaForm
-from flask import (
-    Blueprint,
-    render_template,
-    request,
-    flash,
-    redirect)
-from lib.jwt import (
-    token_required,
-    allowed_roles,
-    createToken,
-    decodeToken)
+from flask import Blueprint, render_template, request, flash, redirect
+from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 
 log = D(debug=True)
 
-inventario_mp = Blueprint("inventario_mp", __name__,
-                          template_folder="templates")
+inventario_mp = Blueprint("inventario_mp", __name__, template_folder="templates")
 
 
 @inventario_mp.route("/inventario_mp", methods=["GET"])
@@ -40,7 +30,7 @@ def index():
     token = decodeToken(active_token)
     email = token["email"]
 
-    inv_mat_prima = InventarioMP.query.all()
+    inv_mat_prima = InventarioMP.query.filter_by(estatus=1).all()
     materias_primas = MateriaPrima.query.all()
     compras = Compra.query.all()
     all_mermas = MermaMateria.query.all()
@@ -55,25 +45,26 @@ def index():
 
     for merma in all_mermas:
         prov = Proveedor.query.filter_by(id=merma.id_proveedor).first()
-        mat = MateriaPrima.query.filter_by(
-            id=merma.idInventarioMaterias).first()
+        mat = MateriaPrima.query.filter_by(id=merma.idInventarioMaterias).first()
 
         if merma is None or mat is None:
             continue
 
-        all_merm.append({
-            "id": merma.id,
-            "idInventarioMaterias": merma.idInventarioMaterias,
-            "merma_tipo": merma.merma_tipo,
-            "merma_fecha": merma.merma_fecha,
-            "cantidad": merma.cantidad,
-            "created_at": merma.created_at,
-            "id_produccion": merma.id_produccion,
-            "id_proveedor": merma.id_proveedor,
-            "justificacion": merma.justificacion,
-            "nombre_empresa": prov.nombre_empresa,
-            "material": mat.material
-        })
+        all_merm.append(
+            {
+                "id": merma.id,
+                "idInventarioMaterias": merma.idInventarioMaterias,
+                "merma_tipo": merma.merma_tipo,
+                "merma_fecha": merma.merma_fecha,
+                "cantidad": merma.cantidad,
+                "created_at": merma.created_at,
+                "id_produccion": merma.id_produccion,
+                "id_proveedor": merma.id_proveedor,
+                "justificacion": merma.justificacion,
+                "nombre_empresa": prov.nombre_empresa,
+                "material": mat.material,
+            }
+        )
 
     for inv_mp in inv_mat_prima:
         for mat in materias_primas:
@@ -88,8 +79,7 @@ def index():
                 if prov_mpp is None:
                     continue
 
-                prov = Proveedor.query.filter_by(
-                    id=prov_mpp.proveedor_id).first()
+                prov = Proveedor.query.filter_by(id=prov_mpp.proveedor_id).first()
                 merma_inv = MermaMateria.query.filter_by(
                     idInventarioMaterias=inv_mp.id
                 ).first()
@@ -98,13 +88,26 @@ def index():
                 fecha_caducidad = inv_mp.caducidad
 
                 if fecha_actual > inv_mp.caducidad:
-                    estatus_merma = "Caduco"
+                    merma = MermaMateria(
+                        idInventarioMaterias=inv_mp.id,
+                        merma_tipo="Caducidad",
+                        merma_fecha=fecha,
+                        cantidad=inv_mp.cantidad,
+                        justificacion="Caducidad",
+                        created_at=fecha,
+                        id_produccion=None,
+                        id_proveedor=int(prov.id),
+                    )
+                    
+                    inv_mp.estatus = 0
+
+                    db.session.add(merma)
                 elif fecha_actual < inv_mp.caducidad:
+                    inv_mp.estatus = 1
                     estatus_merma = "Consumible"
-                elif merma_inv is not None:
-                    estatus_merma = "Mermado"
 
                 estatus = ""
+                db.session.commit()
 
                 if int(inv_mp.cantidad) == 0:
                     estatus = "Agotado"
@@ -113,8 +116,11 @@ def index():
                 elif int(inv_mp.cantidad) > 10:
                     estatus = "Disponible"
 
-                nombre_empresa = Proveedor.query.filter_by(
-                    id=prov_mpp.proveedor_id).first().nombre_empresa
+                nombre_empresa = (
+                    Proveedor.query.filter_by(id=prov_mpp.proveedor_id)
+                    .first()
+                    .nombre_empresa
+                )
 
                 all_inv_mp.append(
                     {
@@ -130,7 +136,12 @@ def index():
                     }
                 )
 
-    return render_template("pages/inventario_mp/index.html", materia_primas=all_inv_mp, mermas=all_merm, formM=formM)
+    return render_template(
+        "pages/inventario_mp/index.html",
+        materia_primas=all_inv_mp,
+        mermas=all_merm,
+        formM=formM,
+    )
 
 
 @inventario_mp.route("/addmerma", methods=["POST"])
@@ -151,8 +162,7 @@ def new_merma():
         cantidad_merma = form.cantidad.data
         justificacion_merma = form.justificacion.data
 
-        imp = InventarioMP.query.filter_by(
-            id=id_inv_mat, estatus=1).first()
+        imp = InventarioMP.query.filter_by(id=id_inv_mat, estatus=1).first()
 
         if imp is not None:
             if int(imp.cantidad) - int(cantidad_merma) > 0:
@@ -173,14 +183,16 @@ def new_merma():
 
                 db.session.add(merma)
 
-                imp.cantidad = (int(imp.cantidad) - int(cantidad_merma))
+                imp.cantidad = int(imp.cantidad) - int(cantidad_merma)
 
                 db.session.commit()
 
                 flash("Se ha registrado la merma correctamente", "success")
             else:
                 flash(
-                    "La cantidad a mermar sobre pasa la cantidad total en inventario", "error")
+                    "La cantidad a mermar sobre pasa la cantidad total en inventario",
+                    "error",
+                )
         return redirect("/inventario_mp")
     except Exception as e:
         flash("Ocurrio un error al registrar la merma", "danger")

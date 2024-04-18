@@ -27,16 +27,8 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
         {% endfor %} {% endif %} {% endwith %}
     </div>
 
-    <div>
-        <button class="btn btn-primary">Primary</button>
-        <button class="btn btn-secondary">Secondary</button>
-        <button class="btn btn-accent">Accent</button>
-        <button class="btn btn-neutral">Neutral</button>
-        <button class="btn btn-info">Info</button>
-        <button class="btn btn-success">Success</button>
-        <button class="btn btn-warning">Warning</button>
-        <button class="btn btn-error">Error</button>
-    </div>
+    <h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Compras</h1>
 
     <!-- Button Add Purchase -->
     <div class="md:contaner px-4">
@@ -44,7 +36,7 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
             <button class="btn btn-primary float-end mx-3 text-white" id="btnAddPurchase">
                 Agregar Compra
             </button>
-            <button class="btn btn-primary float-end text-white">
+            <button class="btn btn-info float-end text-white">
                 <a href="{{url_for('inventario_mp.index')}}" class="">
                     Inventario
                 </a>
@@ -96,7 +88,7 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
     <!-- Dialog Add Purchase -->
     <form action="{{url_for('compras.purchase')}}" novalidate method="POST">
         <div class="card">
-            <dialog id="addPurchase" class="dialog p-6 bg-white shadow-lg rounded-md">
+            <dialog id="addPurchase" class="dialog p-6 bg-base-100 shadow-lg rounded-md">
                 <div class="dialog-title">
                     <h3 class="text-lg font-semibold">Agregar Compra</h3>
                 </div>
@@ -119,12 +111,12 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
                             </div>
                             <div class="grid grid-cols-2 gap-4 mt-4" id="btnsRow">
                                 <div>
-                                    <button type="button" class="btn btn-primary w-auto" id="btnAddRow">
+                                    <button type="button" class="btn btn-secondary w-auto" id="btnAddRow">
                                         Agregar otro insumo
                                     </button>
                                 </div>
                                 <div>
-                                    <button type="button" class="btn btn-danger w-auto" id="btnRemoveRow">
+                                    <button type="button" class="btn btn-neutral w-auto" id="btnRemoveRow">
                                         Eliminar ultimo insumo
                                     </button>
                                 </div>
@@ -138,10 +130,10 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
                         </div>
                     </div>
                     <div class="flex justify-between mt-4">
-                        <button type="submit" class="btn btn-primary w-52">
+                        <button type="submit" class="btn btn-warning w-52">
                             Solicitar
                         </button>
-                        <button type="button" class="btn btn-danger w-48" id="btnClosePurchase">
+                        <button type="button" class="btn btn-error w-48 text-white" id="btnClosePurchase">
                             Cerrar
                         </button>
                     </div>

@@ -1,5 +1,5 @@
 {% extends 'layouts/layout_page.html' %}
-{% block content %}  
+{% block content %}
 <style>
 	.flash-messages {
 		position: fixed;
@@ -30,103 +30,128 @@
 <div class="flash-messages">
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-          {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">{{message}}</div>
-          {% endfor %}
+  {% for category, message in messages %}
+  <div class="alert alert-{{ category }}">{{message}}</div>
+  {% endfor %}
   {% endif %}
   {% endwith %}
 </div>
 
-  <div class="flex flex-col items-center justify-center">
-    <h1 class="text-4xl font-bold text-primary mt-5 mb-4 text-center">Producción</h1>
-    <!-- Contenedor para el botón con alineación a la derecha -->
-    <div class="w-full flex justify-end me-5 mb-4">
-        <a href={{url_for('produccion.revisar_solicitudes')}} class="btn btn-primary mt-4 me-5">Solicitudes de producción</a>
-    </div>
-</div>
-<div class="flex justify-center">
-  <div class="flex-grow table-container overflow-y-auto max-h-96 w-full max-w-3xl mr-5">
-    <table class="mt-5 table w-full text-black">
-      <!-- Encabezado de la tabla -->
-      <thead>
-        <tr>
-          <th class="text-black text-lg text-center p-5">Tipo de Galleta</th>
-          <th class="text-black text-lg text-center p-5">Cantidad</th>
-          <th class="text-black text-lg text-center p-5">Producción Actual</th>
-          <th class="text-black text-lg text-center p-5">Estatus</th>
-          <th class="text-black text-lg text-center p-5">Acción</th> <!-- Nueva columna Agregar -->
-        </tr>
-      </thead>
-      <tbody>
-        {% for prod in produccion %}
-        <!-- Buscar la solicitud correspondiente -->
-        {% for sol in solicitud %}
-        {% if sol.idSolicitud == prod.idSolicitud %}
-        <tr>
-          <td class="text-md text-center p-3">{{ prod.nombreGalleta }}</td>
-          <td class="text-md text-center p-3">{{ sol.cantidad }}</td>
-          <td class="text-md text-center p-3">{{ prod.produccionActual }}</td>
-          <td class="text-md text-center p-3">
-            {% if prod.estatus == 0 %}
-            En producción
-            {% elif prod.estatus == 1 %}
-            Terminado
-            {% else %}
-            {{ prod.estatus }}
-            {% endif %}
-          </td>
-          <td class="text-md text-center p-3">
-            <button type="button" class="btn btn-primary agregar-btn" data-id="{{ prod.idProduccion }}">Editar</button> <!-- Botón Agregar -->
-          </td>
-        </tr>
-        {% endif %}
-        {% endfor %}
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="flex flex-col items-center justify-center">
+  <h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Producci&oacute;n</h1>
+  <!-- Contenedor para el botón con alineación a la derecha -->
+  <div class="w-full flex justify-end me-5 mb-4">
+    <a href="{{ url_for('produccion.revisar_solicitudes') }}"
+      class="btn btn-primary mt-4 me-5">Solicitudes de producción</a>
   </div>
-  <div class="card-container ml-5 w-1/4 hidden" id="formularioContainer">
-    <div class="card bg-white text-black shadow-lg rounded-lg p-5">
-      <div class="card-header text-center">
-        <h3 class="card-title font-bold">Agregar</h3>
-      </div>
-      <div class="card-body">
-        <form class="flex flex-col items-center gap-5" method="POST">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <!-- Input oculto para el ID de producción -->
-          <input type="hidden" id="produccionId" name="id_produccion">
-          
-          <div class="w-full">
-            <h5 for="tipoGalleta" class="font-bold text-lg mb-2 text-center">Tipo de Galleta</h5>
-            <!-- Se reemplaza el select por un input readonly -->
-            <input type="text" class="form-input w-full" id="tipoGalleta" readonly name="tipo_galleta">
+</div>
+<div class="md:contaner px-4">
+  <section class="mt-5">
+    <div class="relative overflow-w-auto">
+      <table class="w-full text-md text-left rtl:text-right text-black">
+        <!-- Encabezado de la tabla -->
+        <thead
+          class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+          <tr>
+            <th scope="col" class="px-6 py-3">Tipo de
+              Galleta</th>
+            <th scope="col" class="px-6 py-3">Cantidad</th>
+            <th scope="col" class="px-6 py-3">Producción
+              Actual</th>
+            <th scope="col" class="px-6 py-3">Estatus</th>
+            <th scope="col" class="px-6 py-3">Acción</th>
+            <!-- Nueva columna Agregar -->
+          </tr>
+        </thead>
+        <tbody class="bg-transparent border-b text-center">
+          {% for prod in produccion %}
+          <!-- Buscar la solicitud correspondiente -->
+          {% for sol in solicitud %}
+          {% if sol.idSolicitud == prod.idSolicitud %}
+          <tr>
+            <td class="border px-6 py-3">{{ prod.nombreGalleta }}</td>
+            <td class="border px-6 py-3">{{ sol.cantidad }}</td>
+            <td class="border px-6 py-3">{{ prod.produccionActual
+              }}</td>
+            <td class="border px-6 py-3">
+              {% if prod.estatus == 0 %}
+              En producción
+              {% elif prod.estatus == 1 %}
+              Terminado
+              {% else %}
+              {{ prod.estatus }}
+              {% endif %}
+            </td>
+            <td class="border px-6 py-3">
+              <!-- Botón Agregar -->
+              <button type="button" class="btn btn-secondary agregar-btn"
+                data-id="{{ prod.idProduccion }}">Editar</button>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="card-container ml-5 w-1/4 hidden" id="formularioContainer">
+  <div class="card bg-white text-black shadow-lg rounded-lg p-5">
+    <div class="card-header text-center">
+      <h3 class="card-title font-bold">Agregar</h3>
+    </div>
+    <div class="card-body">
+      <form class="flex flex-col items-center gap-5" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <!-- Input oculto para el ID de producción -->
+        <input type="hidden" id="produccionId" name="id_produccion">
+
+        <div class="w-full">
+          <h5 for="tipoGalleta"
+            class="font-bold text-lg mb-2 text-center">Tipo de Galleta</h5>
+          <!-- Se reemplaza el select por un input readonly -->
+          <input type="text" class="form-input w-full" id="tipoGalleta"
+            readonly name="tipo_galleta">
+        </div>
+        <!-- Input and button wrapper with flex and item alignment -->
+        <div class="flex items-center w-full gap-2">
+          <input type="number" class="form-input w-full" id="cantidad"
+            placeholder="Cantidad" name="cantidad_prod">
+          <button type="submit" class="btn btn-primary"
+            name="add_galleta">Agregar</button>
+        </div>
+        <div class="w-full">
+          <h5 for="merma"
+            class="font-bold text-lg mb-2 text-center">Merma</h5>
+          <select class="form-select w-full" id="ingrediente"
+            aria-label="Seleccione el ingrediente" name="ingrediente">
+            <option value disabled selected>Selecciona el ingrediente</option>
+            {% for item in materia %}
+            <option value="{{ item.id }}" data-unidad="{{ item.tipo }}">{{
+              item.material }}</option>
+            {% endfor %}
+          </select>
+
+          <input type="text" class="form-input mt-3 w-full" id="unidadMedida"
+            placeholder="Unidad de medida" readonly name="unidadMedida">
+          <div class="flex items-center w-full gap-2 mt-3">
+            <input type="number" class="form-input w-full"
+              id="cantidadIngrediente" placeholder="Cantidad"
+              name="cantidadIngrediente">
+            <button type="submit" class="btn btn-primary"
+              name="add_merma">Agregar</button>
           </div>
-          <!-- Input and button wrapper with flex and item alignment -->
-          <div class="flex items-center w-full gap-2">
-            <input type="number" class="form-input w-full" id="cantidad" placeholder="Cantidad" name="cantidad_prod">
-            <button type="submit" class="btn btn-primary" name="add_galleta">Agregar</button>
+          <div class="flex justify-center mt-5">
+            <button type="button" class="btn btn-secondary"
+              id="cancelarBtn">Cancelar</button>
+            <button type="sutbmit" class="btn bg-red-500 ml-5"
+              id="finalizarBtn" name="finalizar">Finalizar Solicitud</button>
           </div>
-          <div class="w-full">
-            <h5 for="merma" class="font-bold text-lg mb-2 text-center">Merma</h5>
-            <select class="form-select w-full" id="ingrediente" aria-label="Seleccione el ingrediente" name="ingrediente">
-              <option value="" disabled selected>Selecciona el ingrediente</option>
-              {% for item in materia %}
-              <option value="{{ item.id }}" data-unidad="{{ item.tipo }}">{{ item.material }}</option>
-              {% endfor %}
-            </select>
-            
-            <input type="text" class="form-input mt-3 w-full" id="unidadMedida" placeholder="Unidad de medida" readonly name="unidadMedida">
-            <div class="flex items-center w-full gap-2 mt-3">
-              <input type="number" class="form-input w-full" id="cantidadIngrediente" placeholder="Cantidad" name="cantidadIngrediente">
-              <button type="submit" class="btn btn-primary" name="add_merma">Agregar</button>
-            </div>
-            <div class="flex justify-center mt-5">
-              <button type="button" class="btn btn-secondary" id="cancelarBtn">Cancelar</button>
-              <button type="sutbmit" class="btn bg-red-500 ml-5" id="finalizarBtn" name="finalizar">Finalizar Solicitud</button>  
-            </div>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   </div>
 </div>

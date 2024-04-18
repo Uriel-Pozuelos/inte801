@@ -11,16 +11,19 @@ content %}
 		<div class="alert alert-{{ category }}">{{ message }}</div>
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
-
 	<div role="tablist" class="tabs tabs-bordered mt-5">
-		<input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Inventario" checked />
-		<div role="tabpanel" class="tab-content p-10">
+		<input type="radio" name="my_tabs_1" role="tab"
+			class="tab text-lg text-primary" aria-label="Inventario" checked />
+		<div role="tabpanel" class="tab-content">
+			<h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Inventario</h1>
 			<!-- Table Inventario -->
 			<div class="md:contaner px-4">
 				<section class="mt-5">
 					<div class="relative overflow-x-auto">
 						<table class="w-full text-sm text-left rtl:text-right text-black">
-							<thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+							<thead
+								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
 								<tr>
 									<th scope="col" class="px-6 py-3">Materia prima</th>
 									<th scope="col" class="px-6 py-3">Cantidad</th>
@@ -37,7 +40,7 @@ content %}
 									<th scope="col" class="px-6 py-3">Acciones</th>
 								</tr>
 							</thead>
-							<tbody class="bg-transparent border-b text-center">
+							<tbody class="bg-transparent border-b text-center text-md">
 								{% for materia_prima in materia_primas %}
 								<tr>
 									<td class="px-6 py-3">
@@ -63,7 +66,7 @@ content %}
 									</td>
 									<td class="px-6 py-3">{{ materia_prima.merma }}</td>
 									<td class="px-6 py-3">
-										<button class="btn btn-primary" type="button"
+										<button class="btn btn-secondary" type="button"
 											id="btnAddMerma_{{materia_prima.id}}">
 											Mermar
 										</button>
@@ -77,14 +80,19 @@ content %}
 			</div>
 		</div>
 
-		<input type="radio" name="my_tabs_1" role="tab" class="tab" aria-label="Mermas" />
-		<div role="tabpanel" class="tab-content p-10">
+		<input type="radio" name="my_tabs_1" role="tab"
+			class="tab text-lg text-primary" aria-label="Mermas" />
+		<div role="tabpanel" class="tab-content">
+			<h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Mermas</h1>
 			<!-- Table Mermas -->
 			<div class="md:container px-4">
 				<section class="mt-5">
 					<div class="relative overflow-x-auto">
-						<table class="w-full text-sm text-let rtl:text-right text-black">
-							<thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+						<table class="w-full text-md text-left rtl:text-right text-black"
+							id="tbl_prov">
+							<thead
+								class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
 								<tr>
 									<th scope="col" class="px-6 py-3">Materia prima</th>
 									<th scope="col" class="px-6 py-3">Causa merma</th>
@@ -100,7 +108,7 @@ content %}
 									<th scope="col" class="px-6 py-3">Proveedor</th>
 								</tr>
 							</thead>
-							<tbody class="bg-transparent border-b text-center">
+							<tbody class="bg-transparent border-b text-center text-md">
 								{% for merma in mermas %}
 								<tr>
 									<td class="px-6 py-3">{{ merma.material }}</td>
@@ -150,11 +158,11 @@ content %}
 							</div>
 						</div>
 					</div>
-					<div class="flex justify-between mt-4">
-						<button type="submit" class="btn btn-primary">
+					<div class="flex justify-end space-x-4 mt-4">
+						<button type="submit" class="btn btn-warning">
 							Agregar merma
 						</button>
-						<button type="button" class="btn btn-danger" id="btnCloseMerma">
+						<button type="button" class="btn btn-error text-white" id="btnCloseMerma">
 							Cerrar
 						</button>
 					</div>

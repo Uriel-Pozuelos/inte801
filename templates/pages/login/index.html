@@ -28,15 +28,13 @@ content %}
 </style>
 
 <section
-	class="w-full h-screen flex justify-center items-center flex-col"
->
+	class="w-full h-screen flex justify-center items-center flex-col">
 	<div class="flash-messages">
 		{% with messages = get_flashed_messages(with_categories=true) %}
 		{% if messages %} {% for category, message in messages %}
 		<div class="alert alert-{{ category }}">{{ message }}</div>
 		{% endfor %} {% endif %} {% endwith %}
 	</div>
-
 
 	<form method="POST" novalidate>
 		<dialog class="modal" id="modal">
@@ -53,37 +51,35 @@ content %}
 							type="email"
 							name="forgot"
 							class="input input-bordered"
-							placeholder="Correo"
-						/>
+							placeholder="Correo" />
 						<input type="submit"
-						name="forgot"
-						class="btn btn-secondary"
-						value="Recuperar contraseña"
-						>
+							name="forgot"
+							class="btn btn-secondary"
+							value="Recuperar contraseña">
 					</label>
 				</div>
-		</dialog>
+			</dialog>
 
-		
-
-		<div class="card w-96 bg-primary text-primary_hover">
-			<div class="card-body">
-				<h2 class="card-title">Inicia sesión</h2>
-				{{ camposNuevos(form.correo) }} {{
-				camposNuevos(form.password)}}
-				<input
-					type="hidden"
-					name="csrf_token"
-					value="{{ csrf_token() }}"
-				/>
-				<div class="card-actions justify-center">
-					<button
-						id="forgot"
-						type="button"
-						class="btn btn-accent"
-						>Olvide mi contraseña</button
-					>
-					<script>
+			<div class="card w-96 bg-primary text-primary_hover">
+				<div class="card-body">
+					<div class="flex flex-col items-center">
+						<img
+							src="{{url_for('static', filename='img/logo_dg_shortcut_icon_white.webp')}}"
+							class="h-40 w-40" alt="Logo">
+					</div>
+					<h1 class="card-title text-white text-center">Inicia sesión</h1>
+					{{ camposNuevos(form.correo) }} {{
+					camposNuevos(form.password)}}
+					<input
+						type="hidden"
+						name="csrf_token"
+						value="{{ csrf_token() }}" />
+					<div class="card-actions justify-center space-x-6 mt-4">
+						<button
+							id="forgot"
+							type="button"
+							class="btn btn-accent">Olvide mi contraseña</button>
+						<script>
 						document
 						document
 							.getElementById('forgot')
@@ -91,12 +87,12 @@ content %}
 								document.getElementById('modal').showModal();
 							});
 					</script>
-					<button class="btn btn-secondary">Iniciar sesión</button>
+						<button class="btn btn-secondary">Iniciar sesión</button>
+					</div>
 				</div>
 			</div>
-		</div>
-	</form>
-	<script>
+		</form>
+		<script>
 		const flashMessage = document.querySelector('.flash-messages');
 		if (flashMessage) {
 			setTimeout(() => {
@@ -104,5 +100,5 @@ content %}
 			}, 5000);
 		}
 	</script>
-</section>
-{% endblock %}
+	</section>
+	{% endblock %}

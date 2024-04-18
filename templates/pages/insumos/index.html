@@ -38,9 +38,12 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
         {% endfor %} {% endif %} {% endwith %}
     </div>
 
+    <h1
+        class="text-3xl font-bold text-primary mt-3 text-center">Insumos</h1>
+
     <div class="md:contaner px-4">
-        <section class="mt-3">
-            <button class="btn btn-primary mt-5 float-end" id="btnAddInsumo">
+        <section class>
+            <button class="btn btn-primary mt-2 float-end" id="btnAddInsumo">
                 Agregar insumo
             </button>
         </section>
@@ -65,7 +68,7 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                             <th class="px-6 py-3" scope="col">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-transparent border-b text-center">
                         {% for insumo in insumos %}
                         <tr>
                             <td class="border px-6 py-3">{{ insumo.material
@@ -77,11 +80,13 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                             <td class="border px-6 py-3">{{ insumo.precio
                                 }}</td>
                             <td class="border px-6 py-3">
-                                <button type="button" class="btn btn-primary"
+                                <button type="button"
+                                    class="btn btn-secondary text-black"
                                     id="edit_{{ insumo.materiaprima_id }}">
                                     Editar
                                 </button>
-                                <button type="button" class="btn btn-danger"
+                                <button type="button"
+                                    class="btn btn-error text-white"
                                     id="del_{{ insumo.materiaprima_id }}">
                                     Eliminar
                                 </button>
@@ -124,11 +129,11 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-between mt-4">
-                    <button type="submit" class="btn btn-primary">
+                <div class="flex justify-end space-x-4 mt-4">
+                    <button type="submit" class="btn btn-warning text-white">
                         Guardar
                     </button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-error text-white"
                         id="closeDlgAddInsumo">
                         Cancelar
                     </button>
@@ -151,11 +156,11 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                     value="{{ csrf_token() }}" />
                 <div id="editDlgInsumoBody">
                 </div>
-                <div class="flex justify-between mt-4">
-                    <button type="submit" class="btn btn-primary">
+                <div class="flex justify-end space-x-4 mt-4">
+                    <button type="submit" class="btn btn-warning">
                         Actualizar
                     </button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-error text-white"
                         id="closeDlgEdInsumo">
                         Cancelar
                     </button>
@@ -178,11 +183,11 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                     value="{{ csrf_token() }}" />
                 <div id="delDlgInsumoBody">
                 </div>
-                <div class="flex justify-between mt-4">
-                    <button type="submit" class="btn btn-primary">
+                <div class="flex justify-end space-x-4 mt-4">
+                    <button type="submit" class="btn btn-warning text-white">
                         Eliminar
                     </button>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-error text-white"
                         id="closeDlgDelInsumo">
                         Cancelar
                     </button>
@@ -242,6 +247,8 @@ Insumos - Cookies and Dreams{% endblock %} {% block content %}
                                     ${opt}
                                 </select>
                             </div>
+                        </div>
+                        <div>
                             <div class="mt-3">
                                 <label for="presentacion">Presentaci&oacute;n</label>
                                 <select name="presentacion" id="presentacion"

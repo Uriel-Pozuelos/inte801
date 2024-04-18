@@ -29,7 +29,8 @@ class MermaMateriaForm(Form):
             DataRequired(message='La fecha de la merma es obligatoria')
         ],
         render_kw={
-            "class": "input input-bordered input-primary w-full max-w-xs text-black"
+            "class": "input input-bordered input-primary w-full max-w-xs text-black",
+            "readonly": True
         }
     )
 
