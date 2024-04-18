@@ -5,6 +5,7 @@ from models.merma_galletas import Merma_galletas
 from lib.d import D
 from db.db import db
 from datetime import datetime, date
+from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 
 inventario_galletas = Blueprint('inventario_galletas', __name__, template_folder='templates')
 log = D(debug=True)
@@ -26,6 +27,8 @@ def get_inventario_galletas():
     return registros_modificados
 
 @inventario_galletas.route('/inventario_galletas', methods=['GET', 'POST'])
+@token_required
+@allowed_roles(roles=["admin", "ventas"])
 def index():
     inventario = get_inventario_galletas()
     all_merma = Merma_galletas.query.all()

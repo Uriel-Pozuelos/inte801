@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from sqlalchemy import cast, Date
 from models.Galleta_materia import Galleta_materia
 from lib.security import safe
+from lib.jwt import token_required, allowed_roles, createToken, decodeToken
+from models.usuario import Usuario
    
 
 produccion = Blueprint('produccion', __name__, template_folder='templates')
@@ -98,6 +100,8 @@ def get_inventario():
 #    return [produccion.serialize() for produccion in en_produccion]
 
 @produccion.route('/produccion', methods=['GET', 'POST'] )
+@token_required
+@allowed_roles(roles=["admin", "produccion"])
 def index():
     form = ProduccionForm(request.form)
     solicitud = get_Solicitud()
@@ -313,7 +317,12 @@ def calcular_materia_prima_restante(nombre):
                 
 
 @produccion.route('/revisar_solicitudes', methods=['GET', 'POST'])
+@token_required
+@allowed_roles(roles=["admin", "produccion"])
 def revisar_solicitudes():
+    active_token = request.cookies.get("token")
+    token = decodeToken(active_token)
+    email = token["email"]
     solicitudes = get_Solicitud_inventario()
     solicitues_filtro = []
     for solicitud in solicitudes:
@@ -323,6 +332,7 @@ def revisar_solicitudes():
 
     if request.method == 'POST':
         if 'aceptada' in request.form:
+            usuario = Usuario.query.filter_by(email = email)
             solicitud_id = safe(request.form.get('solicitud_id'))
             nombre_galleta = request.form.get('nombreGalleta')
             mp_requerida_prod = calcular_materia_prima_restante(nombre_galleta)
@@ -352,7 +362,7 @@ def revisar_solicitudes():
             db.session.commit()
             produccion = Produccion(
                 idSolicitud = solicitud_id,
-                idUsuario = 1
+                idUsuario = usuario.id
             )
             db.session.add(produccion)
             db.session.commit()
