@@ -25,7 +25,7 @@ import json
 from db.db import db,create_db
 from lib.jwt import token_required,allowed_roles,decodeToken,get_email
 
-from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 from lib.security import safe
 
@@ -207,4 +207,4 @@ if __name__ == "__main__":
         print("Creando usuarios...")
         seeder.seed_users()
         print("Se crearon correctamente los usuarios...")
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)

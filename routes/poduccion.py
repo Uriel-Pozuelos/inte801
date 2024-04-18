@@ -11,6 +11,9 @@ from forms.Produccion import ProduccionForm
 from datetime import datetime, timedelta
 from sqlalchemy import cast, Date
 from models.Galleta_materia import Galleta_materia
+from lib.security import safe
+from lib.jwt import token_required, allowed_roles, createToken, decodeToken
+from models.usuario import Usuario
    
 
 produccion = Blueprint('produccion', __name__, template_folder='templates')
@@ -97,6 +100,8 @@ def get_inventario():
 #    return [produccion.serialize() for produccion in en_produccion]
 
 @produccion.route('/produccion', methods=['GET', 'POST'] )
+@token_required
+@allowed_roles(roles=["admin", "produccion"])
 def index():
     form = ProduccionForm(request.form)
     solicitud = get_Solicitud()
@@ -118,8 +123,9 @@ def index():
     if request.method == 'POST':
         if 'add_galleta' in request.form:
             nombre_galleta = request.form.get('tipo_galleta')
-            cantidad_prod = request.form.get('cantidad_prod')
-            produccion_id = request.form.get('id_produccion')
+            cantidad_prod = safe(request.form.get('cantidad_prod'))
+            cantidad_prod = int(cantidad_prod)*10
+            produccion_id = safe(request.form.get('id_produccion'))
             fecha_hoy = datetime.now()
             fecha_caducidad = fecha_hoy + timedelta(days=20)
             fecha_caducidad_date = fecha_caducidad.date()
@@ -155,7 +161,7 @@ def index():
                 
             # -------------------- Agregar galleta ------------------
 
-            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).filter(cast(Inventario_galletas.fechaCaducidad, Date) == fecha_caducidad_date).first()
+            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).first()
             if inventario_activo:
                 total = inventario_activo.cantidad + int(cantidad_prod)
                 inventario_activo.cantidad = total
@@ -193,7 +199,7 @@ def index():
                         db.session.commit()
                         if not galleta_materia:
                             relacion = Galleta_materia(
-                                idLoteMateria = lote.ids,
+                                idLoteMateria = lote.id,
                                 idLoteGalletas = inventario_active.idLoteGalletas
                             )
                             db.session.add(relacion)
@@ -206,7 +212,7 @@ def index():
                         if not galleta_materia:
                             relacion = Galleta_materia(
                                 idLoteMateria = lote.id,
-                                idLoteGalletas = inventario_activo.idLoteGalletas
+                                idLoteGalletas = inventario_active.idLoteGalletas
                             )
                             db.session.add(relacion)
                             db.session.commit()
@@ -214,10 +220,9 @@ def index():
             flash("Galletas agregadas correctamente")
             return(redirect("/produccion"))
         elif 'add_merma' in request.form:
-            produccion_id = request.form.get('id_produccion')
+            produccion_id = safe(request.form.get('id_produccion'))
             ingrediente_merma = request.form.get('ingrediente')
-            unidad_medida = request.form.get('unidadMedida')
-            cantidad_merma = request.form.get('cantidadIngrediente')
+            cantidad_merma = safe(request.form.get('cantidadIngrediente'))
             total = 0
 
             # -------------- Verificar existencia en inventario ----------------
@@ -276,7 +281,7 @@ def index():
                     flash("Merma agregada correctamente")
                     return(redirect("/produccion"))
         elif 'finalizar' in request.form:
-            produccion_id = request.form.get('id_produccion')
+            produccion_id = safe(request.form.get('id_produccion'))
             produccion_fin = Produccion.query.get(produccion_id)
             produccion_fin.estatus = 1
             db.session.commit()  
@@ -312,7 +317,12 @@ def calcular_materia_prima_restante(nombre):
                 
 
 @produccion.route('/revisar_solicitudes', methods=['GET', 'POST'])
+@token_required
+@allowed_roles(roles=["admin", "produccion"])
 def revisar_solicitudes():
+    active_token = request.cookies.get("token")
+    token = decodeToken(active_token)
+    email = token["email"]
     solicitudes = get_Solicitud_inventario()
     solicitues_filtro = []
     for solicitud in solicitudes:
@@ -322,7 +332,8 @@ def revisar_solicitudes():
 
     if request.method == 'POST':
         if 'aceptada' in request.form:
-            solicitud_id = request.form.get('solicitud_id')
+            usuario = Usuario.query.filter_by(email = email).first()
+            solicitud_id = safe(request.form.get('solicitud_id'))
             nombre_galleta = request.form.get('nombreGalleta')
             mp_requerida_prod = calcular_materia_prima_restante(nombre_galleta)
             total = 0
@@ -351,7 +362,7 @@ def revisar_solicitudes():
             db.session.commit()
             produccion = Produccion(
                 idSolicitud = solicitud_id,
-                idUsuario = 1
+                idUsuario = usuario.id
             )
             db.session.add(produccion)
             db.session.commit()
@@ -359,7 +370,7 @@ def revisar_solicitudes():
             return redirect('/revisar_solicitudes')
             #return redirect(url_for('produccion.revisar_solicitudes'))
         elif 'rechazada' in request.form:
-            justificacion_text = request.form['justificacion']  # Extraer el texto de justificación del formulario
+            justificacion_text = safe(request.form['justificacion'])  # Extraer el texto de justificación del formulario
             if justificacion_text == "":
                 flash("Por favor, agrega una justificación")
                 return redirect('/revisar_solicitudes')

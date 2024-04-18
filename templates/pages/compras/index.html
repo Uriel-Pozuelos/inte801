@@ -16,7 +16,6 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
         background-color: white !important;
     }
 </style>
-</style>
 
 <section class="w-full h-screen flex flex-col">
     <!-- Flash meesage -->
@@ -33,11 +32,12 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
     <!-- Button Add Purchase -->
     <div class="md:contaner px-4">
         <section class="mt-3">
-            <button class="btn btn-primary float-end mx-3 text-white" id="btnAddPurchase">
+            <button class="btn btn-primary float-end mx-3 text-white"
+                id="btnAddPurchase">
                 Agregar Compra
             </button>
             <button class="btn btn-info float-end text-white">
-                <a href="{{url_for('inventario_mp.index')}}" class="">
+                <a href="{{url_for('inventario_mp.index')}}" class>
                     Inventario
                 </a>
             </button>
@@ -48,8 +48,10 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
     <div class="md:contaner px-4">
         <section class="mt-5">
             <div class="relative overflow-x-auto">
-                <table class="w-full text-md text-left rtl:text-right text-black">
-                    <thead class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
+                <table
+                    class="w-full text-md text-left rtl:text-right text-black">
+                    <thead
+                        class="text-md uppercase bg-transparent text-center border-b-2 border-b-black">
                         <tr>
                             <th scope="col" class="px-6 py-3">Proveedor</th>
                             <th scope="col" class="px-6 py-3">Usuario</th>
@@ -88,35 +90,46 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
     <!-- Dialog Add Purchase -->
     <form action="{{url_for('compras.purchase')}}" novalidate method="POST">
         <div class="card">
-            <dialog id="addPurchase" class="dialog p-6 bg-base-100 shadow-lg rounded-md">
+            <dialog id="addPurchase"
+                class="dialog p-6 bg-base-100 shadow-lg rounded-md">
                 <div class="dialog-title">
                     <h3 class="text-lg font-semibold">Agregar Compra</h3>
                 </div>
                 <div class="dialog-content">
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <input type="text" hidden name="csrf_token" value="{{ csrf_token() }}" />
+                        <input type="text" hidden name="csrf_token"
+                            value="{{ csrf_token() }}" />
                         <div>
                             <div class="mt-3">
-                                <label for="provider" class="text-gray-700">Proveedor</label>
-                                <select class="select select-bordered select-primary min-w-full max-w-xs"
+                                <label for="provider"
+                                    class="text-gray-700">Proveedor</label>
+                                <select
+                                    class="select select-bordered select-primary min-w-full max-w-xs"
                                     name="slcProvider" id="slcProvider">
-                                    <option value selected disabled>Seleccione un
+                                    <option value selected disabled>Seleccione
+                                        un
                                         proveedor</option>
                                     {% for provider in proveedores_list %}
-                                    <option class="text-black" value="{{ provider.id }}">{{
+                                    <option class="text-black"
+                                        value="{{ provider.id }}">{{
                                         provider.nombre_empresa
                                         }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-4 mt-4" id="btnsRow">
+                            <div class="grid grid-cols-2 gap-4 mt-4"
+                                id="btnsRow">
                                 <div>
-                                    <button type="button" class="btn btn-secondary w-auto" id="btnAddRow">
+                                    <button type="button"
+                                        class="btn btn-secondary w-auto"
+                                        id="btnAddRow">
                                         Agregar otro insumo
                                     </button>
                                 </div>
                                 <div>
-                                    <button type="button" class="btn btn-neutral w-auto" id="btnRemoveRow">
+                                    <button type="button"
+                                        class="btn btn-neutral w-auto"
+                                        id="btnRemoveRow">
                                         Eliminar ultimo insumo
                                     </button>
                                 </div>
@@ -133,7 +146,9 @@ import Button %} {% from 'macros/_compras.html' import lblipt,compra_field %}
                         <button type="submit" class="btn btn-warning w-52">
                             Solicitar
                         </button>
-                        <button type="button" class="btn btn-error w-48 text-white" id="btnClosePurchase">
+                        <button type="button"
+                            class="btn btn-error w-48 text-white"
+                            id="btnClosePurchase">
                             Cerrar
                         </button>
                     </div>

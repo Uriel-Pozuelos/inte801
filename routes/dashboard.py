@@ -151,7 +151,7 @@ def get_precio_produccion_by_id(id):
         SELECT
             mp.material AS nombre_material,
             SUM(i.cantidad) AS cantidad_utilizada,
-            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 10000 AS precio_material,
+            ROUND((SUM(mpp.cantidad)  * AVG(mpp.precio)), 2)/ 1000000 AS precio_material,
             g.totalGalletas,
             g.nombre nombre,
             g.precio as precioTotal
@@ -211,7 +211,7 @@ SELECT
     usuario.nombre,
     usuario.apellido
 
- FROM venta join usuario on venta.idUsuario = usuario.id WHERE fecha_venta BETWEEN :inicio AND :fin;
+ FROM venta join usuario on venta.idUsuario = usuario.id WHERE fecha_venta BETWEEN :inicio AND :fin and total > 0 ORDER BY fecha_venta DESC;
     """)
 
     result = db.session.execute(query, {'inicio': inicio, 'fin': fin}).fetchall()
@@ -351,6 +351,8 @@ def index():
 
     ventas = get_ventas_between_dates()
 
+
+
     if request.method == 'POST':
         inicio = request.form['inicio']
         fin = request.form['fin']
@@ -365,7 +367,8 @@ def index():
     total_ventas = 0
     for venta in ventas:
         total_ventas += venta['total']
-   
+    
+    log.warning(f"Ventas: {ventas}")
     #hacer que ranking_cookies sea un string para que pueda ser renderizado en el template    
     return render_template('pages/dashboard/index.html',
                             galletas_en_inventario=galletas_en_inventario,
