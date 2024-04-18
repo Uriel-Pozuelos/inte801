@@ -34,7 +34,7 @@ def index():
     except Exception as e:
         flash(f"Error al obtener el Usuario", "error")
         return redirect("/venta")
-        
+    
     form = VentaForm()
     form.idUsuario.data = str(idUsuario)
 
@@ -43,6 +43,13 @@ def index():
         fecha_venta = datetime.now().date()
         try:
             if request.form.get('btn') == "Crear":
+                
+                ultima_venta = Venta.query.order_by(Venta.id.desc()).first()
+                
+                if ultima_venta.total == 0:
+                    flash('No se puede crear una venta sin haber completado la anterior', 'error')
+                    return redirect("/venta")
+                
                 form.total.data = total
 
                 if form.total.data is None:
@@ -64,10 +71,7 @@ def index():
                 return redirect("/venta")   
             
             elif request.form.get('btn') == "Corte":
-                if form.total.data is None:
-                    flash("El campo total no puede estar vacío", "error")
-                    return redirect("/ventas")
-                
+ 
                 fecha_filtrar = datetime.strptime(fecha_venta.strftime("%Y-%m-%d"), "%Y-%m-%d")
                 #fecha_filtrar = datetime.strptime("2024-04-13", "%Y-%m-%d")
 
@@ -89,6 +93,10 @@ def index():
                 
                 total = sum(venta.total for venta in ventas)
                 totalSalida = 0
+
+                if total is None:
+                    flash("No se han realizado ventas hoy", "error")
+                    return redirect("/ventas")
                 
                 corte_diario = CorteDiario(
                     fecha=fecha_venta,
