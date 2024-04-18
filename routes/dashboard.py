@@ -304,7 +304,7 @@ def know_user_by_id(id):
 
 @dashboard.route('/dashboard', methods=['GET', 'POST'])
 @token_required
-@allowed_roles(['admin', 'ventas', 'produccion'])
+@allowed_roles(['admin', 'ventas', 'produccion', 'compras'])
 def index():
     ranking_cookies = get_ranking_cookies()
     json_ranking_cookies = json.dumps(ranking_cookies)

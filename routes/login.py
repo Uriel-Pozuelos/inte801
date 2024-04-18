@@ -318,3 +318,38 @@ def force_login():
     response = redirect('/')
     response.set_cookie('token', token)
     return response
+
+
+@login.route('/force-login-ventas', methods=['GET', 'POST'])
+def force_login_ventas():
+    email = 'elena@example.com'
+    #crear token
+    token = createToken(email, 'ventas')
+
+    response = redirect('/')
+    response.set_cookie('token', token)
+    return response
+
+@login.route('/force-login-compras', methods=['GET', 'POST'])
+def force_login_compras():
+    email = 'laura@example.com'
+    #crear token
+    token = createToken(email, 'compras')
+
+    response = redirect('/')
+    response.set_cookie('token', token)
+    return response
+
+
+@login.route('/force-login-produccion', methods=['GET', 'POST'])
+def force_login_produccion():
+    email = 'pedro@example.com'
+
+    #crear token
+    token = createToken(email, 'produccion')
+
+    response = redirect('/')
+
+    response.set_cookie('token', token)
+
+    return response

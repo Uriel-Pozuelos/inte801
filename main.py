@@ -63,7 +63,8 @@ def before_request():
             'routes': [
                 {'ruta': 'produccion.index', 'name': 'Produccion', 'icon': None},
                 {'ruta': 'inventario_mp.index', 'name': 'Inventarios', 'icon': None},
-                {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None}
+                {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None},
+                {'ruta': 'recetas.index', 'name': 'Recetas', 'icon': None}
             ]
         },
         {
@@ -72,17 +73,18 @@ def before_request():
                 {'ruta': 'compras.index', 'name': 'Compras', 'icon': None},
                 {'ruta': 'proveedores.index', 'name': 'Proveedores', 'icon': None},
                 {'ruta': 'insumos.index', 'name': 'Insumos', 'icon': None},
-                {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None}
+                {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None},
+                {'ruta': 'recetas.index', 'name': 'Recetas', 'icon': None}
             ]
         },
         {
             'rol': 'ventas',
             'routes': [
-                {'ruta': 'recetas.index', 'name': 'Recetas', 'icon': None},
                 {'ruta': 'ventas.index', 'name': 'Ventas', 'icon': None},
                 {'ruta': 'dashboard.index', 'name': 'Dashboard', 'icon': None},
                 {'ruta': 'inventario_galletas.index', 'name': 'Inventario Galletas', 'icon': None},
-                {'ruta': 'solicitud.index', 'name': 'Solicitud Produccion', 'icon': None}
+                {'ruta': 'solicitud.index', 'name': 'Solicitud Produccion', 'icon': None},
+                {'ruta': 'recetas.index', 'name': 'Recetas', 'icon': None}
             ]
         }
     ]
@@ -118,7 +120,7 @@ def index():
     if rol == 'compras':
         return redirect('/compras')
     if rol == 'ventas':
-        return redirect('/recetas')
+        return redirect('/ventas')
 
 
 

@@ -177,7 +177,7 @@ def delete_ingredientes(id):
 
 @recetas.route('/recetas')
 @token_required
-@allowed_roles(['admin','produccion','compras'])
+@allowed_roles(['admin','produccion','compras','ventas'])
 def index():
     recetas = get_Galletas()
     log.info(recetas)
@@ -185,7 +185,7 @@ def index():
 
 @recetas.route('/recetas/<int:id>', methods=['GET', 'POST'])
 @token_required
-@allowed_roles(['admin','produccion','compras'])
+@allowed_roles(['admin','produccion','compras','ventas'])
 def show(id):
     form = Galleta2(request.form)
 
@@ -278,7 +278,7 @@ def save_image(id, file):
 
 @recetas.route('/recetas/new', methods=['GET', 'POST'])
 @token_required
-@allowed_roles(['admin','produccion','compras'])
+@allowed_roles(['admin','produccion','compras','ventas'])
 def create():
     form = GalletaForm(request.form)
     if request.method == 'POST':

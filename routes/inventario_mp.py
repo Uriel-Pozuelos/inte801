@@ -24,7 +24,7 @@ inventario_mp = Blueprint("inventario_mp", __name__, template_folder="templates"
 
 @inventario_mp.route("/inventario_mp", methods=["GET"])
 @token_required
-@allowed_roles(roles=["admin", "inventario"])
+@allowed_roles(roles=["admin", "produccion"])
 def index():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)
@@ -156,7 +156,7 @@ def index():
 
 @inventario_mp.route("/addmerma", methods=["POST"])
 @token_required
-@allowed_roles(roles=["admin", "inventario"])
+@allowed_roles(roles=["admin", "produccion"])
 def new_merma():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)

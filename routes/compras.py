@@ -30,7 +30,7 @@ compras = Blueprint("compras", __name__, template_folder="templates")
 
 @compras.route("/compras", methods=["GET", "POST"])
 @token_required
-@allowed_roles(roles=["admin", "inventario"])
+@allowed_roles(roles=["admin", "compras"])
 def index():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)
@@ -117,7 +117,7 @@ def index():
 
 @compras.route("/purchase", methods=["POST"])
 @token_required
-@allowed_roles(roles=["admin", "inventario"])
+@allowed_roles(roles=["admin", "compras"])
 def purchase():
     active_token = request.cookies.get("token")
     token = decodeToken(active_token)

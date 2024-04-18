@@ -30,7 +30,7 @@ insumos = Blueprint("insumos", __name__, template_folder="templates")
 
 @insumos.route("/insumos", methods=["GET"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def index():
     insumos = MateriaPrima.query.all()
     mpp = MateriaPrimaProveedor.query.all()
@@ -91,7 +91,7 @@ def index():
 
 @insumos.route("/addinsumo", methods=["POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def new_insumo():
     try:
         form = InsumoForm(request.form)
@@ -156,7 +156,7 @@ def new_insumo():
 
 @insumos.route("/editinsumo", methods=["POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def ed_insumo():
     try:
         material_id = request.form.get("id")
@@ -187,7 +187,7 @@ def ed_insumo():
 
 @insumos.route("/deleteinsumo", methods=["POST"])
 @token_required
-@allowed_roles(roles=["admin"])
+@allowed_roles(roles=["admin", "compras"])
 def del_insumo():
     try:
         materiaprima_id = request.form.get("id")
