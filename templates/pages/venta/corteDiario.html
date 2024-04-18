@@ -15,12 +15,23 @@
             <div class="col-12">
                 <form action="" method="POST">
                     <div class="form-group">
-                        <label for="fecha">Fecha</label>
-                        <input type="date" class="form-control" id="fecha" name="fecha" value="{{ fecha }}">
-
-                        <input type="submit" name="btn" id="filtrar" class="btn btn-primary">
+                        <label for="fecha">Corte Diario</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha">
+                        <input type="submit" name="btn" id="filtrar" value="Corte diario" class="btn btn-primary">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        
                     </div>
                 </form>
             </div>
         </div>
+        {% if ventas %}
+        <div class="row">
+            <div class="col-12">
+                <h3>Total de ventas para el día {{ fecha }}: ${{ total }}</h3>
+            </div>
+        </div>
+        <!-- Aquí va tu código para mostrar las ventas -->
+        {% endif %}
     </div>
+
+{% endblock %}
