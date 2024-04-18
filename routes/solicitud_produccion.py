@@ -7,6 +7,7 @@ from lib.d import D
 from db.db import db
 from forms.SolicitudProduccion import SolicitudForm
 from lib.security import safe
+from lib.jwt import token_required, allowed_roles, createToken, decodeToken
 
 solicitud = Blueprint('solicitud', __name__, template_folder='templates')
 log = D(debug=True)
@@ -51,6 +52,8 @@ def get_Solicitud_inventario():
     return solicitudes_modificadas
 
 @solicitud.route('/solicitud', methods=['GET', 'POST'] )
+@token_required
+@allowed_roles(roles=["admin", "ventas"])
 def index():
     if request.method == 'POST':
         if request.form['action'] == 'enviar':
