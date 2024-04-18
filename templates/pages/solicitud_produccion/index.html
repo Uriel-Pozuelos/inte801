@@ -53,15 +53,15 @@
             <div>
                 <h2 class="text-lg font-semibold mb-3">Enviar Solicitud</h2>
                 <label for="idLoteGalletas" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Galleta:</label>
-                <select name="idLoteGalletas" id="idLoteGalletas" class="input input-bordered w-full max-w-xs " required>
+                <select name="idLoteGalletas" id="idLoteGalletas" class="input input-bordered w-full max-w-xs" required>
                     <option value="">Seleccione una galleta</option>
                     {% for lote in lotes %}
-                        <option value="{{ lote.idLoteGalletas }}">{{ lote.nombreGalleta }}</option>
+                        <option value="{{ lote.idLoteGalletas }}" data-total="{{ lote.totalGalleta }}">{{ lote.nombreGalleta }}</option>
                     {% endfor %}
                 </select>
+                <div id="totalGalletaText" class="mt-2 text-gray-700">Cantidad de galletas por lote:</div>
                 <div class="mt-4">
-                    <label for="cantidad" class="block text-sm font-medium text-gray-700">Cantidad de lotes de 10 galletas</label>
-                    <input type="number" class="form-input block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="cantidad" placeholder="Cantidad" name="cantidad">
+                    <input type="number" class="form-input block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="cantidad" placeholder="Cantidad de lotes" name="cantidad">
                 </div>
                 <button type="submit" class="mt-4 btn btn-primary" id="enviarBtn" name="action" value="enviar">Enviar</button>
             </div>
@@ -115,6 +115,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 flashMessages.remove();
             }, 5000);
         }
+
+    var selectGalletas = document.getElementById('idLoteGalletas');
+    var totalGalletaText = document.getElementById('totalGalletaText');
+
+    selectGalletas.addEventListener('change', function() {
+        var selectedOption = selectGalletas.options[selectGalletas.selectedIndex];
+        var totalGalleta = selectedOption.dataset.total;
+        totalGalletaText.textContent = "Cantidad de galletas por lote: " + totalGalleta;
+    });
+    
   })
   function desactivarValidacion() {
     var form = document.getElementById('formPrincipal');
