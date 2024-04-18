@@ -40,95 +40,116 @@
         <div class="flash-messages">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %} {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
+                <div class="alert alert-{{ category }}">{{ message }}</div>
             {% endfor %} {% endif %} {% endwith %}
         </div>
 
-        <div >
-        <form id="createVenta" method="POST" class="text-black mx-auto my-auto card w-96 bg-white p-5 space-y-5">
-            {{ camposNuevos(form2.created_at, class="hidden", id="created_at") }}    
-            {{ camposNuevos(form2.galleta_id, class="hidden max-h-min") }}
+        <form id="createVenta" method="POST" class="text-black mx-auto my-auto  w-96 bg-blue-400 rounded-lg p-5 space-y-5 ">
+
+            {{ camposNuevos(form2.created_at, style="display:none", id="created_at") }}
+        
             <span class="text-center text-2xl">Realizar una venta</span>
-                <div>
-                    
-                    <div class="">
+            
+            <div class="flex flex-col">
+                
+                {{ camposNuevos(form2.galleta_id, style="display:none") }}        
+
+                <div class=" p-2">
+                    <!-- <div class="basis-3/4"> -->
                         <label for="selectG" class="label">Galleta</label>
-                        <select name="galleta_id" id="selectG" class="w-full p-2 rounded-md border border-gray-800">
+                        <select name="galleta_id" id="selectG" class="w-full p-2 rounded-md border bg-white border-gray-600">
                             {% for key, value in galletas.items() %}
                                 <option value="{{ key }}">{{ value }}</option>
                             {% endfor %}
                         </select>
+                    <!-- </div> -->
+                    
+                </div>
+                <div class="flex justify-center items-center ">
+                    <figure>
+                        <img width="80" id="imgGalleta">
+                    </figure>
+                </div>
+
+                <div class="basis-1/2 p-2">
+                    {{ camposNuevos(form2.tipoVenta)}}
+                </div>
+
+                <div class="flex flex-row p-2">
+                    <div class="basis-1/2 mr-2">
+                        {{ camposNuevos(form2.cantidad, style='padding: 0.5rem', class="border border-gray-600 w-full rounded-md") }}
                     </div>
-                    <div class="mt-2">
-                        {{ camposNuevos(form2.tipoVenta)}}
-                    </div>
-                    <div class="mt-2">
-                        {{ camposNuevos(form2.cantidad, style='padding: 0.5rem') }}
-                    </div>
-                    <div class="mt-2">
+                    <div class="basis-1/2 mr-2">
                         {{ camposNuevos(form2.precio_unitario, readonly="readonly", style="padding:0.5rem; color:gray;") }}
                     </div>
-                    <div class="flex justify-center space-x-3">
-                        <div class=''>
-                            <input type="submit" value="Añadir" id="añadir" name="btn" class="btn btn-primary mt-3 rounded-md">
-                        </div>
-                        <div class="">
-                            <input type="submit" value="Ver lista" id="lista" name="btn" class=" btn btn-secondary mt-3 rounded-md">
-                        </div>
-                    </div>
                 </div>
-                
-                <div class="flex justify-center space-x-3">
-                    <div class='w-full'>
-                        <input type="submit" value="Vender" id="vender" name="btn" class="w-full btn btn-primary rounded-md">
-                    </div>
-                    <div class="w-full">
-                        <input type="submit" value="Cancelar" name="btn" id="cancelar" class="w-full btn btn-secondary rounded-md">
-                    </div>
-                </div>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-                <dialog id="listaVentas" class="modal">
-                    <div class="modal-box">
-                        <span class="text-2xl">Lista de ventas</span>
-                        <table class="table-fixed">
-                            <thead>
-                                <tr>
-                                    <th>Galleta</th>
-                                    <th>Tipo Venta</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio unitario</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for venta in lista_ventas %}
-                                <tr>
-                                    <td>{{ venta.galleta_id }}</td>
-                                    <td>{{ venta.tipoVenta }}</td>
-                                    <td>{{ venta.cantidad }}</td>
-                                    <td>{{ venta.precio_unitario }}</td>
-                                    <!-- Boton eliminar para el elemento seleccionado -->
-                                    <td>
-                                        <input type="submit" value="Eliminar" class="btn btn-secondary" name="btn" id="eliminar">
-                                        <input type="hidden" name="eliminar" value="{{ venta.galleta_id }}">
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td>Total</td>
-                                    <td class="">{{total}}</td>
-                                </tr>
-                                
-                            
-                            </tbody>
-                        </table>
-                        <button type="button" id="closeDialog" class="btn btn-secondary">Cerrar</button>
+                <div class="flex justify-center space-x-3">
+                    <div class=''>
+                        <input type="submit" value="Añadir" id="añadir" name="btn" class="btn btn-accent mt-3 rounded-md">
                     </div>
-                </dialog>
-            </form>
-        </div>
+                    <div class="">
+                        <input type="submit" value="Ver lista" id="lista" name="btn" class=" btn btn-primary mt-3 rounded-md">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center space-x-3">
+                <div class='w-full'>
+                    <input type="submit" value="Vender" id="vender" name="btn" class="w-full btn btn-accent rounded-md">
+                </div>
+                <div class="w-full">
+                    <input type="submit" value="Limpiar" name="btn" id="cancelar" class="w-full btn btn-primary rounded-md">
+                </div>
+            </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <dialog id="listaVentas" class="modal">
+                <div class="modal-box">
+                    <span class="text-2xl">Lista de ventas</span>
+                    <table class="text-center table-zebra-zebra table-auto">
+                        <thead>
+                            <tr>
+                                <th hidden>galleta_id</th>
+                                <th>Galleta</th>
+                                <th>Tipo Venta</th>
+                                <th>Cantidad</th>
+                                <th>Cantidad galletas</th>
+                                <th>Precio unitario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venta in lista_ventas %}
+                            <tr>
+                                <td hidden>{{ venta.galleta_id }}</td>
+                                <td>{{venta.galleta}}</td>
+                                <td class="m-2">{{ venta.tipoVenta }}</td>
+                                <td>{{ venta.cantidad }}</td>
+                                <td>{{  venta.cantidad_galletas }}</td>
+                                <td>{{ venta.precio_unitario }}</td>
+                                
+                                <td>
+                                    <input type="submit" value="Eliminar" class="btn btn-error rounded-md btn-sm" name="btn" id="eliminar">
+                                    <input type="hidden" name="eliminar" value="{{ venta.galleta_id }}">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>Total</td>
+                                <td class="">{{total}}</td>
+                                <td></td>
+                            </tr>
+                            
+                        
+                        </tbody>
+                    </table>
+                    <button type="button" id="closeDialog" class="btn btn-secondary">Cerrar</button>
+                </div>
+            </dialog>
+        </form>
 
         {% for message in get_flashed_messages() %}
             <p>{{ message }}</p>
@@ -141,6 +162,8 @@
         let modal = document.getElementById('listaVentas');
         let btn = document.getElementById('lista');
         let close = document.getElementById('closeDialog');
+        let imgGalleta = document.getElementById("imgGalleta");
+
 
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -160,73 +183,78 @@
             document.getElementById("galleta_id").value = document.getElementById("selectG").value;
             document.getElementById("created_at").value = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-            let selectG = document.getElementById("selectG").value;
-            console.log(selectG)
+            let selectG = document.getElementById("selectG");
             let precioUnitario = document.getElementById("precio_unitario");
             let galletaId = selectG.value;
             let tipoVenta = document.querySelector("input[name='tipoVenta']:checked").value; 
             
+            let gramaje = JSON.parse('{{gramaje | tojson | safe}}');
+           
+            let precios = {};
 
-            let precios = {
-                1: {
-                    "1": 52.00, 
-                    "2": 35.00, 
-                    "3": 2.50,
-                },
-                2: {
-                    "1": 70.00,
-                    "2": 45, 
-                    "3": 4.00,
-                },
-                3: {
-                    "1": 55.00, 
-                    "2": 38.00, 
-                    "3": 3.00,
-                },
-                4: {
-                    "1": 52.00, 
-                    "2": 34.50, 
-                    "3": 3.50,
-                },
-                5: {
-                    "1": 70.00, 
-                    "2": 60.00, 
-                    "3": 3.50,
-                },
-                6: {
-                    "1": 55.00, 
-                    "2": 37.00, 
-                    "3": 3.00,
-                },
-                7: {
-                    "1": 58.00, 
-                    "2": 40.00, 
-                    "3": 3.00,
-                },
-                8: {
-                    "1": 55.00, 
-                    "2": 38.00, 
-                    "3": 3.50,
-                },
-                9: {
-                    "1": 80.00, 
-                    "2": 53.00, 
-                    "3": 4.50,
-                },
-                10: {
-                    "1": 74.00, 
-                    "2": 52.00, 
-                    "3": 3.80,
+            let imgUrl = "{{ url_for('static', filename='img/') }}" + galletaId + ".webp";
+            // Actualizar el atributo src de la imagen con la nueva URL
+            imgGalleta.src = imgUrl;
+
+            // Iterar sobre el objeto gramaje para obtener el gramaje de cada galleta
+            for (let galletaId in gramaje) {
+
+                precios[galletaId] = {};
+
+                // Obtener el gramaje de la galleta actual
+                let galletaGramaje = gramaje[galletaId];
+
+                // Calcular el precio basado en el tipo de venta
+                let tipoVenta = document.querySelector("input[name='tipoVenta']:checked").value;
+
+                // Calcular el precio basado en el gramaje y el tipo de venta
+                if (tipoVenta === '1') {
+                    precios[galletaId]['1'] = Math.floor(( 1000 / galletaGramaje)*(precioUnitario.value*.95)) // Dividir por 1000 para tipoVenta '1', y aplicar descuento del 5%
+                    
+                } else if (tipoVenta === '2') {
+                    precios[galletaId]['2'] = Math.floor(( 700 /galletaGramaje)*(precioUnitario.value*.97)); // Dividir por 700 para tipoVenta '2', y aplicar descuento del 3%
+                    
+                } else {
+                    // Usar el precio estático del objeto {{precios}} para tipoVenta '3'
+                    precios[galletaId]['3'] = JSON.parse('{{precios | tojson | safe}}')[galletaId];
                 }
-            }
-
-            let precio = precios[galletaId][tipoVenta];
-            precioUnitario.value = precio;
+            };
+            
+            precioUnitario.value = precios[galletaId]['3'] = JSON.parse('{{precios | tojson | safe}}')[galletaId];
 
             selectG.addEventListener("change", function() {
                 document.getElementById("galleta_id").value = document.getElementById("selectG").value;
-                galletaId = selectG.value;
-                tipoVenta = document.querySelector("input[name='tipoVenta']:checked").value;
+                radio = document.querySelector("input[name='tipoVenta']:checked").value;
+                    galletaId = selectG.value;
+                    let imgUrl = "{{ url_for('static', filename='img/') }}" + galletaId + ".webp";
+                    // Actualizar el atributo src de la imagen con la nueva URL
+                    imgGalleta.src = imgUrl;
+                    tipoVenta = radio;
+                    precio = precios[galletaId]['3'] = JSON.parse('{{precios | tojson | safe}}')[galletaId]
+                    precioUnitario.value = precio;
+
+                    for (let galletaId in gramaje) {
+                        precios[galletaId] = {};
+        
+                        // Obtener el gramaje de la galleta actual
+                        let galletaGramaje = gramaje[galletaId];
+        
+                        // Calcular el precio basado en el tipo de venta
+                        let tipoVenta = document.querySelector("input[name='tipoVenta']:checked").value;
+        
+                        // Calcular el precio basado en el gramaje y el tipo de venta
+                        if (tipoVenta === '1') {
+                            precios[galletaId]['1'] = Math.floor(( 1000 / galletaGramaje)*(precioUnitario.value*.95)) // Dividir por 1000 para tipoVenta '1', y aplicar descuento del 5%
+                            
+                        } else if (tipoVenta === '2') {
+                            precios[galletaId]['2'] = Math.floor(( 700 /galletaGramaje)*(precioUnitario.value*.97)); // Dividir por 700 para tipoVenta '2', y aplicar descuento del 3%
+                            
+                        } else {
+                            // Usar el precio estático del objeto {{precios}} para tipoVenta '3'
+                            precios[galletaId]['3'] = JSON.parse('{{precios | tojson | safe}}')[galletaId];
+                        }
+                    };
+                
                 precio = precios[galletaId][tipoVenta];
                 precioUnitario.value = precio;
             });
@@ -235,6 +263,30 @@
                 radio.addEventListener("change", function() {
                     galletaId = selectG.value;
                     tipoVenta = radio.value;
+                    precio = precios[galletaId]['3'] = JSON.parse('{{precios | tojson | safe}}')[galletaId]
+                    precioUnitario.value = precio;
+
+                    for (let galletaId in gramaje) {
+                        precios[galletaId] = {};
+        
+                        // Obtener el gramaje de la galleta actual
+                        let galletaGramaje = gramaje[galletaId];
+        
+                        // Calcular el precio basado en el tipo de venta
+                        let tipoVenta = document.querySelector("input[name='tipoVenta']:checked").value;
+        
+                        // Calcular el precio basado en el gramaje y el tipo de venta
+                        if (tipoVenta === '1') {
+                            precios[galletaId]['1'] = Math.floor(( 1000 / galletaGramaje)*(precioUnitario.value*.95)) // Dividir por 1000 para tipoVenta '1', y aplicar descuento del 5%
+                            
+                        } else if (tipoVenta === '2') {
+                            precios[galletaId]['2'] = Math.floor(( 700 /galletaGramaje)*(precioUnitario.value*.97)); // Dividir por 700 para tipoVenta '2', y aplicar descuento del 3%
+                            
+                        } else {
+                            // Usar el precio estático del objeto {{precios}} para tipoVenta '3'
+                            precios[galletaId]['3'] = JSON.parse('{{precios | tojson | safe}}')[galletaId];
+                        }
+                    };
                     precio = precios[galletaId][tipoVenta];
                     precioUnitario.value = precio;
                 });

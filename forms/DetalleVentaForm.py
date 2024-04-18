@@ -12,7 +12,8 @@ class DetalleVentaForm(Form):
     
     cantidad = IntegerField('Cantidad', validators=[
         DataRequired(message="La cantidad es obligatoria."),
-        Length(min=1, max=10000, message="La cantidad debe ser mayor a 0 y menor a 100" )], 
+        Length(min=1, max=10000, message="La cantidad debe ser mayor a 0 y menor a 10000" )],
+        default=1, 
         render_kw={"class": "border border-0 rounded-md w-full max-w-md text-gray-600 p-2"})
     
     precio_unitario = FloatField('Precio Unitario', validators=[
@@ -24,4 +25,5 @@ class DetalleVentaForm(Form):
 
     galleta = SelectField('Galletas', coerce=int)
     
-    tipoVenta = RadioField('Tipo venta', choices=[('1','Paquete 1kg'), ('2','Paquete 700g'), ('3','Unidad')], default='3')
+    tipoVenta = RadioField('Tipo venta', choices=[('1','Paquete 1kg'), ('2','Paquete 700g'), ('3','Unidad')], default='3', 
+                        )

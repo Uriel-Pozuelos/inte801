@@ -1,3 +1,4 @@
+-- Active: 1710919255921@@127.0.0.1@3306@cookies
 -- MySQL dump 10.13  Distrib 8.0.32, for Linux (x86_64)
 --
 -- Host: localhost    Database: cookies
