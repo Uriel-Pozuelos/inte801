@@ -332,7 +332,7 @@ def revisar_solicitudes():
 
     if request.method == 'POST':
         if 'aceptada' in request.form:
-            usuario = Usuario.query.filter_by(email = email)
+            usuario = Usuario.query.filter_by(email = email).first()
             solicitud_id = safe(request.form.get('solicitud_id'))
             nombre_galleta = request.form.get('nombreGalleta')
             mp_requerida_prod = calcular_materia_prima_restante(nombre_galleta)

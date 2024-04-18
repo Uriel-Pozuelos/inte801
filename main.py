@@ -207,4 +207,4 @@ if __name__ == "__main__":
         print("Creando usuarios...")
         seeder.seed_users()
         print("Se crearon correctamente los usuarios...")
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)
