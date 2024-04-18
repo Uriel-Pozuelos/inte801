@@ -9,7 +9,7 @@ from lib.d import D
 from db.db import db
 from forms.Produccion import ProduccionForm
 from datetime import datetime, timedelta
-from sqlalchemy import cast, Date
+from sqlalchemy import cast, Date, func
 from models.Galleta_materia import Galleta_materia
 from lib.security import safe
 from lib.jwt import token_required, allowed_roles, createToken, decodeToken
@@ -162,14 +162,17 @@ def index():
 
             # ------------------- Verificar inventario --------------------
 
-            total = 0
+            today = datetime.now().date()
             ingredientes = Ingredientes.query.filter_by(galleta_id = galleta.id).all()
             for ingrediente in ingredientes:
+                total = 0
                 cantidad_requerida = ingrediente.cantidad * int(cantidad_prod)
                 lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).all()
                 if lotes_materia:
                     for lote_materia in lotes_materia:
                         total += int(lote_materia.cantidad)
+                    print("total " + str(total))
+                    print("cantidad_requerida " + str(cantidad_requerida))
                     if total < cantidad_requerida:
                         more_mp = MateriaPrima.query.get(ingrediente.material_id)
                         flash(str("No hay suficientes insumos de " + more_mp.material))
@@ -181,10 +184,11 @@ def index():
                 
             # -------------------- Agregar galleta ------------------
 
-            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).first()
+            inventario_activo = Inventario_galletas.query.filter_by(idGalleta=galleta.id).filter(func.date(Inventario_galletas.created_at) == today).first()
             if inventario_activo:
                 total = inventario_activo.cantidad + int(cantidad_prod)
                 inventario_activo.cantidad = total
+                inventario_activo.estatus = 1
                 inventario_activo.updated_at = datetime.now()
                 db.session.commit()
             else:
@@ -209,7 +213,6 @@ def index():
                 cantidad_requerida = int(ingrediente.cantidad) * int(cantidad_prod)
                 lotes_materia = InventarioMP.query.filter_by(id_materia_prima = ingrediente.material_id, estatus = 1).order_by(InventarioMP.caducidad.asc()).all()
                 inventario_active = Inventario_galletas.query.filter_by(idGalleta=galleta.id, estatus = 1).first()
-                print(inventario_active.idLoteGalletas)
                 for lote in lotes_materia:
                     galleta_materia = Galleta_materia.query.filter_by(idLoteGalletas = inventario_active.idLoteGalletas, idLoteMateria = lote.id).first()
                     if int(lote.cantidad) < int(cantidad_requerida):
@@ -356,11 +359,11 @@ def revisar_solicitudes():
             solicitud_id = safe(request.form.get('solicitud_id'))
             nombre_galleta = request.form.get('nombreGalleta')
             mp_requerida_prod = calcular_materia_prima_restante(nombre_galleta)
-            total = 0
             galleta = Galletas.query.filter_by(nombre = nombre_galleta).first()
             ingredientes = Ingredientes.query.filter_by(galleta_id = galleta.id).all()
             solicitud_filter = solicitud_produccion.query.get(solicitud_id)
             for ingrediente in ingredientes:
+                total = 0
                 cantidad_requerida = ingrediente.cantidad * int(solicitud_filter.cantidad)
                 if mp_requerida_prod:
                     material_prod = mp_requerida_prod[ingrediente.material_id]
@@ -394,7 +397,7 @@ def revisar_solicitudes():
             if justificacion_text == "":
                 flash("Por favor, agrega una justificación")
                 return redirect('/revisar_solicitudes')
-            solicitud_id = request.form.get('reject_solicitud_id')
+            solicitud_id = safe(request.form.get('solicitud_id'))
             solicitud = solicitud_produccion.query.get(solicitud_id)
             if solicitud:  # Verificar que el registro exista
                 solicitud.justificacion = justificacion_text  # Actualizar la justificación

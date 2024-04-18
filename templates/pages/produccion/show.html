@@ -45,104 +45,102 @@
     </div>
 </div>
 <div class="flex justify-center">
-    <form action="" method="post" class="w-full max-w-7xl flex">
-        <!-- Contenedor de la tabla y la carta como flex items -->
-        <div class="flex-grow table-container overflow-y-auto max-h-96">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <div class="w-full max-w-7xl flex">
+        <!-- Contenedor de la tabla -->
+        <div class="table-container overflow-y-auto max-h-96 flex-grow">
             <table class="table w-full text-black">
-                    <!-- head -->
-                    <thead>
-                        <tr>
-                            <th class="text-black">Tipo de galleta</th>
-                            <th class="text-black">Cantidad</th>
-                            <th class="text-black">Estatus</th>
-                            <th class="text-black">Aceptar</th>
-                            <th class="text-black">Rechazar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sol in solicitud %}
-                        <tr>
-                            <td>{{ sol.nombreGalleta}}</td>
-                            <td>{{ sol.cantidad }}</td>
-                            <td>{{ sol.estatus }}</td>
-                            <td>
-                                <input type="hidden" name="nombreGalleta" value="{{ sol.nombreGalleta }}">
-                                <input type="hidden" data-id="{{ sol.idSolicitud }}" name="solicitud_id" value="{{ sol.idSolicitud }}">
-                                <button type="submit" name="aceptada" class="btn btn-primary" data-id="{{ sol.idSolicitud }}">Aceptar</button>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-accent reject-btn">Rechazar</button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <!-- Justificación de rechazo card, inicialmente oculta y alineada a la derecha -->
-            <div class="w-1/4 hidden justification-card">
+                <!-- head -->
+                <thead>
+                    <tr>
+                        <th class="text-black">Tipo de galleta</th>
+                        <th class="text-black">Cantidad</th>
+                        <th class="text-black">Estatus</th>
+                        <th class="text-black">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sol in solicitud %}
+                    <tr>
+                        <td>{{ sol.nombreGalleta}}</td>
+                        <td>{{ sol.cantidad }}</td>
+                        <td>{{ sol.estatus }}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary toggle-card" data-id="{{ sol.idSolicitud }}">Elegir</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- Justificación de rechazo card, inicialmente oculta -->
+        <div class="justification-card hidden w-1/4">
+            <form action="" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="card bg-white shadow-xl p-5">
                     <div class="card-body">
-                        <h2 class="card-title text-black">Justificación de rechazo</h2>
-                        <input type="hidden" id="rejection_solicitud_id" name="reject_solicitud_id" value="">
-                        <textarea class="textarea textarea-bordered w-full h-24 bg-white text-black" placeholder="Justificación" name="justificacion"></textarea>
-                        <div class="card-actions justify-end">
-                            <button type="submit" name="rechazada" class="btn btn-primary">Aceptar</button>
-                            <button type="button" class="btn btn-accent rejected-btn">Cancelar</button>
+                        <h2 class="card-title text-black">Aceptar solicitud</h2>
+                        <input type="hidden" id="accept_solicitud_id" name="solicitud_id" value="">
+                        <input type="text" readonly class="input border border-gray-300 rounded-md p-2 w-full mb-4" id="galleta_nombre" name="nombreGalleta" placeholder="Nombre de la galleta">
+                        <div class="card-actions justify-start flex flex-col items-start">
+                            <button type="submit" name="aceptada" class="btn btn-primary mb-4">Aceptar</button>
+                            <!-- Nuevo título y campo de justificación -->
+                            <h2 class="card-title text-black">Rechazar solicitud</h2>
+                            <textarea class="textarea border border-gray-300 rounded-md p-2 w-full mb-4" id="justificacion" name="justificacion" placeholder="Justificación"></textarea>
+                            <!-- Botones de rechazar y cancelar -->
+                            <div>
+                                <button type="submit" name="rechazada" class="btn btn-red">Rechazar</button>
+                                <button type="button" class="btn btn-accent rejected-btn ml-2">Cancelar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+        
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
-        const rejectButtons = document.querySelectorAll('.reject-btn');
-        const acceptButtons = document.querySelectorAll('button[name="aceptada"]');
-        const solicitudIdInput = document.querySelector('input[name="solicitud_id"]'); // Asegúrate de que este es el selector correcto para tu input
-        const cancelButton = document.querySelector('.justification-card .rejected-btn');
+        const toggleButtons = document.querySelectorAll('.toggle-card');
         const justificationCard = document.querySelector('.justification-card');
-        const tableContainer = document.querySelector('.table-container');
+        const acceptButtons = document.querySelectorAll('button[name="aceptada"]');
+        const galletaNombreInput = document.getElementById('galleta_nombre');
+        const acceptSolicitudIdInput = document.getElementById('accept_solicitud_id');
+        const cancelButton = document.querySelector('.justification-card .rejected-btn');
 
-        const flashMessages = document.querySelector('.flash-messages');
-        if (flashMessages) {
-            setTimeout(() => {
-                flashMessages.remove();
-            }, 5000);
-        }
-
-        rejectButtons.forEach(button => {
+        toggleButtons.forEach(button => {
             button.addEventListener('click', function() {
                 justificationCard.classList.remove('hidden');
-                tableContainer.classList.remove('lg:w-full', 'mx-auto');
-                tableContainer.classList.add('lg:w-3/4');
 
-                const solicitudId = this.closest('tr').querySelector('input[name="solicitud_id"]').value;
-                document.getElementById('rejection_solicitud_id').value = solicitudId;
+                // Obtener el ID de la solicitud de los atributos de datos
+                const solicitudId = this.getAttribute('data-id');
+
+                // Obtener datos de la fila seleccionada
+                const selectedRow = this.closest('tr');
+                const galletaNombre = selectedRow.querySelector('td:first-child').textContent;
+
+                // Asignar valores a los inputs ocultos
+                acceptSolicitudIdInput.value = solicitudId;
+                galletaNombreInput.value = galletaNombre;
             });
         });
 
         cancelButton.addEventListener('click', function() {
             justificationCard.classList.add('hidden');
-            tableContainer.classList.add('lg:w-full', 'mx-auto');
-            tableContainer.classList.remove('lg:w-3/4');
-
-            justificationCard.querySelector('textarea').value = '';
-            document.getElementById('rejection_solicitud_id').value = '';
+            // Limpiar los valores de los campos
+            galletaNombreInput.value = '';
+            acceptSolicitudIdInput.value = '';
         });
 
         acceptButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                const solicitudId = this.getAttribute('data-id');
-                solicitudIdInput.value = solicitudId;
+            button.addEventListener('click', function() {
                 // No es necesario llamar a form.submit() aquí ya que el clic del botón ya está intentando enviar el formulario
             });
         });
-
     });
 </script>
+
 
 
 {% endblock %}
