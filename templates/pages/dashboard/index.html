@@ -69,12 +69,12 @@ block content %}
 					<input
 						type="date"
 						name="inicio"
-						id="fecha"
+						id="inicio"
 						class="input input-bordered input-primary text-black" />
 					<input
 						type="date"
 						name="fin"
-						id="fecha"
+						id="fin"
 						class="input input-bordered input-primary text-black" />
 
 					<button type="submit" class="btn btn-accent">Buscar</button>
@@ -309,11 +309,11 @@ block content %}
 	function cambiarEmpleado(id) {
 		console.log(`id: ${id}`);
 		const empleado = empleado_produccion.find(
-			empleado => empleado.id === parseInt(id)
+			empleado => empleado?.id === parseInt(id)
 		);
 
 		document.getElementById('empreado').innerText =
-			empleado.nombre_empleado ?? 'El empleado no existe';
+			empleado?.nombre_empleado ?? 'El empleado no existe';
 	}
 	cambiarEmpleado(document.getElementById('idProd').value);
 
@@ -377,13 +377,13 @@ block content %}
 		const idProd = e.target.value;
 		console.log(idProd);
 		const empleado = empleado_produccion.find(
-			empleado => empleado.id === parseInt(idProd)
+			empleado => empleado?.id === parseInt(idProd)
 		);
 
 		mostrarProveedoresById(idProd);
 
 		document.getElementById('empreado').innerText =
-			empleado.nombre_empleado ?? 'El empleado no existe';
+			empleado?.nombre_empleado ?? 'El empleado no existe';
 	});
 
 	const ctx = document

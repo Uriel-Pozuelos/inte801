@@ -53,10 +53,12 @@ def get_ranking_cookies():
 
 def get_inventario_galletas():
     query = text("""
-                 SELECT g.nombre, ig.cantidad
-                FROM inventariogalletas ig
-                JOIN galletas g ON g.id = ig.idGalleta
-                 where g.enable =1;
+                 SELECT g.nombre, SUM(ig.cantidad) AS total_cantidad
+FROM inventariogalletas ig
+JOIN galletas g ON g.id = ig.idGalleta
+WHERE g.enable = 1
+GROUP BY g.nombre;
+
     """)
 
     results = db.session.execute(query)

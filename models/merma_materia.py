@@ -2,7 +2,7 @@ from db.db import db
 from sqlalchemy.orm import relationship
 
 class MermaMateria(db.Model):
-    __tablename__ = "mermas_material"
+    _tablename_ = "mermas_material"
     id = db.Column(db.Integer, primary_key=True)
     idInventarioMaterias = db.Column(db.Integer, db.ForeignKey('inventario_mp.id'), nullable=False)
     merma_tipo = db.Column(db.String(200), nullable=False)
@@ -25,4 +25,3 @@ class MermaMateria(db.Model):
             'justificacion': self.justificacion,
             'id_proveedor': self.id_proveedor
         }
-    

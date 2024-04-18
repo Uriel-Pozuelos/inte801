@@ -97,6 +97,11 @@ def before_request():
                 'ruta': 'insumos.index',
                 'name': 'Insumos',
                 'icon': None
+            },
+            {
+                'ruta': 'dashboard.index',
+                'name': 'Dashboard',
+                'icon': None
             }
             ]
         },{
@@ -111,7 +116,17 @@ def before_request():
                     'ruta': 'ventas.index',
                     'name': 'Ventas',
                     'icon': None
-                }
+                },
+                {
+                'ruta': 'dashboard.index',
+                'name': 'Dashboard',
+                'icon': None
+            },
+            {
+                'ruta': 'inventario_galletas.index',
+                'name': 'Inventario Galletas',
+                'icon': None
+            }
             ]
         
         }]

@@ -35,6 +35,8 @@ def index():
     compras = Compra.query.all()
     all_mermas = MermaMateria.query.all()
 
+    log.info(f"hay una cantidad de merma de: {len(all_mermas)}")
+
     all_inv_mp = []
     all_merm = []
     fecha_actual = datetime.now()
@@ -45,7 +47,13 @@ def index():
 
     for merma in all_mermas:
         prov = Proveedor.query.filter_by(id=merma.id_proveedor).first()
-        mat = MateriaPrima.query.filter_by(id=merma.idInventarioMaterias).first()
+        log.success(f"Proveedor: {prov}")
+        log.error(f"idInventarioMaterias: {merma.serialize()}")
+
+        mat = MateriaPrima.query.filter(
+            MateriaPrima.id == merma.idInventarioMaterias
+        ).first()
+        log.success(f"Material: {mat}")
 
         if merma is None or mat is None:
             continue
@@ -76,8 +84,8 @@ def index():
                     materiaprima_id=mat.id
                 ).first()
 
-                if prov_mpp is None:
-                    continue
+                # if prov_mpp is None:
+                #     continue
 
                 prov = Proveedor.query.filter_by(id=prov_mpp.proveedor_id).first()
                 merma_inv = MermaMateria.query.filter_by(
@@ -136,6 +144,8 @@ def index():
                     }
                 )
 
+    log.info(f"all_memas: {all_merm}")
+
     return render_template(
         "pages/inventario_mp/index.html",
         materia_primas=all_inv_mp,
@@ -171,7 +181,7 @@ def new_merma():
                 proveedor = compra.id_proveedor
 
                 merma = MermaMateria(
-                    idInventarioMaterias=imp.id,
+                    idInventarioMaterias=imp.id_materia_prima,
                     merma_tipo=safe(merma_tipo),
                     merma_fecha=safe(fecha_merma),
                     cantidad=safe(cantidad_merma),
@@ -180,12 +190,18 @@ def new_merma():
                     id_produccion=None,
                     id_proveedor=int(proveedor),
                 )
-
+                log.info(f"Merma: {merma}")
                 db.session.add(merma)
 
                 imp.cantidad = int(imp.cantidad) - int(cantidad_merma)
 
                 db.session.commit()
+
+                log.info(f"Merma: {merma}")
+                #imprimir todas las mermas
+                all_mermas = MermaMateria.query.all()
+                for merma in all_mermas:
+                    log.info(f"Merma: {merma.serialize()}")
 
                 flash("Se ha registrado la merma correctamente", "success")
             else:
