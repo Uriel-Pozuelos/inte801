@@ -98,7 +98,7 @@ block content %}
 							</tr>
 						</thead>
 						<tbody class="bg-transparent border-b text-center">
-							{% if venta %} {% for venta in ventas %}
+							{% if ventas %} {% for venta in ventas %}
 							<tr>
 								<td class="px-6 py-3">v-{{ venta.id }}</td>
 								<td class="px-6 py-3">${{ venta.total }}</td>
@@ -120,21 +120,21 @@ block content %}
 
 	<!-- Sección de gráficos -->
 	<section class="grid grid-cols-2 gap-4 w-full mt-4">
-		<div class="card w-full bg-warning text-primary">
+		<div class="card w-full bg-white border border-gray-200 shadow-sm">
 			<div class="card-body">
 				<h2 class="text-2xl font-bold text-white">Ranking de galletas</h2>
 				<canvas id="ranking_cookies" width="400"></canvas>
 			</div>
 		</div>
 
-		<div class="card w-full bg-warning text-primary">
+		<div class="card w-full bg-white border border-gray-200 shadow-sm">
 			<div class="card-body">
 				<h2 class="text-2xl font-bold text-white">Ranking de mermas</h2>
 				<canvas id="ranking_mermas" width="400"></canvas>
 			</div>
 		</div>
 
-		<div class="card w-full bg-warning text-primary">
+		<div class="card w-full bg-white border border-gray-200 shadow-sm">
 			<div class="card-body">
 				<h2 class="text-2xl font-bold text-white">Galletas en inventario</h2>
 				<canvas id="galletas_en_inventario" width="400"></canvas>

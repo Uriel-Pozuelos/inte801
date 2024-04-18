@@ -176,11 +176,16 @@ def detalle_venta():
                         
                         if form2.tipoVenta.data == "2": #Obtener la cantidad de galletas en base al gramaje
                             cantidad_galletas = ((cantidad_requerida * 700) / gramaje[galleta_id]) 
+    
                         else:
                             cantidad_galletas = ((cantidad_requerida * 1000) / gramaje[galleta_id])
                         
                         if cantidad_galletas % 1 != 0:  #redondear la cantidad de galletas a un entero
                             cantidad_galletas = int(cantidad_galletas)
+
+                        log.info(f"cantidad_galletas: {cantidad_galletas}")
+                        log.info(f"cantidad_requerida: {cantidad_requerida}")
+                        log.info(f"galletas en inventario: {inventario_galletas}")
 
                         if cantidad_galletas > inventario_galletas: #Validar si hay suficiente stock
                             flash("No hay suficiente stock disponible", "danger")
@@ -300,8 +305,15 @@ def detalle_venta():
                             db.session.add(detalle_venta)
 
                             #inventario_galletas = inventario_galletas - venta['cantidad_galletas']; 
-                            log.info(f"cantidad_galletas: {venta['cantidad_galletas']}")
-                            db.session.query(Inventario_galletas).filter_by(idGalleta=detalle_venta.galleta_id).update({'cantidad': inventario_galletas, 'updated_at': datetime.now()})
+                            new_cantidad = inventario_galletas - venta['cantidad_galletas']
+
+                            log.info(f"new_cantidad: {new_cantidad}")
+                            
+                            if new_cantidad < 0:
+                                flash("No hay suficiente stock disponible", "danger")
+                                return redirect("/venta")
+                            else:
+                                db.session.query(Inventario_galletas).filter_by(idGalleta=detalle_venta.galleta_id).update({'cantidad': new_cantidad, 'updated_at': datetime.now()})
 
                             # imprimir la cantidad de galletas en el inventario actual
                             log.info(f"Inventario de galletas actualizado: {inventario_galletas}")
